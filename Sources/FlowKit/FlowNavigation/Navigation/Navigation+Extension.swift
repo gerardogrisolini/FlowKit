@@ -1,0 +1,37 @@
+//
+//  Navigation+Extension.swift
+//  
+//
+//  Created by Gerardo Grisolini on 22/02/23.
+//
+
+public extension NavigationProtocol {
+	func register(route: some Routable, with: @escaping () -> (any Navigable)) {
+		items["\(route)"] = with
+	}
+	
+	func flow(route: some Routable) throws -> (any FlowProtocol) {
+		let routeString = "\(route)"
+		guard let flow = items[routeString]?() as? any FlowProtocol else {
+			throw FlowError.flowNotFound
+		}
+		
+		return flow
+	}
+	
+	func navigate(view: some Navigable) {
+		let routeString = String(describing: type(of: view))
+		if !items.keys.contains(routeString) {
+			items[routeString] = { view }
+		}
+		navigate(routeString: routeString)
+	}
+	
+	func present(view: some Presentable) {
+		let routeString = String(describing: type(of: view))
+		if !items.keys.contains(routeString) {
+			items[routeString] = { view }
+		}
+		present(routeString: routeString)
+	}
+}
