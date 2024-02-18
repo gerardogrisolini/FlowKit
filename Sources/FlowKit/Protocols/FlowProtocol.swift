@@ -123,23 +123,23 @@ public extension FlowViewProtocol {
 //        Node(Self.self, content)
 //    }
 
-    public func back() {
+    func back() {
         events.send(.back)
     }
 
-    public func out(_ event: Out) {
+    func out(_ event: Out) {
         events.send(.next(event))
     }
 
-    public func event(_ event: Event) {
+    func event(_ event: Event) {
         events.send(.event(event))
     }
 
-    public func commit(_ model: some InOutProtocol) {
+    func commit(_ model: some InOutProtocol) {
         events.send(.commit(model))
     }
 
-    public func present(_ view: some Presentable) {
+    func present(_ view: some Presentable) {
         events.send(.present(view))
     }
 }
@@ -163,7 +163,7 @@ public extension FlowEventProtocol {
         guard let associated = mirror.children.first else {
             return ("\(self)", nil)
         }
-        return (associated.label!, associated.value as! any InOutProtocol)
+        return (associated.label!, associated.value as? any InOutProtocol)
     }
 }
 

@@ -7,7 +7,8 @@
 
 public extension NavigationProtocol {
 	func register(route: some Routable, with: @escaping () -> (any Navigable)) {
-		items["\(route)"] = with
+        let routeString = "\(route)"
+		items[routeString] = with
 	}
 	
 	func flow(route: some Routable) throws -> (any FlowProtocol) {

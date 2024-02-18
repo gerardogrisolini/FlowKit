@@ -12,7 +12,7 @@ import Combine
 
 public protocol Navigable { }
 public protocol Nodable { }
-public protocol Routable: Nodable { }
+public protocol Routable: Nodable, RawRepresentable { }
 
 public protocol NavigationProtocol: AnyObject {
 #if canImport(UIKit)

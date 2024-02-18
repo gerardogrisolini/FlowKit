@@ -33,8 +33,8 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
  	}
 
     private func getCommand(_ event: some FlowEventProtocol) -> Command? {
-        guard let key = event as? AnyHashable,
-              commands.contains(where: { $0.key == key }) else { return nil }
+        let key = event as AnyHashable
+        guard commands.contains(where: { $0.key == key }) else { return nil }
         return commands[key]
     }
 
@@ -61,7 +61,7 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 }
 
                 guard let command = getCommand(next) else {
-                    if let route = join.node as? Routable {
+                    if let route = join.node as? any Routable {
                         let flow = try navigation.flow(route: route)
                         try await show(node: flow.node, model: data)
                     } else {

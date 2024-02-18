@@ -18,7 +18,7 @@ public extension App {
             let classesPtr = UnsafeMutablePointer<AnyClass>.allocate(capacity: numberOfClasses)
             let autoreleasingClasses = AutoreleasingUnsafeMutablePointer<AnyClass>(classesPtr)
             let count = objc_getClassList(autoreleasingClasses, Int32(numberOfClasses))
-            //assert(numberOfClasses == count)
+            assert(numberOfClasses == count)
             defer { classesPtr.deallocate() }
             let classes = (0 ..< numberOfClasses).map { classesPtr[$0] }
             return classes
@@ -30,7 +30,7 @@ public extension App {
         allClasses().filter { class_conformsToProtocol($0, conformTo) }
     }
 
-    public func register(navigation: NavigationProtocol) {
+    func register(navigation: NavigationProtocol) {
         Resolver.register { navigation as NavigationProtocol }.scope(.application)
 
         let classes = Self.classes(conformTo: FlowRouteProtocol.self)
@@ -40,7 +40,7 @@ public extension App {
         }
     }
 
-    public func register<Service>(_ type: Service.Type = Service.self,
+    func register<Service>(_ type: Service.Type = Service.self,
                                   scope: ResolverScope,
                                   factory: @escaping ResolverFactory<Service>) {
         Resolver.register { factory() }.scope(scope)
