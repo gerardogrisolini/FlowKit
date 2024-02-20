@@ -36,6 +36,7 @@ public extension App {
         let classes = Self.classes(conformTo: FlowRouteProtocol.self)
         for item in classes {
             guard let flow = item as? (any FlowProtocol.Type) else { continue }
+            print("\(flow.route)")
             navigation.register(route: flow.route) { flow.init() }
         }
     }

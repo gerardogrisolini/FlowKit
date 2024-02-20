@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Resolver
 
 public enum FlowError: Error {
     case generic, routeNotFound, flowNotFound, eventNotFound, invalidModel(String), partialMapping(String)
@@ -14,12 +15,15 @@ public enum FlowError: Error {
 @objc public protocol FlowRouteProtocol { }
 
 public protocol FlowProtocol: FlowRouteProtocol, Navigable {
+    associatedtype Route: Routable
     associatedtype CoordinatorNode: CoordinatorNodeProtocol
     associatedtype Model: InOutProtocol
-    associatedtype Route: Routable
+    associatedtype Behavior: FlowBehaviorProtocol
+
+    static var route: Route { get }
     var model: Model { get set }
     var node: CoordinatorNode { get }
-    static var route: Route { get }
+    var behavior: Behavior { get }
 
     init()
     func onStart(model: some InOutProtocol) async throws -> any InOutProtocol
@@ -28,16 +32,25 @@ public protocol FlowProtocol: FlowRouteProtocol, Navigable {
 }
 
 public extension FlowProtocol {
+    var behavior: FlowBehavior { FlowBehavior() }
+
     func onStart(model: some InOutProtocol) async throws -> any InOutProtocol {
         model
     }
 
     func start(model: some InOutProtocol) async throws -> Model {
         let m = try await onStart(model: model)
+
         guard let m = m as? CoordinatorNode.View.In else {
             let modelName = String(describing: m)
             throw FlowError.invalidModel(modelName)
         }
+
+        Resolver
+            .register { self.behavior }
+            .implements(FlowBehaviorProtocol.self)
+            .scope(.shared)
+
         return try await Coordinator(flow: self).start(model: m)
     }
 
@@ -86,7 +99,7 @@ public protocol FlowViewProtocol: Navigable {
     init(model: In)
 
     static func factory(model: some InOutProtocol) throws -> Self
-    func onEventChanged(_ event: Event)
+    func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?)
 }
 
 public extension FlowViewProtocol {
@@ -108,15 +121,15 @@ public extension FlowViewProtocol {
         return Self(model: m)
     }
 
-    internal func onEventChange(_ event: any FlowEventProtocol) {
+    internal func onEventChange(_ event: any FlowEventProtocol, _ model: (any InOutProtocol)?) {
         guard let e = event as? Event else { return }
-        onEventChanged(e)
+        onEventChanged(e, model)
     }
 
-    func onEventChanged(_ event: Event) { }
+    func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?) { }
 
     func test(event: Event) async throws {
-        onEventChanged(event)
+        onEventChanged(event, nil)
     }
 
 //    static func node(_ content: [Self.Out: any Nodable]) -> Node<Self> {

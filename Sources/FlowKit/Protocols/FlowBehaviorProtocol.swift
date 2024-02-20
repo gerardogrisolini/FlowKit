@@ -8,5 +8,8 @@
 import Foundation
 
 public protocol FlowBehaviorProtocol {
-    var behavior: FlowBehavior { get set }
+    var isEmpty: Bool { get }
+    var localizables: [any LocalizableJoinProtocol] { get }
+    var outs: [any OutJoinProtocol] { get }
+    var events: [any EventJoinProtocol] { get }
 }

@@ -5,22 +5,8 @@
 //  Created by Gerardo Grisolini on 26/04/23.
 //
 
-import Resolver
-
-public final class FlowBehavior {
-    public var commands = Dictionary<AnyHashable, Command>()
-    public var keys = Dictionary<AnyHashable, String>()
-
-    public init() { }
-
-    public func set(_ command: @escaping Command, for event: AnyHashable) {
-        commands[event] = command
-    }
-
-    public func set(_ key: some Localizable, for current: some Localizable) {
-        keys[current] = key.localized
-    }
-}
+public typealias Out = (any InOutProtocol) async throws -> Results
+public typealias Event = (any FlowEventProtocol) async throws -> any InOutProtocol
 
 public enum Results {
     case model(any InOutProtocol)
@@ -28,4 +14,25 @@ public enum Results {
 //    case route(any Routable, any InOutProtocol)
 }
 
-public typealias Command = (any InOutProtocol) async throws -> (Results)
+public struct FlowBehavior: FlowBehaviorProtocol {
+    public var localizables: [any LocalizableJoinProtocol] = []
+    public var outs: [any OutJoinProtocol] = []
+    public var events: [any EventJoinProtocol] = []
+    public var isEmpty: Bool { localizables.isEmpty && outs.isEmpty && events.isEmpty }
+
+    public init() { }
+
+    public init(@BehaviorsBuilder _ content: () -> [Behaviors]) {
+        let items = content()
+        for item in items {
+            switch item {
+            case .localizable(let localizables):
+                self.localizables = localizables
+            case .out(let outs):
+                self.outs = outs
+            case .event(let events):
+                self.events = events
+            }
+        }
+    }
+}

@@ -24,18 +24,18 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 	@LazyInjected private var navigation: NavigationProtocol
     public var flow: Flow
 
-    private var commands: [AnyHashable: Command] {
-        (flow as? FlowBehaviorProtocol)?.behavior.commands ?? [:]
-    }
-
 	public init(flow: Flow) {
         self.flow = flow
  	}
 
-    private func getCommand(_ event: some FlowEventProtocol) -> Command? {
-        let key = event as AnyHashable
-        guard commands.contains(where: { $0.key == key }) else { return nil }
-        return commands[key]
+    private func getOut(_ event: some FlowOutProtocol) -> Out? {
+        guard let out = flow.behavior.outs.first(where: { $0.from.id == event.id }) else { return nil }
+        return out.to
+    }
+
+    private func getEvent(_ event: some FlowEventProtocol) -> Event? {
+        guard let event = flow.behavior.events.first(where: { $0.from.id == event.id }) else { return nil }
+        return event.to
     }
 
     public func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model {
@@ -60,7 +60,7 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     throw FlowError.eventNotFound
                 }
 
-                guard let command = getCommand(next) else {
+                guard let out = getOut(next) else {
                     if let route = join.node as? any Routable {
                         let flow = try navigation.flow(route: route)
                         try await show(node: flow.node, model: data)
@@ -70,7 +70,7 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     continue
                 }
                 
-                switch try await command(data) {
+                switch try await out(data) {
                 case .model(let m):
                     try await show(node: join.node as! any CoordinatorNodeProtocol, model: m)
 
@@ -79,7 +79,12 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 }
                 
             case .event(let event):
-                view.onEventChange(event)
+                guard let flowEvent = getEvent(event) else {
+                    view.onEventChange(event, nil)
+                    continue
+                }
+                let model = try await flowEvent(event)
+                view.onEventChange(event, model)
 
             case .present(let view):
                 navigation.present(view: view)
@@ -99,7 +104,7 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 
 public enum CoordinatorEvent {
     case back
-    case next(any FlowEventProtocol)
+    case next(any FlowOutProtocol)
 	case present(any Presentable)
 	case commit(any InOutProtocol)
     case event(any FlowEventProtocol)

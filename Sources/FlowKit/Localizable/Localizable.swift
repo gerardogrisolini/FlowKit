@@ -15,13 +15,13 @@ public protocol Localizable: Hashable, RawRepresentable where RawValue: StringPr
 
 extension Localizable {
     public var injectedLocalized: String.LocalizationValue {
-        @OptionalInjected var flow: FlowBehaviorProtocol?
+        @Injected var behavior: FlowBehaviorProtocol
 
-        guard let injectedValue = flow?.behavior.keys[self] else {
+        guard let injectedValue = behavior.localizables.first(where: { $0.from as! Self == self }) else {
 			return String.LocalizationValue(rawValue.description)
 		}
 
-		return String.LocalizationValue(injectedValue)
+        return String.LocalizationValue(injectedValue.to.rawValue as! String)
 	}
 
 //    public var localized: String {
