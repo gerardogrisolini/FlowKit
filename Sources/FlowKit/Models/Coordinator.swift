@@ -43,8 +43,17 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
         return flow.model
     }
 
+    private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: (any InOutProtocol)) async throws {
+        if let route = join.node as? any Routable {
+            let flow = try navigation.flow(route: route)
+            try await show(node: flow.node, model: data)
+        } else if let node = join.node as? any CoordinatorNodeProtocol {
+            try await show(node: node, model: data)
+        }
+    }
+    
     //@MainActor
-	private func show(node: any CoordinatorNodeProtocol, model: some InOutProtocol) async throws {
+    private func show(node: any CoordinatorNodeProtocol, model: some InOutProtocol) async throws {
         let view = try node.view.factory(model: model)
 		navigation.navigate(view: view)
 
@@ -61,21 +70,17 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 }
 
                 guard let out = getOut(next) else {
-                    if let route = join.node as? any Routable {
-                        let flow = try navigation.flow(route: route)
-                        try await show(node: flow.node, model: data)
-                    } else {
-                        try await show(node: join.node as! any CoordinatorNodeProtocol, model: data)
-                    }
+                    try await parseJoin(join, data)
                     continue
                 }
-                
-                switch try await out(data) {
-                case .model(let m):
-                    try await show(node: join.node as! any CoordinatorNodeProtocol, model: m)
 
+                switch try? await out(data) {
+                case .model(let m):
+                    try await parseJoin(join, m)
                 case .node(let n, let m):
                     try await show(node: n, model: m)
+                case .none:
+                    continue
                 }
                 
             case .event(let event):
