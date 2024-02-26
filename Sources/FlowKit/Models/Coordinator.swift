@@ -52,7 +52,7 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
         }
     }
     
-    //@MainActor
+    @MainActor
     private func show(node: any CoordinatorNodeProtocol, model: some InOutProtocol) async throws {
         let view = try node.view.factory(model: model)
 		navigation.navigate(view: view)

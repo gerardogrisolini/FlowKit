@@ -1,17 +1,15 @@
 //
-//  Inject.swift
-//  
+//  FlowKitApp.swift
 //
-//  Created by Gerardo Grisolini on 27/08/23.
+//
+//  Created by Gerardo Grisolini on 22/02/24.
 //
 
 import SwiftUI
-import Resolver
 
-// MARK: - Routing flow registration
+public protocol FlowKitApp { }
 
-public extension App {
-
+public extension FlowKitApp {
     static private func allClasses() -> [AnyClass] {
         let numberOfClasses = Int(objc_getClassList(nil, 0))
         if numberOfClasses > 0 {
