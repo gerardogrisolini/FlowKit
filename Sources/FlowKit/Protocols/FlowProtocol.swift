@@ -99,7 +99,7 @@ public protocol FlowViewProtocol: Navigable {
     init(model: In)
 
     static func factory(model: some InOutProtocol) throws -> Self
-    func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?)
+    func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?) async
 }
 
 public extension FlowViewProtocol {
@@ -129,7 +129,7 @@ public extension FlowViewProtocol {
     func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?) { }
 
     func test(event: Event) async throws {
-        onEventChanged(event, nil)
+        await onEventChanged(event, nil)
     }
 
 //    static func node(_ content: [Self.Out: any Nodable]) -> Node<Self> {

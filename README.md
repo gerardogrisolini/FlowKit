@@ -145,7 +145,7 @@ struct Page1View: FlowViewProtocol, View {
 
     // If you have defined an enum for events,
     // you need to implement this method to handle them.
-    func onEventChanged(_ event: Event, _ data: (any InOutProtocol)?) {
+    func onEventChanged(_ event: Event, _ data: (any InOutProtocol)?) async {
         switch event {
         case .update(let date):
             model.time = date.description
@@ -226,7 +226,7 @@ extension ExampleFlow {
     // to manage settings or more.
     public func onStart(model: some InOutProtocol) async throws -> any InOutProtocol {
         let exampleService: ExampleServiceProtocol = NetworkService()
-        let user = try await exampleService.userInfo(id: 1)
+        let user = try await exampleService.userInfo()
         guard user.isAdmin else {
             throw FlowError.generic
         }

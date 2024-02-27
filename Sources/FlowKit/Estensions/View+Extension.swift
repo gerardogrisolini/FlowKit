@@ -15,7 +15,7 @@ extension View where Self: FlowViewProtocol {
                     for try await event in events {
                         print(event)
                         guard case .event(let e) = event, let e = e as? Event else { continue }
-                        onEventChanged(e, nil)
+                        await onEventChanged(e, nil)
                     }
                 } catch {
                     print(error)
