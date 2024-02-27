@@ -85,11 +85,11 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 
             case .event(let event):
                 guard let flowEvent = getEvent(event) else {
-                    view.onEventChange(event, nil)
+                    await view.onEventChange(event, nil)
                     continue
                 }
                 let model = try await flowEvent(event)
-                view.onEventChange(event, model)
+                await view.onEventChange(event, model)
 
             case .present(let view):
                 navigation.present(view: view)

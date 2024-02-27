@@ -121,12 +121,12 @@ public extension FlowViewProtocol {
         return Self(model: m)
     }
 
-    internal func onEventChange(_ event: any FlowEventProtocol, _ model: (any InOutProtocol)?) {
+    internal func onEventChange(_ event: any FlowEventProtocol, _ model: (any InOutProtocol)?) async {
         guard let e = event as? Event else { return }
-        onEventChanged(e, model)
+        await onEventChanged(e, model)
     }
 
-    func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?) { }
+    func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?) async { }
 
     func test(event: Event) async throws {
         await onEventChanged(event, nil)
