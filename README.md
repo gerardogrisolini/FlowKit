@@ -20,10 +20,10 @@ The goal of FlowKit is to provide an easy-to-use infrastructure for building mod
 
 ### Main advantages of FlowKit are:
 
-1. **Navigazione**: Un sistema che permette la navigare tra moduli che non si vendono tra loro, in modo trasparente e flessibile, utilizzando indifferentemente la navigazione di UIkit o SwiftUI 
-2. **Graph**: Ogni flow ha il prorio graph di navigazione ricollegato agli altri attraverso un enum, creando così una mappa completa delle possibili navigazioni facilmente leggibile.
-3. **Pattern basato su enum**: Utilizza un pattern basato su enum rende le logiche piú facilmente comprensibili e testabili.
-4. **Riutilizzo pagine e flow**: Rende le pagine riutilizzabili in diversi flussi, velocizzando lo sviluppo di un flow e limitando le duplicazioni di codice.
+1. **Navigation**: A system that allows you to navigate between modules that are not sold to each other, in a transparent and flexible way, using either UIkit or SwiftUI navigation.
+2. **Graph**: Each flow has its own navigation graph connected to the others through an enum, thus creating a complete map of the possible navigations that is easily readable.
+3. **Enum-based pattern**: Using an enum-based pattern makes the logic easier to understand and test.
+4. **Reuse pages and flows**: Makes pages reusable in different flows, speeding up the development of a flow and limiting code duplication.
 
 
 ## Using FlowKit
@@ -292,7 +292,7 @@ extension ExampleFlow {
 
 ## Demo Application
 
-I've made my [Builder](https://github.com/gerardogrisolini/FlowKit-Example) repositiory public. It's a simple flow application that contains examples of...
+I've made my [Builder](https://github.com/gerardogrisolini/FlowKit-Example) repository public. It's a simple flow application that contains examples of...
 
 
 ## Author
