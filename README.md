@@ -31,7 +31,7 @@ The goal of FlowKit is to provide an easy-to-use infrastructure for building mod
 ### Installation
 
 FlowKit primarily uses SwiftPM as its build tool, so we recommend using that as well. If you want to depend on FlowKit in your own project, it's as simple as adding a dependencies clause to your Package.swift:
-```
+```swift
 dependencies: [
     .package(url: "https://github.com/gerardogrisolini/FlowKit.git", branch: "main")
 ]
@@ -41,7 +41,7 @@ dependencies: [
 ### Register the navigation and services your app requires
 
 #### SwiftUI
-```
+```swift
 @main
 struct FlowApp: App, FlowKitApp {
     init() {
@@ -64,7 +64,7 @@ struct FlowApp: App, FlowKitApp {
 ```
 
 #### UIKit
-```
+```swift
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, FlowKitApp {
     var window: UIWindow?
@@ -89,7 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, FlowKitApp {
 ```
 
 ### Speaking of Annotations, to resolving services in your modules using the property wrapper.
-```
+```swift
 @Injected var navigation: NavigationProtocol
 @LazyInjected var flowNetwork: FlowNetworkProtocol
 @WeakLazyInjected var service: AnotherLazyService?
@@ -99,7 +99,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, FlowKitApp {
 ### Implementation of a page
 
 #### SwiftUI
-```
+```swift
 import SwiftUI
 import FlowKit
 
@@ -154,7 +154,7 @@ struct Page1View: FlowViewProtocol, View {
 ```
 
 #### UIKit
-```
+```swift
 import UIKit
 import FlowKit
 
@@ -184,7 +184,7 @@ final class Page1View: UIViewController, FlowViewProtocol {
 
 
 ### Implementation of a flow
-```
+```swift
 import FlowKit
 
 // Your flow must implement FlowProtocol.
@@ -216,7 +216,7 @@ public final class ExampleFlow: FlowProtocol {
 ```
 
 ### Implementation of onStart in a flow
-```
+```swift
 extension ExampleFlow {
 
     // The onStart function is optional and is called when the flow starts.
@@ -233,7 +233,7 @@ extension ExampleFlow {
 ```
 
 ### Implementation of behavior in a flow
-```
+```swift
 extension ExampleFlow {
 
     // The behavior variable is optional and customizes the behavior of your flow.
