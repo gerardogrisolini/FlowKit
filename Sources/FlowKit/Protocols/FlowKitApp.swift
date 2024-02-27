@@ -31,6 +31,7 @@ public extension FlowKitApp {
     func register(navigation: NavigationProtocol) {
         Resolver.register { navigation as NavigationProtocol }.scope(.application)
 
+        print("Registering flows...")
         let classes = Self.classes(conformTo: FlowRouteProtocol.self)
         for item in classes {
             guard let flow = item as? (any FlowProtocol.Type) else { continue }
