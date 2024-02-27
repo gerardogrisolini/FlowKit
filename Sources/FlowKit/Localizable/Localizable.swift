@@ -15,9 +15,9 @@ public protocol Localizable: Hashable, RawRepresentable where RawValue: StringPr
 
 extension Localizable {
     public var injectedLocalized: String.LocalizationValue {
-        @Injected var behavior: FlowBehaviorProtocol
+        @OptionalInjected var behavior: FlowBehaviorProtocol?
 
-        guard let injectedValue = behavior.localizables.first(where: { $0.from as? Self == self }) else {
+        guard let injectedValue = behavior?.localizables.first(where: { $0.from as? Self == self }) else {
 			return String.LocalizationValue(rawValue.description)
 		}
 
