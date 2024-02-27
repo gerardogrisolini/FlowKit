@@ -143,7 +143,8 @@ struct Page1View: FlowViewProtocol, View {
         .navigationBarTitle(ExampleKeys.page1, largeMode: true)
     }
 
-    // If you have defined an enum for events, you need to implement this method to handle them.
+    // If you have defined an enum for events,
+    // you need to implement this method to handle them.
     func onEventChanged(_ event: Event, _ data: (any InOutProtocol)?) {
         switch event {
         case .update(let date):
@@ -199,7 +200,8 @@ public final class ExampleFlow: FlowProtocol {
 
     // The node variable is mandatory and represents the root node of your flow.
     // You can use the builder to construct your flow declaratively.
-    // For each defined navigation event, you must reconnect the corresponding node or flow.
+    // For each defined navigation event, you must reconnect 
+    // the corresponding node or flow.
     // This way the builder will automatically build your flow.
     public let node = Page1View.node {
         $0.page2 ~ Page2View.node {
@@ -220,7 +222,8 @@ public final class ExampleFlow: FlowProtocol {
 extension ExampleFlow {
 
     // The onStart function is optional and is called when the flow starts.
-    // You can use it to carry out checks before the flow starts, to manage settings or more.
+    // You can use it to carry out checks before the flow starts,
+    // to manage settings or more.
     public func onStart(model: some InOutProtocol) async throws -> any InOutProtocol {
         let exampleService: ExampleServiceProtocol = NetworkService()
         let user = try await exampleService.userInfo(id: 1)
@@ -240,18 +243,21 @@ extension ExampleFlow {
     // You can use the builder to build your behavior declaratively.
     public var behavior: FlowBehavior {
         FlowBehavior {
-            // With Localizables you can replace localized keys with the ones you want to use in your flow.
+            // With Localizables you can replace localized keys 
+            // with the ones you want to use in your flow.
             Localizables {
                 ExampleKeys.page1 ~ ExampleKeys.page5
                 ExampleKeys.page2 ~ ExampleKeys.page4
                 ExampleKeys.page4 ~ ExampleKeys.page2
                 ExampleKeys.page5 ~ ExampleKeys.page1
             }
-            // With Outs you can set the functions to be performed between the navigation of one node and another.
+            // With Outs you can set the functions to be performed 
+            // between the navigation of one node and another.
             Outs {
                 Page2View.Out.page3 ~ runOut
             }
-            // With Events you can set the functions to be performed in the flow instead of on the page.
+            // With Events you can set the functions to be performed 
+            // in the flow instead of on the page.
             Events {
                 Page2View.Event.update(Date()) ~ runEvent
             }
