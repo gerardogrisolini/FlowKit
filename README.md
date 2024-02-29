@@ -299,11 +299,23 @@ final class ExampleTests: XCTestCase {
     }
 
     func testUpdateOnPage2View() async throws {
-        let sut = Page2View()
+        var sut = Page2View()
+        sut.exampleService = ExampleServiceMock()
         let time = sut.model.time
         try await Task.sleep(nanoseconds: 1000000000)
         try await sut.test(event: .update(Date()))
         XCTAssertNotEqual(time, sut.model.time)
+    }
+}
+
+class ExampleServiceMock: ExampleServiceProtocol {
+    var date = Date()
+    func getUserInfo() async throws -> UserInfoModel {
+        UserInfoModel(id: 1, isAdmin: true, date: date)
+    }
+
+    func updateUserInfo(date: Date) async throws {
+        self.date = date
     }
 }
 ```
@@ -316,7 +328,7 @@ I've made my [Builder](https://github.com/gerardogrisolini/FlowKit-Example) repo
 
 ## Author
 
-Resolver was designed, implemented, documented, and maintained by [Gerardo Grisolini](https://www.linkedin.com/in/gerardo-grisolini-b5900248/), a Senior Lead iOS engineer.
+Resolver was designed, implemented, documented, and maintained by [Gerardo Grisolini](https://www.linkedin.com/in/gerardo-grisolini-b5900248/), a Senior iOS engineer.
 * Email: [gerardo.grisolini@gmail.com](mailto:gerardo.grisolini@gmail.com)
 
 
