@@ -8,12 +8,14 @@
 public typealias Out = (any InOutProtocol) async throws -> Results
 public typealias Event = (any FlowEventProtocol) async throws -> any InOutProtocol
 
+/// Results is the enum that contains the Out function result
 public enum Results {
     case model(any InOutProtocol)
     case node(any CoordinatorNodeProtocol, any InOutProtocol)
 //    case route(any Routable, any InOutProtocol)
 }
 
+/// FlowBehavior is the struct that customize behavior of a flow
 public struct FlowBehavior: FlowBehaviorProtocol {
     public var localizables: [any LocalizableJoinProtocol] = []
     public var outs: [any OutJoinProtocol] = []

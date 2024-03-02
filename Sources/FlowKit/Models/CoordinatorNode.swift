@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Join is the struct that links the event with the node
 public struct Join<Out: FlowOutProtocol>: CoordinatorJoinProtocol {
     public let event: Out
     public let node: any Nodable
@@ -17,6 +18,7 @@ public struct Join<Out: FlowOutProtocol>: CoordinatorJoinProtocol {
     }
 }
 
+/// Node is the struct that links the pages of a flow
 public struct Node<View: FlowViewProtocol>: CoordinatorNodeProtocol {
     public let view: View.Type
     public var `in`: View.In.Type { View.In.self }
@@ -37,9 +39,9 @@ public struct Node<View: FlowViewProtocol>: CoordinatorNodeProtocol {
 //        self.joins = joins.map { Join($0.key, $0.value) }
 //    }
 
-    public static func ~>(_ node: Self, _ joins: [Self.View.Out: any Nodable] = [:]) -> Self {
-        var node = node
-        node.joins = joins.map { Join($0.key, $0.value) }
-        return node
-    }
+//    public static func ~>(_ node: Self, _ joins: [Self.View.Out: any Nodable] = [:]) -> Self {
+//        var node = node
+//        node.joins = joins.map { Join($0.key, $0.value) }
+//        return node
+//    }
 }

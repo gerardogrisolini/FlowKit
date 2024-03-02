@@ -59,14 +59,21 @@ public class NavigationSwiftUI: NavigationProtocol {
 		}
 	}
 		
-	public func popToRoot() {
-		while routes.count > 0 {
-			let route = routes.removeLast()
+    public func popToView(routeString: String) {
+        while let route = routes.popLast() {
+            guard routeString != route else { break }
 			removeRoute(route)
+            action.send(.pop(route))
 		}
-		action.send(.popToRoot)
 	}
-	
+
+    public func popToRoot() {
+        while let route = routes.popLast() {
+            removeRoute(route)
+        }
+        action.send(.popToRoot)
+    }
+
 	public func dismiss() {
 		action.send(.dismiss)
         onDismiss?()

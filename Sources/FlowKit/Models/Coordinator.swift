@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// EventStore is the pages events store
 struct EventStore {
     private var events = Dictionary<String, AsyncThrowingSubject<CoordinatorEvent>>()
     subscript(key: String) -> AsyncThrowingSubject<CoordinatorEvent>? {
@@ -18,13 +19,15 @@ struct EventStore {
     }
 }
 
+// Global events store
 var eventStore = EventStore()
 
-public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
-	@LazyInjected private var navigation: NavigationProtocol
-    public var flow: Flow
+/// Coordinator is the object that manages the flow
+final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
+	@Injected private var navigation: NavigationProtocol
+    var flow: Flow
 
-	public init(flow: Flow) {
+	init(flow: Flow) {
         self.flow = flow
  	}
 
@@ -38,7 +41,7 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
         return event.to
     }
 
-    public func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model {
+    func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model {
         try await show(node: flow.node, model: model)
         return flow.model
     }
@@ -94,11 +97,15 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
             case .present(let view):
                 navigation.present(view: view)
                 
-            case .commit(let m):
+            case .commit(let m, let toRoot):
                 guard let model = m as? Flow.Model else {
                     throw FlowError.invalidModel(String(describing: Flow.Model.self))
                 }
                 flow.model = model
+                guard toRoot else {
+                    navigation.popToView(routeString: "\(flow.node.view)")
+                    return
+                }
                 navigation.popToRoot()
             }
 		}
@@ -107,20 +114,24 @@ public final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     }
 }
 
+/// CoordinatorEvent is the enum of events that the coordinator can handle
 public enum CoordinatorEvent {
     case back
     case next(any FlowOutProtocol)
 	case present(any Presentable)
-	case commit(any InOutProtocol)
+    case commit(any InOutProtocol, toRoot: Bool)
     case event(any FlowEventProtocol)
 }
 
-public final class InOutEmpty: InOutProtocol { 
+/// InOutEmpty is the empty inout model
+public final class InOutEmpty: InOutProtocol {
     public init() { }
 }
 
+/// OutEmpty is the empty out event
 public enum OutEmpty: FlowOutProtocol {
     public static var allCases: [EventEmpty] { [] }
 }
 
+/// EventEmpty is the empty event
 public enum EventEmpty: FlowEventProtocol { }

@@ -73,7 +73,18 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
 	}
 	
-	public func popToRoot() {
+    public func popToView(routeString: String) {
+        while let route = routes.popLast() {
+            guard routeString != route else { break }
+            removeRoute(route)
+        }
+        guard let vc = items[routeString]?() as? UIViewController else { return }
+        DispatchQueue.main.async {
+            self.navigationController?.popToViewController(vc, animated: true)
+        }
+    }
+
+    public func popToRoot() {
         for route in routes {
             removeRoute(route)
         }

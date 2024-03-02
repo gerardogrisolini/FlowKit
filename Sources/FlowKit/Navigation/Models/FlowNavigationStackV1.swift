@@ -42,7 +42,7 @@ public class FlowNavigationStackV1: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
+
     @MainActor
     private func onChange(action: NavigationAction) {
         switch action {
@@ -55,7 +55,7 @@ public class FlowNavigationStackV1: ObservableObject {
             if self.route == route {
                 self.route = nil
             }
-            
+
         case .popToRoot:
             route = nil
 

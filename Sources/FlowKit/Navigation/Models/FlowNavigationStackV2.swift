@@ -55,8 +55,8 @@ public class FlowNavigationStackV2: ObservableObject {
 
 		routes.removeLast()
 	}
-	
-	private func popToRoot() {
+
+    private func popToRoot() {
 		routes = []
 	}
 	

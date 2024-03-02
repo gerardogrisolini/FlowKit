@@ -28,6 +28,7 @@ public extension FlowKitApp {
         allClasses().filter { class_conformsToProtocol($0, conformTo) }
     }
 
+    /// Register the navigation and the flows
     func register(navigation: NavigationProtocol) {
         Resolver.register { navigation as NavigationProtocol }.scope(.application)
 
@@ -40,6 +41,7 @@ public extension FlowKitApp {
         }
     }
 
+    /// Register the services
     func register<Service>(_ type: Service.Type = Service.self,
                                   scope: ResolverScope,
                                   factory: @escaping ResolverFactory<Service>) {
