@@ -323,7 +323,12 @@ class ExampleServiceMock: ExampleServiceProtocol {
 
 ## Demo Application
 
-I've made my [Builder](https://github.com/gerardogrisolini/FlowKit-Example) repository public. It's a simple flow application that contains examples of...
+I've made my [Example](https://github.com/gerardogrisolini/FlowKit-Example) repository public. It's a simple flow application that contains examples of...
+
+
+## Additional Resouces
+
+* [API Documentation](https://gerardogrisolini.github.io/FlowKit/documentation/flowkit)
 
 
 ## Author
