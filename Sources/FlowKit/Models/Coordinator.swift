@@ -104,7 +104,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 flow.model = model
                 guard toRoot else {
                     navigation.popToView(routeString: "\(flow.node.view)")
-                    return
+                    continue
                 }
                 navigation.popToRoot()
             }

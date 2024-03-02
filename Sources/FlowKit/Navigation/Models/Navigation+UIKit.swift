@@ -74,11 +74,19 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 	}
 	
     public func popToView(routeString: String) {
-        while let route = routes.popLast() {
-            guard routeString != route else { break }
+        var count = routes.count - 1
+        while count >= 0 {
+            let route = routes[count]
             removeRoute(route)
+            count -= 1
+            guard routeString != route else { break }
         }
-        guard let vc = items[routeString]?() as? UIViewController else { return }
+
+        guard let vc = items[routes.last ?? ""]?() as? UIViewController else {
+            popToRoot()
+            return
+        }
+
         DispatchQueue.main.async {
             self.navigationController?.popToViewController(vc, animated: true)
         }

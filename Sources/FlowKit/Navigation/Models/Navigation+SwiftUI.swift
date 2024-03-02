@@ -61,9 +61,9 @@ public class NavigationSwiftUI: NavigationProtocol {
 		
     public func popToView(routeString: String) {
         while let route = routes.popLast() {
-            guard routeString != route else { break }
 			removeRoute(route)
             action.send(.pop(route))
+            guard routeString != route else { break }
 		}
 	}
 
