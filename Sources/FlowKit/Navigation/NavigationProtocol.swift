@@ -68,8 +68,8 @@ public protocol NavigationProtocol: AnyObject {
     /// Function to pop the current route
 	func pop()
 
-    /// Function to pop to a route
-    func popToView(routeString: String)
+    /// Function to pop to a start flow
+    func popToFlow()
 
     /// Function to pop to the root of the navigation
     func popToRoot()

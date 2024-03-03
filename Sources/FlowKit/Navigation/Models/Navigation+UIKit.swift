@@ -73,16 +73,32 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
 	}
 	
-    public func popToView(routeString: String) {
+    public func popToFlow() {
         var count = routes.count - 1
         while count >= 0 {
             let route = routes[count]
+            if items[route]?() is any FlowProtocol {
+                routes.removeLast()
+                break
+            }
             removeRoute(route)
             count -= 1
-            guard routeString != route else { break }
         }
 
-        guard let vc = items[routes.last ?? ""]?() as? UIViewController else {
+        guard let route = routes.last else {
+            popToRoot()
+            return
+        }
+
+        guard let view = items[route]?() as? any View else {
+            guard let vc = items[route]?() as? UIViewController else { return }
+            DispatchQueue.main.async {
+                self.navigationController?.popToViewController(vc, animated: true)
+            }
+            return
+        }
+
+        guard let vc = navigationController?.viewControllers[routes.count - 1] else {
             popToRoot()
             return
         }
@@ -114,20 +130,18 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 //	}
 	
     private func presentView(_ controller: UIViewController) {
-        DispatchQueue.main.async {
-            let nav = UINavigationController()
-            nav.setViewControllers([controller], animated: true)
-            nav.modalPresentationStyle = .pageSheet
+        let nav = UINavigationController()
+        nav.setViewControllers([controller], animated: true)
+        nav.modalPresentationStyle = .pageSheet
 
-            if #available(iOS 15.0, *) {
-                if let sheet = nav.sheetPresentationController {
-                    sheet.detents = [.medium(), .large()]
-                    sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-                    sheet.preferredCornerRadius = 48
-                }
+        if #available(iOS 15.0, *) {
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+                sheet.preferredCornerRadius = 48
             }
-            self.navigationController!.present(nav, animated: true, completion: nil)
         }
+        navigationController!.present(nav, animated: true, completion: nil)
     }
     
     public func present(route: String) throws {
@@ -137,12 +151,16 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
             guard let controller = items[route]?() as? UIViewController else {
                 throw FlowError.routeNotFound
             }
-            presentView(controller)
+            DispatchQueue.main.async {
+                self.presentView(controller)
+            }
             return
 		}
 
-        let controller: UIViewController = UIHostingController(rootView: AnyView(view))
-        presentView(controller)
+        DispatchQueue.main.async {
+            let controller: UIViewController = UIHostingController(rootView: AnyView(view))
+            self.presentView(controller)
+        }
 	}
 	
 	public func dismiss() {
@@ -155,12 +173,13 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 	}
     
     private func removeRoute(_ route: String) {
-        guard let view = items[route]?() as? any FlowViewProtocol else {
-            return
+        if let view = items[route]?() as? any FlowViewProtocol {
+            view.events.finish()
+            items.removeValue(forKey: route)
         }
-        view.events.finish()
-        items.removeValue(forKey: route)
-        routes.removeLast()
+        if let index = routes.firstIndex(of: route) {
+            routes.remove(at: index)
+        }
     }
     
     //MARK: - UINavigationControllerDelegate
@@ -173,6 +192,12 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         
         guard let route = routes.last else { return }
         removeRoute(route)
+
+        guard let route = routes.last else { return }
+
+        if let view = items[route]?() as? any FlowProtocol {
+            routes.removeLast()
+        }
     }
 }
 #endif

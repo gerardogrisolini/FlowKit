@@ -30,7 +30,7 @@ public struct EnumAllCasesMacro: MemberMacro {
                 return []
             }
 
-            let caseIds: [String] = enumCases.map(\.description)
+            let caseIds: [String] = enumCases.map(\.description).map { $0.replacingOccurrences(of: ",", with: "") }
             let modifier = declaration.hasPublicModifier ? "public " : ""
             let allCases = "\(modifier)static var allCases: [Out] { [\(caseIds.map { ".\($0.hasSuffix(")") ? $0.replacingOccurrences(of: ")", with: "())") : $0 )" }.joined(separator: ","))] }"
 

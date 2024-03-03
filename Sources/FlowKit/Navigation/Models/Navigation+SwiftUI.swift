@@ -45,11 +45,10 @@ public class NavigationSwiftUI: NavigationProtocol {
 	}
 
 	private func removeRoute(_ route: String) {
-        guard let view = items[route]?() as? any FlowViewProtocol else {
-            return
+        if let view = items[route]?() as? any FlowViewProtocol {
+            view.events.finish()
+            items.removeValue(forKey: route)
         }
-        view.events.finish()
-        items.removeValue(forKey: route)
 	}
 	
 	public func pop() {
@@ -58,12 +57,16 @@ public class NavigationSwiftUI: NavigationProtocol {
 			action.send(.pop(route))
 		}
 	}
-		
-    public func popToView(routeString: String) {
+
+    public func popToFlow() {
         while let route = routes.popLast() {
 			removeRoute(route)
+
+            if items[route]?() is any FlowProtocol {
+                break
+            }
+
             action.send(.pop(route))
-            guard routeString != route else { break }
 		}
 	}
 

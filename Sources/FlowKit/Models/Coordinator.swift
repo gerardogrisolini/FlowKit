@@ -42,14 +42,14 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     }
 
     func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model {
+        navigation.routes.append("\(Flow.route)")
         try await show(node: flow.node, model: model)
         return flow.model
     }
 
     private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: (any InOutProtocol)) async throws {
         if let route = join.node as? any Routable {
-            let flow = try navigation.flow(route: route)
-            try await show(node: flow.node, model: data)
+            try await navigation.flow(route: route).start(model: data)
         } else if let node = join.node as? any CoordinatorNodeProtocol {
             try await show(node: node, model: data)
         }
@@ -103,7 +103,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 }
                 flow.model = model
                 guard toRoot else {
-                    navigation.popToView(routeString: "\(flow.node.view)")
+                    navigation.popToFlow()
                     continue
                 }
                 navigation.popToRoot()
