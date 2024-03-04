@@ -38,7 +38,7 @@ public struct SwiftUINavigationV1Modifier: ViewModifier {
                 )
         }
 //        .navigationBarHidden(true)
-		.sheet(isPresented: $stack.presentedView.mappedToBool(), onDismiss: stack.navigation.onDismiss) {
+		.sheet(isPresented: $stack.presentedView.mappedToBool()) {
             AnyView(stack.presentedView!)
         }
     }

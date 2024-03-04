@@ -34,11 +34,8 @@ public protocol NavigationProtocol: AnyObject {
 	var routes: [String] { get set }
 
     /// The items for the routes of the navigation
-    var items: [String: () -> (any Navigable)] { get set }
+    var items: NavigationItems { get set }
 
-    /// The dismiss action for the navigation
-    var onDismiss: (() -> ())? { get set }
-	
 	init()
 
     /// Function to register a route with a view
@@ -76,4 +73,12 @@ public protocol NavigationProtocol: AnyObject {
 
     /// Function to dismiss the presented view
 	func dismiss()
+}
+
+public extension Navigable {
+
+    /// The route string for the navigable
+    var routeString: String {
+        String(describing: type(of: self))
+    }
 }

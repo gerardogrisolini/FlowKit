@@ -29,7 +29,7 @@ public struct SwiftUINavigationV2Modifier: ViewModifier {
                         }
 				}
 		}
-		.sheet(isPresented: $stack.presentedView.mappedToBool(), onDismiss: stack.navigation.onDismiss) {
+		.sheet(isPresented: $stack.presentedView.mappedToBool()) {
 			AnyView(stack.presentedView!)
 				.presentationDetents([.medium, .large])
 

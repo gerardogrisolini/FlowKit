@@ -14,8 +14,7 @@ public class NavigationSwiftUI: NavigationProtocol {
 #endif
     public var action = PassthroughSubject<NavigationAction, Never>()
 	public var routes: [String] = []
-	public var items: [String : () -> (any Navigable)] = [:]
-    public var onDismiss: (() -> ())? = nil
+    public var items = NavigationItems()
 
 	required public init() { }
 
@@ -25,12 +24,13 @@ public class NavigationSwiftUI: NavigationProtocol {
     }
     
     public func present(routeString: String) {
+        routes.append(routeString)
         action.send(.present(routeString))
     }
     
 	public func navigate(route: some Routable) throws {
 		let routeString = "\(route)"
-		guard items.keys.contains(routeString) else {
+        guard items.contains(routeString) else {
 			throw FlowError.routeNotFound
 		}
 		navigate(routeString: routeString)
@@ -38,19 +38,25 @@ public class NavigationSwiftUI: NavigationProtocol {
 
 	public func present(route: some Routable) throws {
 		let routeString = "\(route)"
-		guard items.keys.contains(routeString) else {
+		guard items.contains(routeString) else {
 			throw FlowError.routeNotFound
 		}
 		present(routeString: routeString)
 	}
 
 	private func removeRoute(_ route: String) {
-        if let view = items[route]?() as? any FlowViewProtocol {
+        let view = items[route]?()
+
+        if let view = view as? any FlowViewProtocol {
             view.events.finish()
-            items.removeValue(forKey: route)
         }
-	}
-	
+
+        guard view is any FlowProtocol else {
+            items.remove(route)
+            return
+        }
+    }
+
 	public func pop() {
 		if let route = routes.popLast() {
 			removeRoute(route)
@@ -79,6 +85,9 @@ public class NavigationSwiftUI: NavigationProtocol {
 
 	public func dismiss() {
 		action.send(.dismiss)
-        onDismiss?()
+
+        if let route = routes.popLast() {
+            removeRoute(route)
+        }
 	}
 }

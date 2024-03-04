@@ -22,7 +22,7 @@ public extension NavigationProtocol {
 	
 	func navigate(view: some Navigable) {
 		let routeString = String(describing: type(of: view))
-		if !items.keys.contains(routeString) {
+		if !items.contains(routeString) {
 			items[routeString] = { view }
 		}
 		navigate(routeString: routeString)
@@ -30,7 +30,7 @@ public extension NavigationProtocol {
 	
 	func present(view: some Presentable) {
 		let routeString = String(describing: type(of: view))
-		if !items.keys.contains(routeString) {
+		if !items.contains(routeString) {
 			items[routeString] = { view }
 		}
 		present(routeString: routeString)

@@ -63,26 +63,12 @@ public func ~<Out: FlowOutProtocol, Node: Nodable>(out: Out, node: Node) -> any 
     Join(out, node)
 }
 
-//let flow = EmptyFlowView.node {
+//let node = EmptyFlowView.node {
 //    $0.empty ~ EmptyFlowView.node
 //    for i in 0...5 {
 //        $0.empty ~ EmptyFlowView.node
 //    }
 //    $0.empty ~ EmptyFlowView.node {
 //        $0.empty ~ EmptyFlowView.node
-//    }
-//}
-//
-//public struct EmptyFlowView: FlowViewProtocol, View {
-//    public enum Out: FlowOutProtocol {
-//        case empty
-//    }
-//    public let model: InOutEmpty
-//    public init(model: InOutEmpty = InOutEmpty()) {
-//        self.model = model
-//    }
-//
-//    public var body: some View {
-//        EmptyView()
 //    }
 //}

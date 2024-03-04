@@ -28,8 +28,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     }
 	public var action = PassthroughSubject<NavigationAction, Never>()
     public var routes: [String] = []
-	public var items: [String : () -> (any Navigable)] = [:]
-    public var onDismiss: (() -> ())? = nil
+	public var items = NavigationItems()
 
     public func navigate(routeString: String) {
          try? push(route: routeString)
@@ -168,17 +167,23 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         removeRoute(route)
         DispatchQueue.main.async {
             self.navigationController!.dismiss(animated: true)
-            self.onDismiss?()
         }
 	}
     
     private func removeRoute(_ route: String) {
-        if let view = items[route]?() as? any FlowViewProtocol {
-            view.events.finish()
-            items.removeValue(forKey: route)
-        }
+        let view = items[route]?()
+
         if let index = routes.firstIndex(of: route) {
             routes.remove(at: index)
+        }
+
+        if let view = view as? any FlowViewProtocol {
+            view.events.finish()
+        }
+
+        guard view is any FlowProtocol else {
+            items.remove(route)
+            return
         }
     }
     
