@@ -42,7 +42,6 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     }
 
     func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model {
-        navigation.routes.append("\(Flow.route)")
         try await show(node: flow.node, model: model)
         return flow.model
     }

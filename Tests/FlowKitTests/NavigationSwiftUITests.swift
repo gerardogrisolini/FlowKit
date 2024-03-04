@@ -38,12 +38,12 @@ final class NavigationSwiftUITests: XCTestCase {
         XCTAssertTrue(sut.items.isEmpty)
     }
 
-    func testPopToFlow() async throws {
+    func testPopToFlow() throws {
         sut.navigate(view: EmptyFlowView())
         sut.register(route: Routes.settings) {
             EmptyFlow()
         }
-        try sut.navigate(route: Routes.settings)
+        _ = try sut.flow(route: Routes.settings)
         sut.navigate(view: EmptyView())
         sut.popToFlow()
         XCTAssertTrue(sut.routes.count == 1)
@@ -89,7 +89,7 @@ final class NavigationSwiftUITests: XCTestCase {
     }
 }
 
-enum Routes: String, Routable {
+private enum Routes: String, Routable {
     case home
     case profile
     case settings
@@ -97,23 +97,23 @@ enum Routes: String, Routable {
 
 extension EmptyView: Navigable, Presentable { }
 
-class EmptyFlow: FlowProtocol {
+private class EmptyFlow: FlowProtocol {
     static let route: Routes = .settings
     var model = InOutEmpty()
     let node = EmptyFlowView.node
     required init() { }
 }
 
-public struct EmptyFlowView: FlowViewProtocol, View {
-    public enum Out: FlowOutProtocol {
+private struct EmptyFlowView: FlowViewProtocol, View {
+    enum Out: FlowOutProtocol {
         case empty
     }
-    public let model: InOutEmpty
-    public init(model: InOutEmpty = InOutEmpty()) {
+    let model: InOutEmpty
+    init(model: InOutEmpty = InOutEmpty()) {
         self.model = model
     }
 
-    public var body: some View {
+    var body: some View {
         EmptyView()
     }
 }

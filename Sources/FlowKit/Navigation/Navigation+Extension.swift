@@ -16,7 +16,9 @@ public extension NavigationProtocol {
 		guard let flow = items[routeString]?() as? any FlowProtocol else {
 			throw FlowError.flowNotFound
 		}
-		
+
+        routes.append(routeString)
+
 		return flow
 	}
 	

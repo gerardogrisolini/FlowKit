@@ -89,8 +89,10 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
             return
         }
 
-        guard let view = items[route]?() as? any View else {
-            guard let vc = items[route]?() as? UIViewController else { return }
+        let view = items[route]?()
+
+        guard view is any View else {
+            guard let vc = view as? UIViewController else { return }
             DispatchQueue.main.async {
                 self.navigationController?.popToViewController(vc, animated: true)
             }
@@ -140,7 +142,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
                 sheet.preferredCornerRadius = 48
             }
         }
-        navigationController!.present(nav, animated: true, completion: nil)
+        navigationController?.present(nav, animated: true, completion: nil)
     }
     
     public func present(route: String) throws {
@@ -166,7 +168,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         guard let route = routes.last else { return }
         removeRoute(route)
         DispatchQueue.main.async {
-            self.navigationController!.dismiss(animated: true)
+            self.navigationController?.dismiss(animated: true)
         }
 	}
     
@@ -200,7 +202,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 
         guard let route = routes.last else { return }
 
-        if let view = items[route]?() as? any FlowProtocol {
+        if items[route]?() is any FlowProtocol {
             routes.removeLast()
         }
     }
