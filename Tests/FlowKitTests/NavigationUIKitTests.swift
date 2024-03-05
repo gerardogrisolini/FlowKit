@@ -4,10 +4,19 @@ import UIKit
 
 final class NavigationUIKitTests: XCTestCase {
 
-    let sut = NavigationUIKit()
+    var sut: NavigationUIKit!
 
     override func setUp() {
+        super.setUp()
+
+        sut = NavigationUIKit()
         sut.navigationController = UINavigationController()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        sut = nil
     }
 
     func testRegisterAndNavigateToRoute() throws {

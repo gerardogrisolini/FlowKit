@@ -4,7 +4,19 @@ import SwiftUI
 
 final class NavigationSwiftUITests: XCTestCase {
 
-    let sut = NavigationSwiftUI()
+    var sut: NavigationSwiftUI!
+
+    override func setUp() {
+        super.setUp()
+
+        sut = NavigationSwiftUI()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        sut = nil
+    }
 
     func testRegisterAndNavigateToRoute() throws {
         sut.register(route: Routes.home) {

@@ -16,15 +16,19 @@ final class CoordinatorTests: XCTestCase {
     private var navigation: NavigationMock!
 
     override func setUp() {
+        super.setUp()
+
         navigation = NavigationMock()
         Resolver
             .register { self.navigation }
             .implements(NavigationProtocol.self)
-            .scope(.shared)
+            //.scope(.shared)
         sut = Coordinator(flow: EmptyFlow())
     }
 
     override func tearDown() {
+        super.tearDown()
+
         sut = nil
         navigation = nil
     }
