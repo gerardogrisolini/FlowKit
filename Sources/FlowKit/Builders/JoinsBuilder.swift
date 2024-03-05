@@ -62,13 +62,3 @@ infix operator ~
 public func ~<Out: FlowOutProtocol, Node: Nodable>(out: Out, node: Node) -> any CoordinatorJoinProtocol {
     Join(out, node)
 }
-
-//let node = EmptyFlowView.node {
-//    $0.empty ~ EmptyFlowView.node
-//    for i in 0...5 {
-//        $0.empty ~ EmptyFlowView.node
-//    }
-//    $0.empty ~ EmptyFlowView.node {
-//        $0.empty ~ EmptyFlowView.node
-//    }
-//}

@@ -89,22 +89,15 @@ final class NavigationSwiftUITests: XCTestCase {
     }
 }
 
-private enum Routes: String, Routable {
+extension EmptyView: Navigable, Presentable { }
+
+fileprivate enum Routes: String, Routable {
     case home
     case profile
     case settings
 }
 
-extension EmptyView: Navigable, Presentable { }
-
-private class EmptyFlow: FlowProtocol {
-    static let route: Routes = .settings
-    var model = InOutEmpty()
-    let node = EmptyFlowView.node
-    required init() { }
-}
-
-private struct EmptyFlowView: FlowViewProtocol, View {
+fileprivate struct EmptyFlowView: FlowViewProtocol, View {
     enum Out: FlowOutProtocol {
         case empty
     }
@@ -117,3 +110,11 @@ private struct EmptyFlowView: FlowViewProtocol, View {
         EmptyView()
     }
 }
+
+fileprivate class EmptyFlow: FlowProtocol {
+    static let route: Routes = .settings
+    var model = InOutEmpty()
+    let node = EmptyFlowView.node
+    required init() { }
+}
+

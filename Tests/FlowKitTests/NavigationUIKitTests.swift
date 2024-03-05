@@ -6,9 +6,9 @@ final class NavigationUIKitTests: XCTestCase {
 
     let sut = NavigationUIKit()
 
-//    override func setUp() {
-//        sut.navigationController = UINavigationController()
-//    }
+    override func setUp() {
+        sut.navigationController = UINavigationController()
+    }
 
     func testRegisterAndNavigateToRoute() throws {
         sut.register(route: Routes.home) {
@@ -65,26 +65,24 @@ final class NavigationUIKitTests: XCTestCase {
     }
 }
 
-private enum Routes: String, Routable {
+extension UIViewController: Navigable, Presentable { }
+
+fileprivate enum Routes: String, Routable {
     case home
     case profile
     case settings
 }
 
-extension UIViewController: Navigable, Presentable { }
-
-private class EmptyFlow: FlowProtocol {
+fileprivate class EmptyFlow: FlowProtocol {
     static let route: Routes = .settings
     var model = InOutEmpty()
     let node = EmptyFlowView.node
     required init() { }
 }
 
-private class EmptyFlowView: UIViewController, FlowViewProtocol {
-    enum Out: FlowOutProtocol {
-        case empty
-    }
+fileprivate class EmptyFlowView: UIViewController, FlowViewProtocol {
     let model: InOutEmpty
+
     required init(model: InOutEmpty = InOutEmpty()) {
         self.model = model
         super.init(nibName: nil, bundle: nil)

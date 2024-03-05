@@ -91,16 +91,19 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 
         let view = items[route]?()
 
-        guard view is any View else {
-            guard let vc = view as? UIViewController else { return }
+        guard let vc = view as? UIViewController else {
+            guard view is any View else {
+                return
+            }
+
+            guard let vc = navigationController?.viewControllers[routes.count - 1] else {
+                popToRoot()
+                return
+            }
+
             DispatchQueue.main.async {
                 self.navigationController?.popToViewController(vc, animated: true)
             }
-            return
-        }
-
-        guard let vc = navigationController?.viewControllers[routes.count - 1] else {
-            popToRoot()
             return
         }
 
@@ -117,19 +120,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
             self.navigationController?.popToRootViewController(animated: true)
         }
 	}
-	
-//	public func navigate(route: String) throws {
-//		guard let _ = routes.firstIndex(of: route) else {
-//			try push(route: route)
-//			return
-//		}
-//		guard let view = items[route]?() as? any View else {
-//			throw FlowError.routeNotFound
-//		}
-//		let controller = UIHostingController(rootView: AnyView(view))
-//		navigationController!.popToViewController(controller, animated: true)
-//	}
-	
+
     private func presentView(_ controller: UIViewController) {
         let nav = UINavigationController()
         nav.setViewControllers([controller], animated: true)
