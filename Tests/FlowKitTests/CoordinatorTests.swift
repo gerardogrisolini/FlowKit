@@ -36,18 +36,18 @@ final class CoordinatorTests: XCTestCase {
         Task {
             try await Task.sleep(nanoseconds: 1000000)
             let view = self.navigation.currentView
-            view?.events.send(.next(EmptyFlowView.Out.empty))
+            view?.events.send(.next(TestFlowView.Out.empty))
             view?.events.finish()
         }
         _ = try await sut.start(model: InOutEmpty())
-        XCTAssertEqual(navigation.navigationAction, .navigate("EmptyFlowView"))
+        XCTAssertEqual(navigation.navigationAction, .navigate("TestFlowView"))
     }
 
     func testViewEvent() async throws {
         Task {
             try await Task.sleep(nanoseconds: 1000000)
             let view = self.navigation.currentView
-            view?.events.send(.event(EmptyFlowView.Event.empty))
+            view?.events.send(.event(TestFlowView.Event.empty))
         }
         _ = try await sut.start(model: InOutEmpty())
     }
@@ -73,14 +73,38 @@ final class CoordinatorTests: XCTestCase {
         _ = try await sut.start(model: InOutEmpty())
         XCTAssertEqual(navigation.navigationAction, .popToRoot)
     }
+
+    func testViewOutInBehavior() async throws {
+        Task {
+            try await Task.sleep(nanoseconds: 1000000)
+            self.navigation.currentView?.events.send(.next(TestFlowView.Out.behavrior))
+            try await Task.sleep(nanoseconds: 1000000)
+            self.navigation.currentView?.events.finish()
+            self.navigation.routes.removeLast()
+            self.navigation.currentView?.events.finish()
+        }
+        _ = try await sut.start(model: InOutEmpty())
+        XCTAssertEqual(navigation.navigationAction, .navigate("EmptyFlowView"))
+    }
+
+    func testViewEventInBehavior() async throws {
+        Task {
+            try await Task.sleep(nanoseconds: 1000000)
+            let view = self.navigation.currentView
+            view?.events.send(.event(TestFlowView.Event.behavrior))
+        }
+        _ = try await sut.start(model: InOutEmpty())
+    }
 }
 
-fileprivate struct EmptyFlowView: FlowViewProtocol, View {
+fileprivate struct TestFlowView: FlowViewProtocol, View {
     enum Out: FlowOutProtocol {
         case empty
+        case behavrior
     }
     enum Event: FlowEventProtocol {
         case empty
+        case behavrior
     }
 
     let model: InOutEmpty
@@ -94,7 +118,30 @@ fileprivate struct EmptyFlowView: FlowViewProtocol, View {
     }
 
     func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?) async {
-        events.finish()
+        switch event {
+        case .empty:
+            events.finish()
+        case .behavrior:
+            if model is InOutModel {
+                events.finish()
+            }
+        }
+    }
+}
+
+fileprivate class InOutModel: InOutProtocol {
+    required init() { }
+}
+
+fileprivate struct EmptyFlowView: FlowViewProtocol, View {
+    let model: InOutModel
+
+    init(model: InOutModel = InOutModel()) {
+        self.model = model
+    }
+
+    var body: some View {
+        EmptyView()
     }
 }
 
@@ -104,12 +151,26 @@ fileprivate class EmptyFlow: FlowProtocol {
     }
     static let route: Routes = .home
     var model = InOutEmpty()
-    let node = EmptyFlowView.node {
-        $0.empty ~ EmptyFlowView.node {
-            $0.empty ~ EmptyFlowView.node
-        }
+    let node = TestFlowView.node {
+        $0.empty ~ TestFlowView.node
+        $0.behavrior ~ TestFlowView.node
     }
     required init() { }
+
+    var behavior: FlowBehavior {
+        .init {
+            Outs { TestFlowView.Out.behavrior ~ runOut }
+            Events { TestFlowView.Event.behavrior ~ runEvent }
+        }
+    }
+
+    private func runOut(_ out: any InOutProtocol) async throws -> Results {
+        .node(EmptyFlowView.node, InOutModel())
+    }
+
+    private func runEvent(_ event: any FlowEventProtocol) async throws -> any InOutProtocol {
+        InOutModel()
+    }
 }
 
 fileprivate class NavigationMock: NavigationProtocol {
