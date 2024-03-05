@@ -22,7 +22,6 @@ final class CoordinatorTests: XCTestCase {
         Resolver
             .register { self.navigation }
             .implements(NavigationProtocol.self)
-            //.scope(.shared)
         sut = Coordinator(flow: EmptyFlow())
     }
 

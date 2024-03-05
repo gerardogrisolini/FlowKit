@@ -9,6 +9,12 @@ import SwiftUI
 
 public protocol FlowKitApp { }
 
+/// Navigation types
+public enum FlowKitNavigations {
+    case uiKit
+    case swiftUI
+}
+
 public extension FlowKitApp {
     static private func allClasses() -> [AnyClass] {
         let numberOfClasses = Int(objc_getClassList(nil, 0))
@@ -28,10 +34,16 @@ public extension FlowKitApp {
         allClasses().filter { class_conformsToProtocol($0, conformTo) }
     }
 
-    /// Register the navigation and the flows
-    func register(navigation: NavigationProtocol) {
-        Resolver.register { navigation as NavigationProtocol }.scope(.application)
-
+    /// Register the type of navigation and the routing of flows
+    func register(navigation type: FlowKitNavigations) {
+        let navigation: NavigationProtocol = type == .swiftUI 
+        ? NavigationSwiftUI()
+        : NavigationUIKit()
+        
+        Resolver
+            .register { navigation as NavigationProtocol }
+            .scope(.application)
+        
         print("Registering flows...")
         let classes = Self.classes(conformTo: FlowRouteProtocol.self)
         for item in classes {

@@ -5,12 +5,12 @@
 //  Created by Gerardo Grisolini on 11/10/22.
 //
 
-#if canImport(UIKit)
-import UIKit
 import SwiftUI
 import Combine
 
-@available(iOS 14.0, *)
+#if canImport(UIKit)
+import UIKit
+
 public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationControllerDelegate {
     public var navigationController: UINavigationController? {
         didSet {
