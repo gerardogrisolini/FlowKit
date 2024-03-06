@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Application protocol
 public protocol FlowKitApp { }
 
 /// Navigation types
@@ -35,8 +36,12 @@ public extension FlowKitApp {
     }
 
     /// Register the type of navigation and the routing of flows
-    func register(navigation type: FlowKitNavigations) {
-        let navigation: NavigationProtocol = type == .swiftUI 
+    /// - Parameters:
+    ///  - type: navigation type
+    ///  - withFlowRouting: if true, it also registers the routing of the flows
+    @discardableResult
+    func register(navigation type: FlowKitNavigations, withFlowRouting: Bool = true) -> any NavigationProtocol {
+        let navigation: NavigationProtocol = type == .swiftUI
         ? NavigationSwiftUI()
         : NavigationUIKit()
         
@@ -44,6 +49,8 @@ public extension FlowKitApp {
             .register { navigation as NavigationProtocol }
             .scope(.application)
         
+        guard withFlowRouting else { return navigation }
+
         print("Registering flows...")
         let classes = Self.classes(conformTo: FlowRouteProtocol.self)
         for item in classes {
@@ -51,9 +58,14 @@ public extension FlowKitApp {
             print("\(flow.route)")
             navigation.register(route: flow.route) { flow.init() }
         }
+
+        return navigation
     }
 
     /// Register the services
+    /// - Parameters:
+    /// - scope: scope of the service
+    /// - factory: factory function
     func register<Service>(_ type: Service.Type = Service.self,
                                   scope: ResolverScope,
                                   factory: @escaping ResolverFactory<Service>) {

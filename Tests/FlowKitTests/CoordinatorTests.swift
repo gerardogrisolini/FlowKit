@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import Combine
 import SwiftUI
 @testable import FlowKit
 
@@ -77,7 +76,7 @@ final class CoordinatorTests: XCTestCase {
     func testViewOutInBehavior() async throws {
         Task {
             try await Task.sleep(nanoseconds: 1000000)
-            self.navigation.currentView?.events.send(.next(TestFlowView.Out.behavrior))
+            self.navigation.currentView?.events.send(.next(TestFlowView.Out.behavior))
             try await Task.sleep(nanoseconds: 1000000)
             self.navigation.currentView?.events.finish()
             self.navigation.routes.removeLast()
@@ -91,7 +90,7 @@ final class CoordinatorTests: XCTestCase {
         Task {
             try await Task.sleep(nanoseconds: 1000000)
             let view = self.navigation.currentView
-            view?.events.send(.event(TestFlowView.Event.behavrior))
+            view?.events.send(.event(TestFlowView.Event.behavior))
         }
         _ = try await sut.start(model: InOutEmpty())
     }
@@ -100,11 +99,11 @@ final class CoordinatorTests: XCTestCase {
 fileprivate struct TestFlowView: FlowViewProtocol, View {
     enum Out: FlowOutProtocol {
         case empty
-        case behavrior
+        case behavior
     }
     enum Event: FlowEventProtocol {
         case empty
-        case behavrior
+        case behavior
     }
 
     let model: InOutEmpty
@@ -121,7 +120,7 @@ fileprivate struct TestFlowView: FlowViewProtocol, View {
         switch event {
         case .empty:
             events.finish()
-        case .behavrior:
+        case .behavior:
             if model is InOutModel {
                 events.finish()
             }
@@ -153,14 +152,14 @@ fileprivate class EmptyFlow: FlowProtocol {
     var model = InOutEmpty()
     let node = TestFlowView.node {
         $0.empty ~ TestFlowView.node
-        $0.behavrior ~ TestFlowView.node
+        $0.behavior ~ TestFlowView.node
     }
     required init() { }
 
     var behavior: FlowBehavior {
         .init {
-            Outs { TestFlowView.Out.behavrior ~ runOut }
-            Events { TestFlowView.Event.behavrior ~ runEvent }
+            Outs { TestFlowView.Out.behavior ~ runOut }
+            Events { TestFlowView.Event.behavior ~ runEvent }
         }
     }
 
@@ -170,60 +169,5 @@ fileprivate class EmptyFlow: FlowProtocol {
 
     private func runEvent(_ event: any FlowEventProtocol) async throws -> any InOutProtocol {
         InOutModel()
-    }
-}
-
-fileprivate class NavigationMock: NavigationProtocol {
-    var navigationController: UINavigationController?
-    let action = PassthroughSubject<NavigationAction, Never>()
-    var routes: [String] = []
-    var items = NavigationItems()
-
-    var navigationAction: NavigationAction? = nil
-    var currentView: (any FlowViewProtocol)? {
-        guard let route = routes.last, let view = items[route]?() as? any FlowViewProtocol else {
-            return nil
-        }
-        return view
-    }
-
-    required init() { }
-
-    func navigate(route: some Routable) throws {
-        navigate(routeString: "\(route)")
-    }
-
-    func navigate(routeString: String) {
-        routes.append(routeString)
-        navigationAction = .navigate(routeString)
-    }
-
-    func present(route: some Routable) throws {
-        present(routeString: "\(route)")
-    }
-
-    func present(routeString: String) {
-        routes.append(routeString)
-        navigationAction = .present(routeString)
-    }
-
-    func pop() {
-        routes.removeLast()
-        navigationAction = .pop("")
-    }
-    
-    func popToFlow() {
-        routes = []
-        navigationAction = .popToRoot
-    }
-    
-    func popToRoot() {
-        routes = []
-        navigationAction = .popToRoot
-    }
-    
-    func dismiss() {
-        routes.removeLast()
-        navigationAction = .dismiss
     }
 }

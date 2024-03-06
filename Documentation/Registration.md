@@ -8,7 +8,7 @@ Register the navigation and services your app requires.
 struct FlowApp: App, FlowKitApp {
     init() {
         // Register the navigation
-        register(navigation: NavigationSwiftUI())
+        register(navigation: .swiftUI)
         
         // Register the other services you need
         register(scope: .application) {
