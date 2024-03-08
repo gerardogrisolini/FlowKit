@@ -5,8 +5,7 @@
 //  Created by Gerardo Grisolini on 02/02/23.
 //
 
-import Resolver
-
+/// CoordinatorJoinProtocol is the protocol for the coordinator join
 public protocol CoordinatorJoinProtocol {
     associatedtype Event: FlowOutProtocol
 
@@ -14,6 +13,7 @@ public protocol CoordinatorJoinProtocol {
     var node: any Nodable { get }
 }
 
+/// CoordinatorNodeProtocol is the protocol for the coordinator node
 public protocol CoordinatorNodeProtocol: Nodable {
 	associatedtype View: FlowViewProtocol
 
@@ -23,13 +23,16 @@ public protocol CoordinatorNodeProtocol: Nodable {
     var eventsCount: Int { get }
 }
 
+/// CoordinatorProtocol is the protocol for the coordinator
 public protocol CoordinatorProtocol {
     associatedtype Flow: FlowProtocol
     var flow: Flow { get }
     func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model
 }
 
+/// Presentable is the protocol for the presentable view
 public protocol Presentable: Navigable {
+    /// Dismiss the view
     var dismiss: () -> () { get }
 }
 
@@ -38,7 +41,10 @@ extension Presentable {
 }
 
 extension CoordinatorNodeProtocol {
-    public func validate(model: any InOutProtocol) throws {
+    /// Function to validate the model
+    /// - Parameters:
+    /// - model: the model to validate
+    func validate(model: any InOutProtocol) throws {
         let fromId = String(describing: model).id
         let toId = String(describing: self.view.In).id
         guard fromId == toId else {

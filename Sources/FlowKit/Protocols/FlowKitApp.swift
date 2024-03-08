@@ -11,6 +11,8 @@ import SwiftUI
 public protocol FlowKitApp { }
 
 public extension FlowKitApp {
+    
+    /// Get all classes of the app
     static private func allClasses() -> [AnyClass] {
         let numberOfClasses = Int(objc_getClassList(nil, 0))
         if numberOfClasses > 0 {
@@ -25,10 +27,19 @@ public extension FlowKitApp {
         return []
     }
 
+    /// Get all classes conforming to a protocol
+    /// - Parameters:
+    /// - conformTo: the protocol to conform to
+    /// - Returns: the classes conforming to the protocol
     private static func classes(conformTo: Protocol) -> [AnyClass] {
         allClasses().filter { class_conformsToProtocol($0, conformTo) }
     }
 
+    /// Register the navigation and the routing of flows
+    /// - Parameters:
+    /// - navigation: the navigation to use
+    /// - withFlowRouting: if true, it also registers the routing of the flows
+    /// - Returns: the navigation
     private func register(navigation: NavigationProtocol, withFlowRouting: Bool) -> any NavigationProtocol {
         Resolver
             .register { navigation as NavigationProtocol }
@@ -57,7 +68,7 @@ public extension FlowKitApp {
         return register(navigation: navigation, withFlowRouting: withFlowRouting)
     }
 
-    /// Register the SwiftUI navigation and the routing of flows
+    /// Register the UIKit navigation and the routing of flows
     /// - Parameters:
     ///  - navigationController: the navigation controller to use
     ///  - withFlowRouting: if true, it also registers the routing of the flows

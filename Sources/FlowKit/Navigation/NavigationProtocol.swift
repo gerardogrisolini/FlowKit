@@ -30,40 +30,58 @@ public protocol NavigationProtocol: AnyObject {
 
 	init()
 
-    /// Function to register a route with a view
+    /// Register a route with a view
+    /// - Parameters:
+    ///  - route: the route to register
+    ///  - with: the closure to create the view
 	func register(route: some Routable, with: @escaping () -> (any Navigable))
 
-    /// Function to register a route with a flow
+    /// Get a flow with a route
+    /// - Parameters:
+    /// - route: the route to register
+    /// - Returns: the flow
 	func flow(route: some Routable) throws -> (any FlowProtocol)
 
-    /// Function to navigate to a route
+    /// Navigate to a route string
+    /// - Parameters:
+    /// - routeString: the route string to navigate
     func navigate(routeString: String)
 
-    /// Function to present a route
+    /// Present a route string
+    /// - Parameters:
+    /// - routeString: the route string to present
     func present(routeString: String)
 
-    /// Function to navigate to a view
+    /// Navigate to a view
+    /// - Parameters:
+    /// - view: the view to navigate
     func navigate(view: some Navigable)
 
-    /// Function to present a view
+    /// Present a view
+    /// - Parameters:
+    /// - view: the view to present
 	func present(view: some Presentable)
 
-    /// Function to navigate to a route
+    /// Navigate to a route
+    /// - Parameters:
+    /// - route: the route to navigate
     func navigate(route: some Routable) throws
 
-    /// Function to present a route
+    /// Present a route
+    /// - Parameters:
+    /// - route: the route to present
     func present(route: some Routable) throws
 
-    /// Function to pop the current route
+    /// Pop the current route
 	func pop()
 
-    /// Function to pop to a start flow
+    /// Pop to the beginning of the flow
     func popToFlow()
 
-    /// Function to pop to the root of the navigation
+    /// Pop to the root of the navigation
     func popToRoot()
 
-    /// Function to dismiss the presented view
+    /// Dismiss the presented view
 	func dismiss()
 }
 

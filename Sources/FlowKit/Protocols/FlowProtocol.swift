@@ -46,11 +46,17 @@ public extension FlowProtocol {
     var behavior: FlowBehavior { FlowBehavior() }
 
     /// Default implementation for the onStart function
+    /// - Parameters:
+    /// - model: the input model
+    /// - Returns: the output model
     func onStart(model: some InOutProtocol) async throws -> any InOutProtocol {
         model
     }
 
     /// Default implementation for the start function with a model
+    /// - Parameters:
+    /// - model: the input model
+    /// - Returns: the output model
     func start(model: some InOutProtocol) async throws -> Model {
         let m = try await onStart(model: model)
 
@@ -143,6 +149,9 @@ public extension FlowViewProtocol {
     }
 
     /// Implementation of factory function to create the view
+    /// - Parameters:
+    /// - model: the input model
+    /// - Returns: the view
     static func factory(model: some InOutProtocol) throws -> Self {
         guard let m = model as? Self.In else {
             throw FlowError.invalidModel(String(describing: model))
@@ -157,34 +166,48 @@ public extension FlowViewProtocol {
     }
 
     /// Default implementation of function to handle the event change
+    /// - Parameters:
+    /// - event: the event
+    /// - model: the model
     func onEventChanged(_ event: Event, _ model: (any InOutProtocol)?) async { }
 
     /// Implementation of test function
+    /// - Parameters:
+    /// - event: the event
     func test(event: Event) async throws {
         await onEventChanged(event, nil)
     }
 
-    /// Function to navigate back
+    /// Navigate back
     func back() {
         events.send(.back)
     }
 
-    /// Function to navigate to next view
+    /// Navigate to next view
+    /// - Parameters:
+    /// - event: the event
     func out(_ event: Out) {
         events.send(.next(event))
     }
 
-    /// Function to execute an event
+    /// Execute an event
+    /// - Parameters:
+    /// - event: the event
     func event(_ event: Event) {
         events.send(.event(event))
     }
 
-    /// Function to commit the model and popToFlow or popToRoot
+    /// Commit the model and popToFlow or popToRoot
+    /// - Parameters:
+    /// - model: the model to commit
+    /// - toRoot: if true pop to root
     func commit(_ model: some InOutProtocol, toRoot: Bool = false) {
         events.send(.commit(model, toRoot: toRoot))
     }
 
-    /// Function to present a view
+    /// Present a view
+    /// - Parameters:
+    /// - view: the view to present
     func present(_ view: some Presentable) {
         events.send(.present(view))
     }
@@ -200,10 +223,12 @@ public extension IdentifiableCase {
 }
 
 public extension FlowEventProtocol {
+    /// The id of the event
     var id: String {
         String(describing: self).className
     }
 
+    /// Associated value of the event
     var associated: (label: String, value: (any InOutProtocol)?) {
         let mirror = Mirror(reflecting: self)
         guard let associated = mirror.children.first else {
