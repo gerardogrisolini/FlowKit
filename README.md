@@ -48,7 +48,7 @@ I've made my [Example](https://github.com/gerardogrisolini/FlowKit-Example) repo
 
 ## Author
 
-Resolver was designed, implemented, documented, and maintained by [Gerardo Grisolini](https://www.linkedin.com/in/gerardo-grisolini-b5900248/), a Senior iOS engineer.
+FlowKit was designed, implemented, documented, and maintained by [Gerardo Grisolini](https://www.linkedin.com/in/gerardo-grisolini-b5900248/), a Senior iOS engineer.
 * Email: [gerardo.grisolini@gmail.com](mailto:gerardo.grisolini@gmail.com)
 
 
