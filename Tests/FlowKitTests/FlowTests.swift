@@ -33,7 +33,7 @@ final class FlowTests: XCTestCase {
 
     func testRegistrationWithFlowRouting() {
         let app = FlowApp()
-        let navigation = app.register(navigation: .swiftUI, withFlowRouting: true)
+        let navigation = app.registerNavigationSwiftUI()
         let assert = navigation.items.contains(Routes.valid.rawValue)
         && navigation.items.contains(Routes.invalid.rawValue)
         && navigation.items.contains(Routes.partial.rawValue)
@@ -42,7 +42,7 @@ final class FlowTests: XCTestCase {
 
     func testRegistrationWithoutFlowRouting() {
         let app = FlowApp()
-        let navigation = app.register(navigation: .swiftUI, withFlowRouting: false)
+        let navigation = app.registerNavigationSwiftUI(withFlowRouting: false)
         XCTAssertTrue(navigation.items.isEmpty)
     }
 }
