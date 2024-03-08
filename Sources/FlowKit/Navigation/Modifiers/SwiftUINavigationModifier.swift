@@ -8,7 +8,6 @@
 import SwiftUI
 
 public struct SwiftUINavigationModifier: ViewModifier {
-
     public init() { }
 
     public func body(content: Content) -> some View {

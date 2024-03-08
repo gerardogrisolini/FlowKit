@@ -1,6 +1,6 @@
 //
 //  FlowNavigationStackV1.swift
-//  FlowCommon
+//
 //
 //  Created by Gerardo Grisolini on 15/10/22.
 //
@@ -10,7 +10,6 @@ import Combine
 import Resolver
 
 public class FlowNavigationStackV1: ObservableObject {
-    
     @Injected var navigation: NavigationProtocol
 
     @Published var route: String? = nil
@@ -35,15 +34,13 @@ public class FlowNavigationStackV1: ObservableObject {
     public init() {
         navigation.action
             .eraseToAnyPublisher()
-            .sink { action in
-                Task {
-                    await self.onChange(action: action)
-                }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] action in
+                self?.onChange(action: action)
             }
             .store(in: &cancellables)
     }
 
-    @MainActor
     private func onChange(action: NavigationAction) {
         switch action {
         case .navigate(route: let route):

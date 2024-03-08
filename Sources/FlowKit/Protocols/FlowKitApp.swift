@@ -10,12 +10,6 @@ import SwiftUI
 /// Application protocol
 public protocol FlowKitApp { }
 
-/// Navigation types
-public enum FlowKitNavigations {
-    case uiKit
-    case swiftUI
-}
-
 public extension FlowKitApp {
     static private func allClasses() -> [AnyClass] {
         let numberOfClasses = Int(objc_getClassList(nil, 0))
@@ -35,20 +29,11 @@ public extension FlowKitApp {
         allClasses().filter { class_conformsToProtocol($0, conformTo) }
     }
 
-    /// Register the type of navigation and the routing of flows
-    /// - Parameters:
-    ///  - type: navigation type
-    ///  - withFlowRouting: if true, it also registers the routing of the flows
-    @discardableResult
-    func register(navigation type: FlowKitNavigations, withFlowRouting: Bool = true) -> any NavigationProtocol {
-        let navigation: NavigationProtocol = type == .swiftUI
-        ? NavigationSwiftUI()
-        : NavigationUIKit()
-        
+    private func register(navigation: NavigationProtocol, withFlowRouting: Bool) -> any NavigationProtocol {
         Resolver
             .register { navigation as NavigationProtocol }
             .scope(.application)
-        
+
         guard withFlowRouting else { return navigation }
 
         print("Registering flows...")
@@ -62,13 +47,34 @@ public extension FlowKitApp {
         return navigation
     }
 
+
+    /// Register the SwiftUI navigation and the routing of flows
+    /// - Parameters:
+    ///  - withFlowRouting: if true, it also registers the routing of the flows
+    @discardableResult
+    func registerNavigationSwiftUI(withFlowRouting: Bool = true) -> any NavigationProtocol {
+        let navigation = NavigationSwiftUI()
+        return register(navigation: navigation, withFlowRouting: withFlowRouting)
+    }
+
+    /// Register the SwiftUI navigation and the routing of flows
+    /// - Parameters:
+    ///  - navigationController: the navigation controller to use
+    ///  - withFlowRouting: if true, it also registers the routing of the flows
+    @discardableResult
+    func registerNavigationUIKit(navigationController: UINavigationController, withFlowRouting: Bool = true) -> any NavigationProtocol {
+        let navigation = NavigationUIKit()
+        navigation.navigationController = navigationController
+        return register(navigation: navigation, withFlowRouting: withFlowRouting)
+    }
+
     /// Register the services
     /// - Parameters:
     /// - scope: scope of the service
     /// - factory: factory function
     func register<Service>(_ type: Service.Type = Service.self,
-                                  scope: ResolverScope,
-                                  factory: @escaping ResolverFactory<Service>) {
+                           scope: ResolverScope,
+                           factory: @escaping ResolverFactory<Service>) {
         Resolver.register { factory() }.scope(scope)
     }
 }

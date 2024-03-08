@@ -1,6 +1,6 @@
 //
 //  NavigationSwiftUI.swift
-//  FlowCommon
+//
 //
 //  Created by Gerardo Grisolini on 11/10/22.
 //
@@ -9,9 +9,6 @@ import SwiftUI
 import Combine
 
 public class NavigationSwiftUI: NavigationProtocol {
-#if canImport(UIKit)
-    public var navigationController: UINavigationController? = nil
-#endif
     public var action = PassthroughSubject<NavigationAction, Never>()
 	public var routes: [String] = []
     public var items = NavigationItems()

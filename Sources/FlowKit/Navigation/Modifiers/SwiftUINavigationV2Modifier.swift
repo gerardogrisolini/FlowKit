@@ -9,7 +9,6 @@ import SwiftUI
 
 @available(iOS 16.0, *)
 public struct SwiftUINavigationV2Modifier: ViewModifier {
-	
 	@StateObject private var stack = FlowNavigationStackV2()
 
 	public init() { }
@@ -36,3 +35,4 @@ public struct SwiftUINavigationV2Modifier: ViewModifier {
 		}
 	}
 }
+

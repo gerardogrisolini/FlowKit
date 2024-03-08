@@ -8,7 +8,7 @@ Register the navigation and services your app requires.
 struct FlowApp: App, FlowKitApp {
     init() {
         // Register the navigation
-        register(navigation: .swiftUI)
+        registerNavigationSwiftUI()
         
         // Register the other services you need
         register(scope: .application) {
@@ -32,18 +32,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, FlowKitApp {
     var window: UIWindow?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
-        let view = UIViewController()
-        window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = view
-        window?.makeKeyAndVisible()
-
-        let navigation = NavigationUIKit()
-        navigation.navigationController = view.navigationController
-
-        register(navigation: navigation)
+        let navigationController = UINavigationController()
+        registerNavigationUIKit(navigationController: navigationController)
         register(scope: .application) {
             FlowNetwork() as FlowNetworkProtocol
         }
+
+        navigationController.setViewControllers([ViewController()], animated: false)
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
 
         return true
     }

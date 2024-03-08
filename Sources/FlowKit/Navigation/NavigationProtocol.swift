@@ -5,9 +5,6 @@
 //  Created by Gerardo Grisolini on 11/10/22.
 //
 
-#if canImport(UIKit)
-import UIKit
-#endif
 import Combine
 
 /// Navigable is the protocol that a view or flow must implement to be navigable
@@ -21,11 +18,6 @@ public protocol Routable: Nodable, RawRepresentable { }
 
 /// NavigationProtocol is the protocol for manage the navigation
 public protocol NavigationProtocol: AnyObject {
-
-#if canImport(UIKit)
-    /// The navigation controller for UIKit
-    var navigationController: UINavigationController? { get set }
-#endif
 
     /// The subscriber of actions for the navigation
     var action: PassthroughSubject<NavigationAction, Never> { get }
