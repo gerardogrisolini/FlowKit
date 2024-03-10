@@ -5,8 +5,6 @@
 //  Created by Gerardo Grisolini on 07/02/23.
 //
 
-import SwiftUI
-
 /// Join is the struct that links the event with the node
 public struct Join<Out: FlowOutProtocol>: CoordinatorJoinProtocol {
     public let event: Out
