@@ -23,13 +23,13 @@ public protocol FlowProtocol: FlowRouteProtocol, Navigable {
     associatedtype Model: InOutProtocol
     associatedtype Behavior: FlowBehaviorProtocol
 
-    /// The route for the flow
+    /// The route of the flow
     static var route: Route { get }
-    /// The return model for the flow
+    /// The return model of the flow
     var model: Model { get set }
-    /// The entry node for the flow
+    /// The entry node of the flow
     var node: CoordinatorNode { get }
-    /// The behavior for the flow
+    /// The behavior of the flow
     var behavior: Behavior { get }
 
     init()

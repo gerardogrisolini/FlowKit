@@ -6,11 +6,11 @@
 //
 
 /// Join is the struct that links the event with the node
-public struct Join<Out: FlowOutProtocol>: CoordinatorJoinProtocol {
+public struct Join<Out: FlowOutProtocol, Node: Nodable>: CoordinatorJoinProtocol {
     public let event: Out
-    public let node: any Nodable
+    public let node: Node
 
-    public init(_ event: Out, _ node: any Nodable) {
+    public init(_ event: Out, _ node: Node) {
         self.event = event
         self.node = node
     }
@@ -18,10 +18,12 @@ public struct Join<Out: FlowOutProtocol>: CoordinatorJoinProtocol {
 
 /// Node is the struct that links the pages of a flow
 public struct Node<View: FlowViewProtocol>: CoordinatorNodeProtocol {
+
     public let view: View.Type
     public var `in`: View.In.Type { View.In.self }
     public var joins: [any CoordinatorJoinProtocol] = []
     public var eventsCount: Int { view.Out.allCases.count }
+    public var model: some InOutProtocol { View.In() }
 
     public init(_ view: View.Type) {
         self.view = view

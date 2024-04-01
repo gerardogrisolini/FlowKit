@@ -8,9 +8,10 @@
 /// CoordinatorJoinProtocol is the protocol for the coordinator join
 public protocol CoordinatorJoinProtocol {
     associatedtype Event: FlowOutProtocol
+    associatedtype Node: Nodable
 
     var event: Event { get }
-    var node: any Nodable { get }
+    var node: Node { get }
 }
 
 /// CoordinatorNodeProtocol is the protocol for the coordinator node
