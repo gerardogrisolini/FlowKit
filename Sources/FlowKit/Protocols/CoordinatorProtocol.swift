@@ -28,7 +28,7 @@ public protocol CoordinatorNodeProtocol: Nodable {
 public protocol CoordinatorProtocol {
     associatedtype Flow: FlowProtocol
     var flow: Flow { get }
-    func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model
+    func start(model: Flow.CoordinatorNode.View.In, navigate: Bool) async throws
 }
 
 /// Presentable is the protocol for the presentable view
