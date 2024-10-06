@@ -14,7 +14,7 @@ public protocol Navigable { }
 public protocol Nodable { }
 
 /// Routable is the protocol that a view or flow must implement to be routable
-public protocol Routable: Nodable, RawRepresentable { }
+public protocol Routable: Nodable, Sendable { }
 
 /// NavigationProtocol is the protocol for manage the navigation
 public protocol NavigationProtocol: AnyObject {

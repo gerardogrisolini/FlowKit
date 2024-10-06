@@ -34,17 +34,16 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
         try await show(node: flow.node, model: model, navigate: navigate)
     }
 
-    private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: (any InOutProtocol)) async throws {
+    private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: any InOutProtocol) async throws {
         if let route = join.node as? any Routable {
-            try await navigation.flow(route: route).start(model: data, parent: parent) as? Flow.Model
+            try await navigation.flow(route: route).start(model: data, parent: parent)
         } else if let node = join.node as? any CoordinatorNodeProtocol {
             try await show(node: node, model: data)
         }
     }
     
-//    @MainActor
     private func show(node: any CoordinatorNodeProtocol, model m: some InOutProtocol, navigate: Bool = true) async throws {
-        let view = try await node.view.factory(model: m)
+        let view = navigate ? try await node.view.factory(model: m) : parent!
         if navigate {
             navigation.navigate(view: view)
         }
@@ -76,7 +75,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 
             case .event(let event):
                 guard let flowEvent = getEvent(event) else {
-                    await view.onEventChange(event: event, model: InOutEmpty())
+                    await view.onEventChange(event: event, model: view.model)
                     continue
                 }
                 let model = try await flowEvent(event)

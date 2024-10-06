@@ -28,6 +28,7 @@ public protocol CoordinatorNodeProtocol: Nodable {
 public protocol CoordinatorProtocol {
     associatedtype Flow: FlowProtocol
     var flow: Flow { get }
+    var parent: (any FlowViewProtocol)? { get }
     func start(model: Flow.CoordinatorNode.View.In, navigate: Bool) async throws
 }
 
@@ -45,9 +46,8 @@ extension CoordinatorNodeProtocol {
     /// Function to validate the model
     /// - Parameters:
     /// - model: the model to validate
-    func validate(model: any InOutProtocol) throws {
-        let fromId = String(describing: model).id
-        let toId = String(describing: self.view.In).id
+    func validate(className fromId: String) throws {
+        let toId = String(describing: self.view.In).className
         guard fromId == toId else {
             let error = "\(String(describing: self.view)): \(fromId) -> \(toId)"
             throw FlowError.invalidModel(error)

@@ -8,44 +8,63 @@
 import SwiftUI
 
 /// IdentifiableCase is the protocol for the identifiable cases
-public protocol IdentifiableCase: Hashable, Equatable, Identifiable { }
+public protocol IdentifiableCase: Identifiable { }
 
 /// InOutProtocol is the protocol for the input/output model
-public protocol InOutProtocol: Identifiable {
-    init()
-}
+public protocol InOutProtocol: IdentifiableCase { }
+
 /// FlowEventProtocol is the protocol for the action events
-public protocol FlowEventProtocol: IdentifiableCase { }
+public protocol FlowEventProtocol: IdentifiableCase, CaseIterable { }
 
 /// FlowOutProtocol is the protocol for the navigation events
 public protocol FlowOutProtocol: FlowEventProtocol, CaseIterable { }
 
 /// FlowViewProtocol is the protocol for the flow view
-public protocol FlowViewProtocol<In>: Navigable {
+public protocol FlowViewProtocol: Navigable {
     associatedtype In: InOutProtocol
     associatedtype Out: FlowOutProtocol = OutEmpty
     associatedtype Event: FlowEventProtocol = EventBase
 
+    /// The model for the view
+    @MainActor @preconcurrency var model: In { get }
     /// AsyncSequence for manage the events
     var events: AsyncThrowingSubject<CoordinatorEvent> { get }
-    /// The model for the view
-    @MainActor @preconcurrency var model: In { get set }
-
-    /// Init the view with the model
-    @MainActor @preconcurrency init()
-
+    /// Init the view with model
+    @MainActor @preconcurrency init(model: In)
     /// Factory function to create the view
     static func factory(model: some InOutProtocol) async throws -> Self
     /// Function to handle the event change
-    func onEventChanged(event: Event, model: some InOutProtocol) async
+    @MainActor @preconcurrency func onEventChanged(event: Event, model: some InOutProtocol) async
     /// Function to handle the commit
-    func onCommit(model: some InOutProtocol) async
+    @MainActor @preconcurrency func onCommit(model: some InOutProtocol) async
 }
 
 public extension FlowViewProtocol {
     /// The id of the flow view
     var id: String { "\(self)".className }
-    
+
+    /// Parse enum of events from view and widget
+    /// - Parameters:
+    /// - event: the widget event
+    /// - Returns: the view event
+    func parse(_ event: any FlowEventProtocol) throws -> any FlowEventProtocol {
+        guard let parsed = Event.allCases.first(where: { $0.id == event.id}) else {
+            throw FlowError.partialMapping(String(describing: event))
+        }
+        return parsed
+    }
+
+    /// Parse enum of outs from view and widget
+    /// - Parameters:
+    /// - event: the widget out
+    /// - Returns: the view out
+    func parse(_ out: any FlowOutProtocol) throws -> any FlowOutProtocol {
+        guard let parsed = Out.allCases.first(where: { $0.id == out.id}) else {
+            throw FlowError.partialMapping(String(describing: out))
+        }
+        return parsed
+    }
+
     /// Implementation of events injected from a EventStore
     var events: AsyncThrowingSubject<CoordinatorEvent> {
         guard let event = eventStore[id] else {
@@ -64,11 +83,7 @@ public extension FlowViewProtocol {
         guard let m = model as? Self.In else {
             throw FlowError.invalidModel(String(describing: model))
         }
-        var obj = await Self()
-        await MainActor.run {
-            obj.model = m
-        }
-        return obj
+        return await Self(model: m)
     }
 
     /// Function to handle the event change internally
@@ -81,18 +96,18 @@ public extension FlowViewProtocol {
     /// - Parameters:
     /// - event: the event
     /// - model: the model
-    func onEventChanged(event: Event, model: some InOutProtocol) async { }
+    @MainActor @preconcurrency func onEventChanged(event: Event, model: some InOutProtocol) async { }
 
     /// Default implementation of function to handle the commit event
     /// - Parameters:
     /// - model: the model
-    func onCommit(model: some InOutProtocol) async { }
+    @MainActor @preconcurrency func onCommit(model: some InOutProtocol) async { }
 
     /// Implementation of test function
     /// - Parameters:
     /// - event: the event
     func test(event: Event) async throws {
-        await onEventChanged(event: event, model: InOutEmpty())
+        await onEventChanged(event: event, model: .empty)
     }
     
     /// Navigate back
@@ -137,30 +152,10 @@ public extension FlowViewProtocol {
     }
 }
 
-public extension View where Self: FlowViewProtocol {
-    /// Join a view with the flow
-    /// - Parameters:
-    /// - flow: the flow to join
-    /// - Returns: the view
-    func join<F: FlowProtocol>(flow: F) -> some View {
-        swiftUINavigation()
-            .task {
-                do {
-                    try await Coordinator(flow: flow, parent: self)
-                        .start(model: flow.node.in.init(), navigate: false)
-                } catch {
-                    print("Error on joining flow: \(error)")
-                }
-            }
-    }
-}
-
-public extension IdentifiableCase {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id
-    }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+public extension InOutProtocol {
+    /// The className of the model
+    var className: String {
+        String(describing: self).className
     }
 }
 
@@ -197,4 +192,17 @@ public extension String {
         let end = self.index(index, offsetBy: -1)
         return String(prefix(through: end))
     }
+}
+
+public extension InOutProtocol where Self == InOutEmpty  {
+    static var empty: Self { .init() }
+}
+
+/// FlowViewEmpty is the empty flow view
+public struct FlowViewEmpty: View, FlowViewProtocol {
+    public var model: InOutEmpty
+    public init(model: InOutEmpty = .empty) {
+        self.model = model
+    }
+    public var body: some View { EmptyView() }
 }

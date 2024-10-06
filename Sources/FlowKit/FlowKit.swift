@@ -8,15 +8,21 @@ import SwiftUI
 
 public struct FlowKit {
     public enum NavigationType {
+#if canImport(UIKit)
         case swiftUI, uiKit(navigationController: UINavigationController)
+#else
+        case swiftUI
+#endif
     }
     
     public static func initialize(navigationType: NavigationType = .swiftUI) {
        switch navigationType {
         case .swiftUI:
             registerNavigationSwiftUI()
-        case .uiKit(navigationController: let navigationController):
-            registerNavigationUIKit(navigationController: navigationController)
+#if canImport(UIKit)
+       case .uiKit(navigationController: let navigationController):
+           registerNavigationUIKit(navigationController: navigationController)
+#endif
         }
     }
     
@@ -77,6 +83,7 @@ public struct FlowKit {
         return register(navigation: navigation, withFlowRouting: withFlowRouting)
     }
 
+#if canImport(UIKit)
     /// Register the UIKit navigation and the routing of flows
     /// - Parameters:
     ///  - navigationController: the navigation controller to use
@@ -87,12 +94,13 @@ public struct FlowKit {
         navigation.navigationController = navigationController
         return register(navigation: navigation, withFlowRouting: withFlowRouting)
     }
+#endif
 
     /// Register the services
     /// - Parameters:
     /// - scope: scope of the service
     /// - factory: factory function
-    static func register<Service>(_ type: Service.Type = Service.self,
+    public static func register<Service>(_ type: Service.Type = Service.self,
                            scope: ResolverScope,
                            factory: @escaping ResolverFactory<Service>) {
         Resolver.register { factory() }.scope(scope)

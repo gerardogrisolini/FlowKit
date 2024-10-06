@@ -33,12 +33,11 @@ public protocol FlowProtocol: FlowRouteProtocol, Navigable {
     var behavior: Behavior { get }
 
     init()
+
     /// Function performed before the flow starts
     func onStart(model: some InOutProtocol) async throws -> any InOutProtocol
     /// Function to start the flow with a model
     @discardableResult func start(model: some InOutProtocol, parent: (any FlowViewProtocol)?) async throws
-    /// Function to start the flow without a model
-    @discardableResult func start() async throws
 }
 
 public extension FlowProtocol {
@@ -76,11 +75,6 @@ public extension FlowProtocol {
         try await Coordinator(flow: self, parent: parent).start(model: m)
     }
 
-    /// Default implementation for the start function without a model
-    func start() async throws {
-        try await start(model: node.in.init())
-    }
-
     /// Function to test the flow
     func test() async throws {
         try testNode(node: node)
@@ -94,10 +88,11 @@ public extension FlowProtocol {
                 throw FlowError.partialMapping(String(describing: n.view))
             }
 
+            let modelClassName = (n.view as! any FlowViewProtocol).model.className
             for join in n.joins {
-                let model = join.event.associated.value ?? n.in.init()
+                let className = join.event.associated.value?.className ?? modelClassName
                 if let node = join.node as? any CoordinatorNodeProtocol {
-                    try node.validate(model: model)
+                    try node.validate(className: className)
                     try testNode(node: node)
                 }
             }
