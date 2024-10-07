@@ -88,9 +88,9 @@ public extension FlowProtocol {
                 throw FlowError.partialMapping(String(describing: n.view))
             }
 
-            let modelClassName = (n.view as! any FlowViewProtocol).model.className
+            let modelClassName = "\(n.model)".className
             for join in n.joins {
-                let className = join.event.associated.value?.className ?? modelClassName
+                let className = join.event.associated.value?.className.id ?? modelClassName
                 if let node = join.node as? any CoordinatorNodeProtocol {
                     try node.validate(className: className)
                     try testNode(node: node)
