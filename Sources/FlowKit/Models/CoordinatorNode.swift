@@ -20,10 +20,9 @@ public struct Join<Out: FlowOutProtocol, Node: Nodable>: CoordinatorJoinProtocol
 public struct Node<View: FlowViewProtocol>: CoordinatorNodeProtocol {
 
     public let view: View.Type
-    public var `in`: View.In.Type { View.In.self }
+    public var model: View.In.Type { View.In.self }
     public var joins: [any CoordinatorJoinProtocol] = []
     public var eventsCount: Int { view.Out.allCases.count }
-    public var model: some InOutProtocol { View.In() }
 
     public init(_ view: View.Type) {
         self.view = view

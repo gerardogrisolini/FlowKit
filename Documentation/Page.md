@@ -17,6 +17,7 @@ struct Page1View: FlowViewProtocol, View {
     }
 
     // If you need to execute an event within your page you need to define an enum Event.
+    @EnumAllCases
     enum Event: FlowEventProtocol {
         case update(Date)
     }
@@ -27,8 +28,10 @@ struct Page1View: FlowViewProtocol, View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text(model.time)
-                .font(.headline)
+            
+            // Include a widget and activate
+            WidgetView(model: $model)
+                .widget(on: self)
 
             Button(ExampleKeys.update) {
                 // Raise an event to update the model date.
@@ -50,7 +53,7 @@ struct Page1View: FlowViewProtocol, View {
 
     // If you have defined an enum for events,
     // you need to implement this method to handle them.
-    func onEventChanged(_ event: Event, _ data: (any InOutProtocol)?) async {
+    func onEventChanged(event: Event, model: some InOutProtocol) async {
         switch event {
         case .update(let date):
             model.time = date.description
@@ -58,6 +61,30 @@ struct Page1View: FlowViewProtocol, View {
     }
 }
 ```
+
+##### Widget of page
+```
+struct WidgetView: View, FlowWidgetProtocol {
+    public enum Out: FlowOutProtocol {
+        case page2
+    }
+    public enum Event: FlowEventProtocol {
+        case update(Date)
+    }
+
+    @Environment(\.parent) var parent
+    @Binding var model: InOutModel
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(model.time).font(.headline)
+            Button("Page 2") { out(.page2) }.buttonStyle(.plain)
+            Button("Update") { event(.update(Date())) }.buttonStyle(.plain)
+        }
+    }
+}
+```
+
 
 #### UIKit
 ```swift

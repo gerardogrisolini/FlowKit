@@ -11,10 +11,13 @@ var eventStore = EventStore()
 /// Coordinator is the object that manages the flow
 final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 	@Injected private var navigation: NavigationProtocol
-    var flow: Flow
+    private var model: Flow.Model?
+    let flow: Flow
+    let parent: (any FlowViewProtocol)?
 
-	init(flow: Flow) {
+    init(flow: Flow, parent: (any FlowViewProtocol)? = nil) {
         self.flow = flow
+        self.parent = parent
  	}
 
     private func getOut(_ event: some FlowOutProtocol) -> Out? {
@@ -27,32 +30,31 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
         return event.to
     }
 
-    func start(model: Flow.CoordinatorNode.View.In) async throws -> Flow.Model {
-        try await show(node: flow.node, model: model)
-        return flow.model
+    func start(model: Flow.CoordinatorNode.View.In, navigate: Bool = true) async throws {
+        try await show(node: flow.node, model: model, navigate: navigate)
     }
 
-    private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: (any InOutProtocol)) async throws {
+    private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: any InOutProtocol) async throws {
         if let route = join.node as? any Routable {
-            try await navigation.flow(route: route).start(model: data)
+            try await navigation.flow(route: route).start(model: data, parent: parent)
         } else if let node = join.node as? any CoordinatorNodeProtocol {
             try await show(node: node, model: data)
         }
     }
     
-    @MainActor
-    private func show(node: any CoordinatorNodeProtocol, model: some InOutProtocol) async throws {
-        let view = try node.view.factory(model: model)
-		navigation.navigate(view: view)
+    private func show(node: any CoordinatorNodeProtocol, model m: some InOutProtocol, navigate: Bool = true) async throws {
+        let view = navigate ? try await node.view.factory(model: m) : parent!
+        if navigate {
+            navigation.navigate(view: view)
+        }
 
         for try await event in view.events {
             switch event {
             case .back:
                 navigation.pop()
 
-            case .next(let next):
-                let data = next.associated.value ?? view.model
-
+            case .next(let next, let model):
+                let data = next.associated.value ?? model
                 guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
                     throw FlowError.eventNotFound
                 }
@@ -73,25 +75,28 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 
             case .event(let event):
                 guard let flowEvent = getEvent(event) else {
-                    await view.onEventChange(event, nil)
+                    await view.onEventChange(event: event, model: view.model)
                     continue
                 }
                 let model = try await flowEvent(event)
-                await view.onEventChange(event, model)
+                await view.onEventChange(event: event, model: model)
 
-            case .present(let view):
-                navigation.present(view: view)
-                
             case .commit(let m, let toRoot):
                 guard let model = m as? Flow.Model else {
                     throw FlowError.invalidModel(String(describing: Flow.Model.self))
                 }
-                flow.model = model
+                await parent?.onCommit(model: model)
                 guard toRoot else {
                     navigation.popToFlow()
                     continue
                 }
                 navigation.popToRoot()
+
+            case .navigate(let view):
+                navigation.navigate(view: view)
+
+            case .present(let view):
+                navigation.present(view: view)
             }
 		}
 
@@ -102,10 +107,12 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 /// CoordinatorEvent is the enum of events that the coordinator can handle
 public enum CoordinatorEvent {
     case back
-    case next(any FlowOutProtocol)
-	case present(any Presentable)
+    case next(any FlowOutProtocol, any InOutProtocol)
     case commit(any InOutProtocol, toRoot: Bool)
     case event(any FlowEventProtocol)
+
+    case present(any Presentable)
+    case navigate(any Navigable)
 }
 
 /// InOutEmpty is the empty inout model
@@ -115,8 +122,10 @@ public final class InOutEmpty: InOutProtocol {
 
 /// OutEmpty is the empty out event
 public enum OutEmpty: FlowOutProtocol {
-    public static var allCases: [EventEmpty] { [] }
+    public static var allCases: [EventBase] { [] }
 }
 
 /// EventEmpty is the empty event
-public enum EventEmpty: FlowEventProtocol { }
+public enum EventBase: FlowEventProtocol {
+    case commit
+}

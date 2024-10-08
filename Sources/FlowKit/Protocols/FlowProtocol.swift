@@ -26,24 +26,26 @@ public protocol FlowProtocol: FlowRouteProtocol, Navigable {
     /// The route of the flow
     static var route: Route { get }
     /// The return model of the flow
-    var model: Model { get set }
+    var model: Model { get }
     /// The entry node of the flow
     var node: CoordinatorNode { get }
     /// The behavior of the flow
     var behavior: Behavior { get }
 
     init()
+
     /// Function performed before the flow starts
     func onStart(model: some InOutProtocol) async throws -> any InOutProtocol
     /// Function to start the flow with a model
-    @discardableResult func start(model: some InOutProtocol) async throws -> Model
-    /// Function to start the flow without a model
-    @discardableResult func start() async throws -> Model
+    @discardableResult func start(model: some InOutProtocol, parent: (any FlowViewProtocol)?) async throws
 }
 
 public extension FlowProtocol {
-    /// Default implementation for the behavior
-    var behavior: FlowBehavior { FlowBehavior() }
+    /// Default flow behavior
+    var behavior: FlowBehavior { .init() }
+
+    /// Default flow return model
+    public var model: InOutEmpty { .init() }
 
     /// Default implementation for the onStart function
     /// - Parameters:
@@ -57,7 +59,7 @@ public extension FlowProtocol {
     /// - Parameters:
     /// - model: the input model
     /// - Returns: the output model
-    func start(model: some InOutProtocol) async throws -> Model {
+    func start(model: some InOutProtocol, parent: (any FlowViewProtocol)? = nil) async throws {
         let m = try await onStart(model: model)
 
         guard let m = m as? CoordinatorNode.View.In else {
@@ -70,13 +72,7 @@ public extension FlowProtocol {
             .implements(FlowBehaviorProtocol.self)
             .scope(.shared)
 
-        return try await Coordinator(flow: self).start(model: m)
-    }
-
-    /// Default implementation for the start function without a model
-    func start() async throws -> Model {
-        let model = CoordinatorNode.View.In()
-        return try await start(model: model)
+        try await Coordinator(flow: self, parent: parent).start(model: m)
     }
 
     /// Function to test the flow
@@ -92,10 +88,11 @@ public extension FlowProtocol {
                 throw FlowError.partialMapping(String(describing: n.view))
             }
 
+            let modelClassName = "\(n.model)".className
             for join in n.joins {
-                let model = join.event.associated.value ?? n.in.init()
+                let className = join.event.associated.value?.className.id ?? modelClassName
                 if let node = join.node as? any CoordinatorNodeProtocol {
-                    try node.validate(model: model)
+                    try node.validate(className: className)
                     try testNode(node: node)
                 }
             }
