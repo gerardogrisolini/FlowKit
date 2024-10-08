@@ -79,7 +79,7 @@ public extension FlowViewProtocol {
     /// - Parameters:
     /// - model: the input model
     /// - Returns: the view
-    static func factory(model: some InOutProtocol) async throws -> Self {
+    @MainActor @preconcurrency static func factory(model: some InOutProtocol) async throws -> Self {
         guard let m = model as? Self.In else {
             throw FlowError.invalidModel(String(describing: model))
         }
@@ -96,12 +96,12 @@ public extension FlowViewProtocol {
     /// - Parameters:
     /// - event: the event
     /// - model: the model
-    func onEventChanged(event: Event, model: some InOutProtocol) async { }
+    @MainActor @preconcurrency func onEventChanged(event: Event, model: some InOutProtocol) async { }
 
     /// Default implementation of function to handle the commit event
     /// - Parameters:
     /// - model: the model
-    func onCommit(model: some InOutProtocol) async { }
+    @MainActor @preconcurrency func onCommit(model: some InOutProtocol) async { }
 
     /// Implementation of test function
     /// - Parameters:
