@@ -32,7 +32,7 @@ public protocol FlowViewProtocol: Navigable {
     /// Init the view with model
     @MainActor @preconcurrency init(model: In)
     /// Factory function to create the view
-    static func factory(model: some InOutProtocol) async throws -> Self
+    @MainActor @preconcurrency static func factory(model: some InOutProtocol) async throws -> Self
     /// Function to handle the event change
     @MainActor @preconcurrency func onEventChanged(event: Event, model: some InOutProtocol) async
     /// Function to handle the commit
@@ -96,12 +96,12 @@ public extension FlowViewProtocol {
     /// - Parameters:
     /// - event: the event
     /// - model: the model
-    @MainActor @preconcurrency func onEventChanged(event: Event, model: some InOutProtocol) async { }
+    func onEventChanged(event: Event, model: some InOutProtocol) async { }
 
     /// Default implementation of function to handle the commit event
     /// - Parameters:
     /// - model: the model
-    @MainActor @preconcurrency func onCommit(model: some InOutProtocol) async { }
+    func onCommit(model: some InOutProtocol) async { }
 
     /// Implementation of test function
     /// - Parameters:

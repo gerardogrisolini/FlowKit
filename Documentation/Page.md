@@ -17,6 +17,7 @@ struct Page1View: FlowViewProtocol, View {
     }
 
     // If you need to execute an event within your page you need to define an enum Event.
+    @EnumAllCases
     enum Event: FlowEventProtocol {
         case update(Date)
     }

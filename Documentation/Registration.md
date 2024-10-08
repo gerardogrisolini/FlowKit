@@ -5,7 +5,7 @@ Register the navigation and services your app requires.
 #### SwiftUI
 ```swift
 @main
-struct FlowApp: App, FlowKitApp {
+struct FlowApp: App {
     init() {
         // Inizialize and register the navigation
         FlowKit.initialize()
@@ -29,7 +29,7 @@ struct FlowApp: App, FlowKitApp {
 #### UIKit
 ```swift
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, FlowKitApp {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
