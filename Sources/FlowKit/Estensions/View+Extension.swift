@@ -24,11 +24,11 @@ public extension View where Self: FlowViewProtocol {
             }
     }
 
-    public func preview() -> some View {
+    func preview() -> some View {
         self
             .task {
                 do {
-                    for try await event in events {
+                    for try await event in await events {
                         guard case .event(let e) = event, let e = e as? Event else { continue }
                         await onEventChanged(event: e, model: model)
                     }
@@ -37,13 +37,13 @@ public extension View where Self: FlowViewProtocol {
                 }
             }
             .onDisappear {
-                events.finish()
+                Task { await events.finish() }
             }
     }
 }
 
 public extension View where Self: FlowWidgetProtocol {
-    public func widget(on parent: any FlowViewProtocol) -> some View {
+    func widget(on parent: any FlowViewProtocol) -> some View {
         self.environment(\.parent, parent)
     }
 }
@@ -68,15 +68,15 @@ struct WidgetModifier<Parent: FlowViewProtocol>: ViewModifier {
                         case .event(let e):
                             guard let i = try parent.parse(e) as? Parent.Event else { continue }
                             parent.event(i)
-                        case .next(let e, _):
+                        case .next(let e):
                             guard let i = try parent.parse(e) as? Parent.Out else { continue }
                             parent.out(i)
                         case .navigate(let e):
-                            await parent.navigate(e)
+                            parent.navigate(e)
                         case .back:
-                            await parent.back()
+                            parent.back()
                         case .commit(let model, toRoot: let toRoot):
-                            await parent.commit(model, toRoot: toRoot)
+                            parent.commit(model, toRoot: toRoot)
                         case .present(let view):
                             parent.present(view)
                         }

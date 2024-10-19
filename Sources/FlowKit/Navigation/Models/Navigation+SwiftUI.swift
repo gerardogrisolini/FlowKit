@@ -45,7 +45,7 @@ public class NavigationSwiftUI: NavigationProtocol {
         let view = items[route]?()
 
         if let view = view as? any FlowViewProtocol {
-            view.events.finish()
+            Task { await view.events.finish() }
         }
 
         guard view is any FlowProtocol else {

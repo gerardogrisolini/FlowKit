@@ -7,17 +7,14 @@
 
 import SwiftUI
 
-/// IdentifiableCase is the protocol for the identifiable cases
-public protocol IdentifiableCase: Identifiable { }
-
 /// InOutProtocol is the protocol for the input/output model
-public protocol InOutProtocol: IdentifiableCase { }
+public protocol InOutProtocol: Identifiable { }
 
 /// FlowEventProtocol is the protocol for the action events
-public protocol FlowEventProtocol: IdentifiableCase, CaseIterable { }
+public protocol FlowEventProtocol: Identifiable, CaseIterable { }
 
 /// FlowOutProtocol is the protocol for the navigation events
-public protocol FlowOutProtocol: FlowEventProtocol, CaseIterable { }
+public protocol FlowOutProtocol: FlowEventProtocol { }
 
 /// FlowViewProtocol is the protocol for the flow view
 public protocol FlowViewProtocol: Navigable {
@@ -28,7 +25,7 @@ public protocol FlowViewProtocol: Navigable {
     /// The model for the view
     @MainActor @preconcurrency var model: In { get }
     /// AsyncSequence for manage the events
-    var events: AsyncThrowingSubject<CoordinatorEvent> { get }
+    var events: AsyncThrowingSubject<CoordinatorEvent> { get async }
     /// Init the view with model
     @MainActor @preconcurrency init(model: In)
     /// Factory function to create the view
@@ -67,12 +64,9 @@ public extension FlowViewProtocol {
 
     /// Implementation of events injected from a EventStore
     var events: AsyncThrowingSubject<CoordinatorEvent> {
-        guard let event = eventStore[id] else {
-            let newEvent = AsyncThrowingSubject<CoordinatorEvent>()
-            eventStore[id] = newEvent
-            return newEvent
+        get async {
+            await eventStore.get(key: id)
         }
-        return event
     }
 
     /// Implementation of factory function to create the view
@@ -81,9 +75,9 @@ public extension FlowViewProtocol {
     /// - Returns: the view
     @MainActor @preconcurrency static func factory(model: some InOutProtocol) async throws -> Self {
         guard let m = model as? Self.In else {
-            throw FlowError.invalidModel(String(describing: model))
+            throw FlowError.invalidModel("\(model)".id)
         }
-        return await Self(model: m)
+        return Self(model: m)
     }
 
     /// Function to handle the event change internally
@@ -112,21 +106,21 @@ public extension FlowViewProtocol {
     
     /// Navigate back
     func back() {
-        events.send(.back)
+        Task { await events.send(.back) }
     }
     
     /// Navigate to next view
     /// - Parameters:
     /// - event: the event
     func out(_ event: Out) {
-        events.send(.next(event, model))
+        Task { await events.send(.next(event)) }
     }
     
     /// Execute an event
     /// - Parameters:
     /// - event: the event
     func event(_ event: Event) {
-        events.send(.event(event))
+        Task { await events.send(.event(event)) }
     }
     
     /// Commit the model and popToFlow or popToRoot
@@ -134,21 +128,21 @@ public extension FlowViewProtocol {
     /// - model: the model to commit
     /// - toRoot: if true pop to root
     func commit(_ model: some InOutProtocol, toRoot: Bool = false) {
-        events.send(.commit(model, toRoot: toRoot))
+        Task { await events.send(.commit(model, toRoot: toRoot)) }
     }
     
     /// Present a view
     /// - Parameters:
     /// - view: the view to present
     func present(_ view: some Presentable) {
-        events.send(.present(view))
+        Task { await events.send(.present(view)) }
     }
 
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
     func navigate(_ view: some Navigable) {
-        events.send(.navigate(view))
+        Task { await events.send(.navigate(view)) }
     }
 }
 
@@ -200,7 +194,7 @@ public extension InOutProtocol where Self == InOutEmpty  {
 
 /// FlowViewEmpty is the empty flow view
 public struct FlowViewEmpty: View, FlowViewProtocol {
-    public var model: InOutEmpty
+    public let model: InOutEmpty
     public init(model: InOutEmpty = .empty) {
         self.model = model
     }
