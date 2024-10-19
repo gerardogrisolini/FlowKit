@@ -8,13 +8,20 @@
 import Foundation
 
 /// EventStore is the pages events store
-struct EventStore {
+actor EventStore {
     private var events = Dictionary<String, AsyncThrowingSubject<CoordinatorEvent>>()
-    subscript(key: String) -> AsyncThrowingSubject<CoordinatorEvent>? {
-        get { events[key] }
-        set { events[key] = newValue }
+
+    func get(key: String) -> AsyncThrowingSubject<CoordinatorEvent> {
+        events[key] ?? append(key)
     }
-    mutating func remove(_ key: String) {
+
+    private func append(_ key: String) -> AsyncThrowingSubject<CoordinatorEvent> {
+        let e = AsyncThrowingSubject<CoordinatorEvent>()
+        events[key] = e
+        return e
+    }
+
+    func remove(_ key: String) {
         events.removeValue(forKey: key)
     }
 }

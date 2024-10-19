@@ -23,17 +23,16 @@ public extension EnvironmentValues {
 public extension FlowWidgetProtocol {
     /// Navigate back
     func back() {
-        parent.events.send(.back)
+        Task { await parent.events.send(.back) }
     }
 
     /// Navigate to next view
     /// - Parameters:
     /// - event: the event
-    /// - model: the model
-    func out(_ event: Out, model: some InOutProtocol = InOutEmpty()) {
+    func out(_ event: Out) {
         do {
             let next = try parent.parse(event)
-            parent.events.send(.next(next, model))
+            Task { await parent.events.send(.next(next)) }
         } catch {
             print(error)
         }
@@ -45,7 +44,7 @@ public extension FlowWidgetProtocol {
     func event(_ event: Event) {
         do {
             let e = try parent.parse(event)
-            parent.events.send(.event(e))
+            Task { await parent.events.send(.event(e)) }
         } catch {
             print(error)
         }
@@ -56,20 +55,20 @@ public extension FlowWidgetProtocol {
     /// - model: the model to commit
     /// - toRoot: if true pop to root
     func commit(_ model: some InOutProtocol, toRoot: Bool = false) {
-        parent.events.send(.commit(model, toRoot: toRoot))
+        Task { await parent.events.send(.commit(model, toRoot: toRoot)) }
     }
 
     /// Present a view
     /// - Parameters:
     /// - view: the view to present
     func present(_ view: some Presentable) {
-        parent.events.send(.present(view))
+        Task { await parent.events.send(.present(view)) }
     }
 
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
     func navigate(_ view: some Navigable) {
-        parent.events.send(.navigate(view))
+        Task { await parent.events.send(.navigate(view)) }
     }
 }

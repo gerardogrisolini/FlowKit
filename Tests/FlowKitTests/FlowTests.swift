@@ -32,8 +32,7 @@ final class FlowTests: XCTestCase {
     }
 
     func testRegistrationWithFlowRouting() {
-        let app = FlowApp()
-        let navigation = app.registerNavigationSwiftUI()
+        let navigation = FlowKit.registerNavigationSwiftUI()
         let assert = navigation.items.contains(Routes.valid.rawValue)
         && navigation.items.contains(Routes.invalid.rawValue)
         && navigation.items.contains(Routes.partial.rawValue)
@@ -41,48 +40,49 @@ final class FlowTests: XCTestCase {
     }
 
     func testRegistrationWithoutFlowRouting() {
-        let app = FlowApp()
-        let navigation = app.registerNavigationSwiftUI(withFlowRouting: false)
+        let navigation = FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
         XCTAssertTrue(navigation.items.isEmpty)
     }
 }
 
-fileprivate class FlowApp: FlowKitApp { }
-
-fileprivate class InOutModel: InOutProtocol {
+private class InOutEmpty2: InOutProtocol {
     required init() { }
 }
 
-fileprivate struct TestFlowView: FlowViewProtocol, View {
+private class InOutEmpty3: InOutProtocol {
+    required init() { }
+}
+
+private struct InOutEmptyView: FlowViewProtocol, View {
+    @EnumAllCases
     enum Out: FlowOutProtocol {
-        case empty
-        case behavior
+        case empty2(InOutEmpty2)
+        case empty3(InOutEmpty3)
     }
-    let model: InOutModel
-
-    init(model: InOutModel = InOutModel()) {
-        self.model = model
-    }
-
-    var body: some View {
-        EmptyView()
-    }
-}
-
-fileprivate struct TestEmptyFlowView: FlowViewProtocol, View {
-    let model: InOutModel
-    init(model: InOutModel = InOutModel()) {
-        self.model = model
-    }
-
-    var body: some View {
-        EmptyView()
-    }
-}
-
-fileprivate struct EmptyFlowView: FlowViewProtocol, View {
     let model: InOutEmpty
-    init(model: InOutEmpty = InOutEmpty()) {
+    init(model: InOutEmpty) {
+        self.model = model
+    }
+
+    var body: some View {
+        EmptyView()
+    }
+}
+
+private struct InOutEmpty2View: FlowViewProtocol, View {
+    let model: InOutEmpty2
+    init(model: InOutEmpty2) {
+        self.model = model
+    }
+
+    var body: some View {
+        EmptyView()
+    }
+}
+
+private struct InOutEmpty3View: FlowViewProtocol, View {
+    let model: InOutEmpty3
+    init(model: InOutEmpty3) {
         self.model = model
     }
 
@@ -99,30 +99,29 @@ fileprivate enum Routes: String, Routable {
 
 fileprivate class ValidFlow: FlowProtocol {
     static let route: Routes = .valid
-    var model = InOutModel()
-    let node = TestFlowView.node {
-        $0.empty ~ TestEmptyFlowView.node
-        $0.behavior ~ TestEmptyFlowView.node
+    var model = InOutEmpty()
+    let node = InOutEmptyView.node {
+        $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
+        $0.empty3(InOutEmpty3()) ~ InOutEmpty3View.node
     }
     required init() { }
 }
 
 fileprivate class PartialMappingFlow: FlowProtocol {
     static let route: Routes = .partial
-    var model = InOutModel()
-    let node = TestFlowView.node {
-        $0.empty ~ TestFlowView.node
-        $0.behavior ~ TestEmptyFlowView.node
+    var model = InOutEmpty2()
+    let node = InOutEmptyView.node {
+        $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
     }
     required init() { }
 }
 
 fileprivate class InvalidFlow: FlowProtocol {
     static let route: Routes = .invalid
-    var model = InOutModel()
-    let node = TestFlowView.node {
-        $0.empty ~ EmptyFlowView.node
-        $0.behavior ~ TestEmptyFlowView.node
+    var model = InOutEmpty3()
+    let node = InOutEmptyView.node {
+        $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
+        $0.empty3(InOutEmpty3()) ~ InOutEmptyView.node
     }
     required init() { }
 }

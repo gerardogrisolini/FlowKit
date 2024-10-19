@@ -46,7 +46,8 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         try present(route: "\(route)")
     }
     
-	public func push(route: String) throws {
+    public func push(route: String) throws {
+        guard !routes.contains(route) else { return }
         routes.append(route)
 
         guard let view = items[route]?() as? any View else {
@@ -171,7 +172,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
 
         if let view = view as? any FlowViewProtocol {
-            view.events.finish()
+            Task { await view.events.finish() }
         }
 
         guard view is any FlowProtocol else {

@@ -48,13 +48,13 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
             navigation.navigate(view: view)
         }
 
-        for try await event in view.events {
+        for try await event in await view.events {
             switch event {
             case .back:
                 navigation.pop()
 
-            case .next(let next, let model):
-                let data = next.associated.value ?? model
+            case .next(let next):
+                let data = next.associated.value ?? InOutEmpty()
                 guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
                     throw FlowError.eventNotFound
                 }
@@ -100,14 +100,14 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
             }
 		}
 
-        eventStore.remove(view.id)
+        await eventStore.remove(view.id)
     }
 }
 
 /// CoordinatorEvent is the enum of events that the coordinator can handle
 public enum CoordinatorEvent {
     case back
-    case next(any FlowOutProtocol, any InOutProtocol)
+    case next(any FlowOutProtocol)
     case commit(any InOutProtocol, toRoot: Bool)
     case event(any FlowEventProtocol)
 
@@ -119,13 +119,27 @@ public enum CoordinatorEvent {
 public final class InOutEmpty: InOutProtocol {
     public init() { }
 }
-
-/// OutEmpty is the empty out event
-public enum OutEmpty: FlowOutProtocol {
-    public static var allCases: [EventBase] { [] }
+public final class InOutNotEmpty: InOutProtocol {
+    public init() { }
 }
 
 /// EventEmpty is the empty event
 public enum EventBase: FlowEventProtocol {
     case commit
+}
+
+/// OutEmpty is the empty out event
+public enum OutEmpty: FlowOutProtocol { }
+
+@EnumAllCases
+public enum DevEmpty: FlowOutProtocol {
+    case one(InOutEmpty)
+    case two(InOutNotEmpty)
+
+    public var model: any InOutProtocol {
+        switch self {
+        case .one: return InOutEmpty()
+        case .two: return InOutNotEmpty()
+        }
+    }
 }

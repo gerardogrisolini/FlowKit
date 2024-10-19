@@ -110,9 +110,6 @@ fileprivate enum Routes: String, Routable {
 }
 
 fileprivate struct EmptyFlowView: FlowViewProtocol, View {
-    enum Out: FlowOutProtocol {
-        case empty
-    }
     let model: InOutEmpty
     init(model: InOutEmpty = InOutEmpty()) {
         self.model = model
