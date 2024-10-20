@@ -33,9 +33,28 @@ public struct EnumAllCasesMacro: MemberMacro {
             let caseIds: [String] = enumCases.map(\.description).map { $0.replacingOccurrences(of: ",", with: "") }
             let modifier = declaration.hasPublicModifier ? "public " : ""
             let allCases = "\(modifier)static var allCases: [\(declaration.name)] { [\(caseIds.map { ".\($0.hasSuffix(")") ? $0.replacingOccurrences(of: ")", with: "())") : $0 )" }.joined(separator: ","))] }"
-
+            var updateFunc = """
+\(modifier)func udpate(associatedValue: some InOutProtocol) -> Self {
+    switch self {
+"""
+            for caseId in caseIds.filter({ $0.hasSuffix(")") }) {
+                let index = caseId.firstIndex(of: "(")!
+                let name = caseId.prefix(upTo: index)
+                var type = caseId.suffix(from: index)
+                type.removeLast()
+                type.removeFirst()
+                updateFunc += "case .\(name)(_):"
+                updateFunc += "guard let model = associatedValue as? \(type) else { return self }"
+                updateFunc += "return .\(name)(model)"
+            }
+            updateFunc += """
+    default: return self
+    }
+}
+"""
             return [
-                DeclSyntax(stringLiteral: allCases)
+                DeclSyntax(stringLiteral: allCases),
+                DeclSyntax(stringLiteral: updateFunc)
             ]
         }
 

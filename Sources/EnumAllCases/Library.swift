@@ -29,5 +29,5 @@
 /// If the enum is `public`, the generated `ID` enum and the
 /// generated `id` accessor will also be `public`
 /// 
-@attached(member, names: named(allCases))
+@attached(member, names: named(allCases), named(udpate(associatedValue:)))
 public macro EnumAllCases() = #externalMacro(module: "EnumAllCasesMacro", type: "EnumAllCasesMacro")

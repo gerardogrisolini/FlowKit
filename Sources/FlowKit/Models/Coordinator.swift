@@ -130,16 +130,3 @@ public enum EventBase: FlowEventProtocol {
 
 /// OutEmpty is the empty out event
 public enum OutEmpty: FlowOutProtocol { }
-
-@EnumAllCases
-public enum DevEmpty: FlowOutProtocol {
-    case one(InOutEmpty)
-    case two(InOutNotEmpty)
-
-    public var model: any InOutProtocol {
-        switch self {
-        case .one: return InOutEmpty()
-        case .two: return InOutNotEmpty()
-        }
-    }
-}

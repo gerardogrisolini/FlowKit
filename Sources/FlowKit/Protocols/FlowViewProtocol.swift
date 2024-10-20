@@ -11,7 +11,9 @@ import SwiftUI
 public protocol InOutProtocol: Identifiable { }
 
 /// FlowEventProtocol is the protocol for the action events
-public protocol FlowEventProtocol: Identifiable, CaseIterable { }
+public protocol FlowEventProtocol: Identifiable, CaseIterable {
+    func udpate(associatedValue: some InOutProtocol) -> Self
+}
 
 /// FlowOutProtocol is the protocol for the navigation events
 public protocol FlowOutProtocol: FlowEventProtocol { }
@@ -46,9 +48,12 @@ public extension FlowViewProtocol {
     /// - Returns: the view event
     func parse(_ event: any FlowEventProtocol) throws -> any FlowEventProtocol {
         guard let parsed = Event.allCases.first(where: { $0.id == event.id}) else {
-            throw FlowError.partialMapping(String(describing: event))
+            throw FlowError.partialMapping(String(describing: out))
         }
-        return parsed
+        guard let associated = event.associated.value else {
+            return parsed
+        }
+        return parsed.udpate(associatedValue: associated)
     }
 
     /// Parse enum of outs from view and widget
@@ -59,7 +64,10 @@ public extension FlowViewProtocol {
         guard let parsed = Out.allCases.first(where: { $0.id == out.id}) else {
             throw FlowError.partialMapping(String(describing: out))
         }
-        return parsed
+        guard let associated = out.associated.value else {
+            return parsed
+        }
+        return parsed.udpate(associatedValue: associated)
     }
 
     /// Implementation of events injected from a EventStore
@@ -166,6 +174,10 @@ public extension FlowEventProtocol {
             return ("\(self)", nil)
         }
         return (associated.label!, associated.value as? any InOutProtocol)
+    }
+
+    func udpate(associatedValue: some InOutProtocol) -> Self {
+        self
     }
 }
 
