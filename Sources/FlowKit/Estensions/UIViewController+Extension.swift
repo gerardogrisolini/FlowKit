@@ -19,7 +19,7 @@ extension UIViewController {
 		public func updateUIViewController(_ uiViewController: T, context: Context) { }
 	}
 
-	public func toSwiftUI() -> some UIViewControllerRepresentable {
+    public func toSwiftUI() -> some UIViewControllerRepresentable {
 		UIKitWrapper(self)
 	}
 }

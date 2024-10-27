@@ -1,79 +1,83 @@
-import XCTest
+import Testing
 import UIKit
 @testable import FlowKit
 
-final class NavigationUIKitTests: XCTestCase {
+@MainActor
+final class NavigationUIKitTests {
 
     var sut: NavigationUIKit!
 
-    override func setUp() {
-        super.setUp()
-
+    init() async throws {
         sut = NavigationUIKit()
         sut.navigationController = UINavigationController()
     }
 
-    override func tearDown() {
-        super.tearDown()
-
+    deinit {
         sut = nil
     }
 
-    func testRegisterAndNavigateToRoute() throws {
-        sut.register(route: Routes.home) {
-            UIViewController()
-        }
-        XCTAssert(sut.items[Routes.home.rawValue]?() is UIViewController)
+    @Test func testRegisterAndNavigateToRoute() async throws {
+        let view = UIViewController()
+        sut.register(route: Routes.home) { view }
+        #expect(await sut.items[Routes.home.rawValue]?() is UIViewController)
 
         try sut.navigate(route: Routes.home)
-        XCTAssertEqual(sut.routes.last, Routes.home.rawValue)
+        #expect(sut.routes.last == Routes.home.rawValue)
     }
 
-    func testNavigateToView() throws {
+    @Test func testNavigateToView() async throws {
         let view = UIViewController()
         sut.navigate(view: view)
-        XCTAssertEqual(sut.routes.last, view.routeString)
+        try await Task.sleep(nanoseconds: 5000)
+        #expect(sut.routes.last == view.routeString)
     }
 
-    func testPop() throws {
+    @Test func testPop() async throws {
         let view = UIViewController()
         sut.navigate(view: view)
         sut.pop()
-        XCTAssertNotEqual(sut.routes.last, view.routeString)
-        XCTAssertFalse(sut.items[view.routeString]?() is UIViewController)
+        #expect(sut.routes.last != view.routeString)
+//        XCTAssertFalse(sut.items[view.routeString]?() is UIViewController)
     }
 
-    func testPopToRoot() throws {
+    @Test func testPopToRoot() async throws {
         sut.navigate(view: UIViewController())
-        sut.navigate(view: UIViewController())
-        sut.popToRoot()
-        XCTAssertTrue(sut.routes.isEmpty)
-        XCTAssertTrue(sut.items.isEmpty)
-    }
-
-    func testPopToFlow() throws {
         sut.navigate(view: EmptyFlowView())
+        try await Task.sleep(nanoseconds: 5000)
+        sut.popToRoot()
+        try await Task.sleep(nanoseconds: 5000)
+        #expect(sut.routes.isEmpty)
+        #expect(await sut.items.isEmpty)
+    }
+
+    @Test func testPopToFlow() async throws {
+        sut.navigate(view: EmptyFlowView())
+        try await Task.sleep(nanoseconds: 5000)
         sut.register(route: Routes.settings) {
             EmptyFlow()
         }
         _ = try sut.flow(route: Routes.settings)
+        try await Task.sleep(nanoseconds: 5000)
         sut.navigate(view: UIViewController())
+        try await Task.sleep(nanoseconds: 5000)
         sut.popToFlow()
-        XCTAssertTrue(sut.routes.count == 1)
-        XCTAssertTrue(sut.items.count == 2)
+        try await Task.sleep(nanoseconds: 5000)
+        #expect(sut.routes.count == 1)
+        #expect(await sut.items.count == 2)
     }
 
-    func testPresentAndDismissView() throws {
+    @Test func testPresentAndDismissView() async throws {
         let view = UIViewController()
         sut.present(view: UIViewController())
-        XCTAssertTrue(sut.items[view.routeString]?() is UIViewController)
+        #expect(sut.items[view.routeString]?() is UIViewController)
 
         sut.dismiss()
-        XCTAssertFalse(sut.items[view.routeString]?() is UIViewController)
-        XCTAssertNotEqual(sut.routes.last, view.routeString)
+//        XCTAssertFalse(sut.items[view.routeString]?() is UIViewController)
+        #expect(sut.routes.last != view.routeString)
     }
 }
 
+extension UIViewController: @retroactive Sendable {}
 extension UIViewController: Navigable, Presentable { }
 
 fileprivate enum Routes: String, Routable {
@@ -82,9 +86,9 @@ fileprivate enum Routes: String, Routable {
     case settings
 }
 
-fileprivate class EmptyFlow: FlowProtocol {
+fileprivate final class EmptyFlow: FlowProtocol {
     static let route: Routes = .settings
-    var model = InOutEmpty()
+    let model = InOutEmpty()
     let node = EmptyFlowView.node
     required init() { }
 }

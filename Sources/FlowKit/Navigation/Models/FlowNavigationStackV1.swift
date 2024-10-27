@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import Resolver
 
+@MainActor
 public class FlowNavigationStackV1: ObservableObject {
     @Injected var navigation: NavigationProtocol
 

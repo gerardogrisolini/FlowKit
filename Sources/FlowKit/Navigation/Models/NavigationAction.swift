@@ -6,7 +6,7 @@
 //
 
 /// NavigationAction is the enum that contains the navigation actions
-public enum NavigationAction: Equatable {
+public enum NavigationAction: Equatable, Sendable {
 	case navigate(String)
 	case present(String)
 	case pop(String)

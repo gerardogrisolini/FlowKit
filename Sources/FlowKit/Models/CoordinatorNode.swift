@@ -17,7 +17,7 @@ public struct Join<Out: FlowOutProtocol, Node: Nodable>: CoordinatorJoinProtocol
 }
 
 /// Node is the struct that links the pages of a flow
-public struct Node<View: FlowViewProtocol>: CoordinatorNodeProtocol {
+public struct Node<View: FlowViewProtocol>: CoordinatorNodeProtocol, Sendable {
 
     public let view: View.Type
     public var model: View.In.Type { View.In.self }

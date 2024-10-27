@@ -5,15 +5,16 @@
 //  Created by Gerardo Grisolini on 22/02/23.
 //
 
+@MainActor
 public extension NavigationProtocol {
 
     /// Register a route with a view
     /// - Parameters:
     /// - route: the route
     /// - with: the closure of navigable view
-	func register(route: some Routable, with: @escaping () -> (any Navigable)) {
+    func register(route: some Routable, with: @escaping @Sendable () -> (any Navigable)) {
         let routeString = "\(route)"
-		items[routeString] = with
+        items[routeString] = with
 	}
 	
     /// Get a flow with a route

@@ -37,7 +37,8 @@ public struct EnumAllCasesMacro: MemberMacro {
 \(modifier)func udpate(associatedValue: some InOutProtocol) -> Self {
     switch self {
 """
-            for caseId in caseIds.filter({ $0.hasSuffix(")") }) {
+            let filteredCaseIds = caseIds.filter({ $0.hasSuffix(")") })
+            for caseId in filteredCaseIds {
                 let index = caseId.firstIndex(of: "(")!
                 let name = caseId.prefix(upTo: index)
                 var type = caseId.suffix(from: index)
@@ -47,8 +48,10 @@ public struct EnumAllCasesMacro: MemberMacro {
                 updateFunc += "guard let model = associatedValue as? \(type) else { return self }"
                 updateFunc += "return .\(name)(model)"
             }
+            if filteredCaseIds.count < caseIds.count {
+                updateFunc += "default: return self"
+            }
             updateFunc += """
-    default: return self
     }
 }
 """

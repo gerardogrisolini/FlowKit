@@ -14,7 +14,8 @@ public struct FlowKit {
         case swiftUI
 #endif
     }
-    
+
+    @MainActor
     public static func initialize(navigationType: NavigationType = .swiftUI) {
        switch navigationType {
         case .swiftUI:
@@ -54,6 +55,7 @@ public struct FlowKit {
     /// - navigation: the navigation to use
     /// - withFlowRouting: if true, it also registers the routing of the flows
     /// - Returns: the navigation
+    @MainActor
     @discardableResult
     private static func register(navigation: NavigationProtocol, withFlowRouting: Bool) -> any NavigationProtocol {
         Resolver
@@ -77,6 +79,7 @@ public struct FlowKit {
     /// Register the SwiftUI navigation and the routing of flows
     /// - Parameters:
     ///  - withFlowRouting: if true, it also registers the routing of the flows
+    @MainActor
     @discardableResult
     static func registerNavigationSwiftUI(withFlowRouting: Bool = true) -> any NavigationProtocol {
         let navigation = NavigationSwiftUI()
@@ -88,6 +91,7 @@ public struct FlowKit {
     /// - Parameters:
     ///  - navigationController: the navigation controller to use
     ///  - withFlowRouting: if true, it also registers the routing of the flows
+    @MainActor
     @discardableResult
     static func registerNavigationUIKit(navigationController: UINavigationController, withFlowRouting: Bool = true) -> any NavigationProtocol {
         let navigation = NavigationUIKit()

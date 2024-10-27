@@ -8,6 +8,7 @@
 import Foundation
 
 /// A collection of navigation items
+@MainActor
 public struct NavigationItems {
     private var items = Dictionary<String, () -> (any Navigable)>()
 

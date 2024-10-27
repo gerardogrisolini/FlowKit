@@ -5,101 +5,97 @@
 //  Created by Gerardo Grisolini on 04/03/24.
 //
 
-import XCTest
+import Testing
 import SwiftUI
 @testable import FlowKit
 
-final class CoordinatorTests: XCTestCase {
+@MainActor
+final class CoordinatorTests {
 
-    private var sut: Coordinator<TestFlow>!
-    private var navigation: NavigationMock!
-
-    override func setUp() {
-        super.setUp()
-
-        navigation = NavigationMock()
-        Resolver
-            .register { self.navigation }
-            .implements(NavigationProtocol.self)
-        sut = Coordinator(flow: TestFlow())
+    private func startCoordinator(_ navigation: NavigationMock) async throws {
+        try await Coordinator(flow: TestFlow(), navigation: navigation).start(model: InOutEmpty())
     }
-
-    override func tearDown() {
-        super.tearDown()
-
-        sut = nil
-        navigation = nil
-    }
-
-    func testViewCommit() async throws {
-        Task {
+    
+    @Test func testViewCommit() async throws {
+        let navigation = NavigationMock()
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 1500000)
             let view = navigation.currentView
             view?.commit(InOutEmpty(), toRoot: true)
             try await Task.sleep(nanoseconds: 500000)
             await view?.events.finish()
         }
-        _ = try await sut.start(model: InOutEmpty())
-        XCTAssertEqual(navigation.navigationAction, .popToRoot)
+        try await startCoordinator(navigation)
+        #expect(navigation.navigationAction == .popToRoot)
     }
 
-    func testViewOut() async throws {
-        Task {
+    @Test func testViewOut() async throws {
+        let navigation = NavigationMock()
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 1500000)
             await navigation.currentView?.events.send(.next(TestFlowView.Out.empty))
-            try await Task.sleep(nanoseconds: 150000000)
+            try await Task.sleep(nanoseconds: 15000000)
             await navigation.currentView?.events.finish()
             navigation.routes.removeLast()
             await navigation.currentView?.events.finish()
         }
-        _ = try await sut.start(model: InOutEmpty())
-        XCTAssertEqual(navigation.navigationAction, .navigate("EmptyFlowView"))
+        try await startCoordinator(navigation)
+        #expect(navigation.navigationAction == .navigate("EmptyFlowView"))
     }
 
-    func testViewEvent() async throws {
-        Task {
+    @Test func testViewEvent() async throws {
+        let navigation = NavigationMock()
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 1500000)
             let view = navigation.currentView
             await view?.events.send(.event(TestFlowView.Event.empty))
         }
-        _ = try await sut.start(model: InOutEmpty())
+        try await startCoordinator(navigation)
     }
 
-    func testViewOutInBehavior() async throws {
-        Task {
+    @Test func testViewOutInBehavior() async throws {
+        let navigation = NavigationMock()
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 1500000)
             await navigation.currentView?.events.send(.next(TestFlowView.Out.behavior(InOutModel())))
-            try await Task.sleep(nanoseconds: 150000000)
+            try await Task.sleep(nanoseconds: 15000000)
             await navigation.currentView?.events.finish()
             navigation.routes.removeLast()
             await navigation.currentView?.events.finish()
         }
-        _ = try await sut.start(model: InOutEmpty())
-        XCTAssertEqual(navigation.navigationAction, .navigate("EmptyFlowView"))
+        try await startCoordinator(navigation)
+        #expect(navigation.navigationAction == .navigate("EmptyFlowView"))
     }
 
-    func testViewEventInBehavior() async throws {
-        Task {
+    @Test func testViewEventInBehavior() async throws {
+        let navigation = NavigationMock()
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 1500000)
             await navigation.currentView?.events.send(.event(TestFlowView.Event.behavior))
         }
-        _ = try await sut.start(model: InOutEmpty())
+        try await startCoordinator(navigation)
     }
 
-    func testViewBack() async throws {
-        Task {
+    @Test func testViewBack() async throws {
+        let navigation = NavigationMock()
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 1000000)
             let view = navigation.currentView
             view?.back()
-            try await Task.sleep(nanoseconds: 500000)
+            try await Task.sleep(nanoseconds: 5000000)
             await view?.events.finish()
         }
-        _ = try await sut.start(model: InOutEmpty())
-        XCTAssertEqual(navigation.navigationAction, .pop(""))
+        try await startCoordinator(navigation)
+        #expect(navigation.navigationAction == .pop(""))
     }
 }
 
 fileprivate struct TestFlowView: FlowViewProtocol, View {
+    let _events = AsyncThrowingSubject<CoordinatorEvent>()
+    var events: AsyncThrowingSubject<CoordinatorEvent> {
+        get async { _events }
+    }
+
     @EnumAllCases
     enum Out: FlowOutProtocol {
         case empty
@@ -131,7 +127,7 @@ fileprivate struct TestFlowView: FlowViewProtocol, View {
     }
 }
 
-fileprivate class InOutModel: InOutProtocol {
+fileprivate final class InOutModel: InOutProtocol {
     required init() { }
 }
 
@@ -143,6 +139,10 @@ fileprivate struct NotEmptyFlowView: FlowViewProtocol, View {
 }
 
 fileprivate struct EmptyFlowView: FlowViewProtocol, View {
+    let _events = AsyncThrowingSubject<CoordinatorEvent>()
+    var events: AsyncThrowingSubject<CoordinatorEvent> {
+        get async { _events }
+    }
     let model: InOutEmpty
     var body: some View {
         EmptyView()
@@ -153,9 +153,9 @@ fileprivate enum Routes: String, Routable {
     case home, empty
 }
 
-fileprivate class TestFlow: FlowProtocol {
+fileprivate final class TestFlow: FlowProtocol {
     static let route: Routes = .home
-    var model = InOutEmpty()
+    let model = InOutEmpty()
     let node = TestFlowView.node {
         $0.empty ~ EmptyFlowView.node
         $0.behavior(InOutModel()) ~ NotEmptyFlowView.node

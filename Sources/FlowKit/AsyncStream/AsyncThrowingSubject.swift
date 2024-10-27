@@ -5,7 +5,7 @@
 //  Created by Gerardo Grisolini on 28/01/23.
 //
 
-public struct AsyncThrowingSubject<Element>: AsyncSequence, @unchecked Sendable {
+public struct AsyncThrowingSubject<Element: Sendable>: AsyncSequence, Sendable {
 	
 	public typealias Failure = any Error
 	public typealias AsyncIterator = AsyncThrowingStream<Element, Failure>.Iterator

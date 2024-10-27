@@ -8,7 +8,7 @@
 import SwiftUI
 
 public extension Binding where Value == Bool {
-	init<Wrapped>(bindingOptional: Binding<Wrapped?>) {
+    init<Wrapped: Sendable>(bindingOptional: Binding<Wrapped?>) {
 		self.init(
 			get: {
 				bindingOptional.wrappedValue != nil
@@ -23,7 +23,7 @@ public extension Binding where Value == Bool {
 }
 
 public extension Binding {
-	func mappedToBool<Wrapped>() -> Binding<Bool> where Value == Wrapped? {
+    func mappedToBool<Wrapped: Sendable>() -> Binding<Bool> where Value == Wrapped? {
 		return Binding<Bool>(bindingOptional: self)
 	}
 }

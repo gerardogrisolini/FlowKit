@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -37,7 +37,10 @@ let package = Package(
         ),
         .target(
             name: "FlowKit",
-            dependencies: ["Resolver", "EnumAllCases"]
+            dependencies: ["Resolver", "EnumAllCases"],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency=complete", .when(platforms: [.macOS, .iOS]))
+            ]
         ),
         .testTarget(
             name: "FlowKitTests",
@@ -47,5 +50,6 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         )
-    ]
+    ],
+    swiftLanguageModes: [.v6]
 )

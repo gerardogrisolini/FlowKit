@@ -46,6 +46,15 @@ public extension View where Self: FlowWidgetProtocol {
     func widget(on parent: any FlowViewProtocol) -> some View {
         self.environment(\.parent, parent)
     }
+
+    func test(parent: any FlowViewProtocol) throws {
+        for e in Out.allCases {
+            _ = try parent.parse(e)
+        }
+        for e in Event.allCases {
+            _ = try parent.parse(e)
+        }
+    }
 }
 
 

@@ -20,7 +20,7 @@ extension ExampleFlow {
             // With Outs you can set the functions to be performed 
             // between the navigation of one node and another.
             Outs {
-                Page2View.Out.page3 ~ runOut
+                Page2View.Out.page3(InOutModel()) ~ runOut
             }
             // With Events you can set the functions to be performed 
             // in the flow instead of on the page.

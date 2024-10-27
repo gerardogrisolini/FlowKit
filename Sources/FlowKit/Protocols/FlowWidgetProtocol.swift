@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// FlowWidgetProtocol is the protocol for the widget of flow view
-public protocol FlowWidgetProtocol {
+@MainActor public protocol FlowWidgetProtocol {
     associatedtype Out: FlowOutProtocol = OutEmpty
     associatedtype Event: FlowEventProtocol = EventBase
 
@@ -16,14 +16,21 @@ public protocol FlowWidgetProtocol {
     var parent: any FlowViewProtocol { get }
 }
 
-public extension EnvironmentValues {
-    @Entry var parent: any FlowViewProtocol = FlowViewEmpty()
+private struct ParentKey: @preconcurrency EnvironmentKey {
+    @MainActor static let defaultValue: any FlowViewProtocol = FlowViewEmpty()
 }
 
-public extension FlowWidgetProtocol {
+public extension EnvironmentValues {
+    var parent: any FlowViewProtocol {
+        get { self[ParentKey.self] }
+        set { self[ParentKey.self] = newValue }
+    }
+}
+
+@MainActor public extension FlowWidgetProtocol {
     /// Navigate back
     func back() {
-        Task { await parent.events.send(.back) }
+        parent.back()
     }
 
     /// Navigate to next view
@@ -55,7 +62,7 @@ public extension FlowWidgetProtocol {
     /// - model: the model to commit
     /// - toRoot: if true pop to root
     func commit(_ model: some InOutProtocol, toRoot: Bool = false) {
-        Task { await parent.events.send(.commit(model, toRoot: toRoot)) }
+        parent.commit(model, toRoot: toRoot)
     }
 
     /// Present a view

@@ -9,13 +9,14 @@ import Combine
 import SwiftUI
 @testable import FlowKit
 
-class NavigationMock: NavigationProtocol {
-    var navigationController: UINavigationController?
+@MainActor
+final class NavigationMock: NavigationProtocol {
     let action = PassthroughSubject<NavigationAction, Never>()
     var routes: [String] = []
     var items = NavigationItems()
-
     var navigationAction: NavigationAction? = nil
+    var navigationController: UINavigationController? = nil
+
     var currentView: (any FlowViewProtocol)? {
         guard let route = routes.last, let view = items[route]?() as? any FlowViewProtocol else {
             return nil
@@ -23,15 +24,15 @@ class NavigationMock: NavigationProtocol {
         return view
     }
 
-    required init() { }
-
     func navigate(route: some Routable) throws {
         navigate(routeString: "\(route)")
     }
 
     func navigate(routeString: String) {
-        routes.append(routeString)
-        navigationAction = .navigate(routeString)
+        Task { @MainActor in
+            routes.append(routeString)
+            navigationAction = .navigate(routeString)
+        }
     }
 
     func present(route: some Routable) throws {
@@ -39,8 +40,10 @@ class NavigationMock: NavigationProtocol {
     }
 
     func present(routeString: String) {
-        routes.append(routeString)
-        navigationAction = .present(routeString)
+        Task { @MainActor in
+            routes.append(routeString)
+            navigationAction = .present(routeString)
+        }
     }
 
     func pop() {

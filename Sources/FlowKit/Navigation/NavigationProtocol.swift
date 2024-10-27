@@ -8,22 +8,26 @@
 import Combine
 
 /// Navigable is the protocol that a view or flow must implement to be navigable
-public protocol Navigable { }
+public protocol Navigable: Sendable { }
 
 /// Nodable is the protocol that must implement to be nodable
-public protocol Nodable { }
+public protocol Nodable: Sendable {
+//    associatedtype Model: InOutProtocol
+//    var model: Model.Type { get }
+}
 
 /// Routable is the protocol that a view or flow must implement to be routable
-public protocol Routable: Nodable, Sendable { }
+public protocol Routable: Nodable { }
 
 /// NavigationProtocol is the protocol for manage the navigation
-public protocol NavigationProtocol: AnyObject {
+@MainActor
+public protocol NavigationProtocol: AnyObject, Sendable {
 
     /// The subscriber of actions for the navigation
     var action: PassthroughSubject<NavigationAction, Never> { get }
 
     /// The routes stack of navigation pages
-	var routes: [String] { get set }
+    var routes: [String] { get set }
 
     /// The items for the routes of the navigation
     var items: NavigationItems { get set }
@@ -34,7 +38,7 @@ public protocol NavigationProtocol: AnyObject {
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-	func register(route: some Routable, with: @escaping () -> (any Navigable))
+    func register(route: some Routable, with: @escaping @Sendable () -> (any Navigable))
 
     /// Get a flow with a route
     /// - Parameters:
@@ -92,3 +96,8 @@ public extension Navigable {
         String(describing: type(of: self))
     }
 }
+
+//public extension Routable {
+//    
+//    var model: InOutEmpty.Type { InOutEmpty.self }
+//}

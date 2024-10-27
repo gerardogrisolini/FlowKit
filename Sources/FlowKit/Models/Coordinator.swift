@@ -6,18 +6,20 @@
 //
 
 // Global events store
-var eventStore = EventStore()
+let eventStore = EventStore()
 
 /// Coordinator is the object that manages the flow
-final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
-	@Injected private var navigation: NavigationProtocol
-    private var model: Flow.Model?
+@MainActor final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
+
     let flow: Flow
     let parent: (any FlowViewProtocol)?
+    private var navigation: NavigationProtocol
+    private var model: Flow.Model?
 
-    init(flow: Flow, parent: (any FlowViewProtocol)? = nil) {
+    init(flow: Flow, parent: (any FlowViewProtocol)? = nil, navigation: NavigationProtocol? = nil) {
         self.flow = flow
         self.parent = parent
+        self.navigation = navigation ?? Resolver.resolve()
  	}
 
     private func getOut(_ event: some FlowOutProtocol) -> Out? {
@@ -105,7 +107,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 }
 
 /// CoordinatorEvent is the enum of events that the coordinator can handle
-public enum CoordinatorEvent {
+public enum CoordinatorEvent: Sendable {
     case back
     case next(any FlowOutProtocol)
     case commit(any InOutProtocol, toRoot: Bool)
@@ -129,4 +131,6 @@ public enum EventBase: FlowEventProtocol {
 }
 
 /// OutEmpty is the empty out event
-public enum OutEmpty: FlowOutProtocol { }
+public enum OutEmpty: FlowOutProtocol {
+    public typealias Model = InOutEmpty
+}

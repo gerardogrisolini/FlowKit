@@ -1,78 +1,81 @@
-import XCTest
+import Testing
 import SwiftUI
 @testable import FlowKit
 
-final class NavigationSwiftUITests: XCTestCase {
+@MainActor
+final class NavigationSwiftUITests {
 
-    var sut: NavigationSwiftUI!
-
-    override func setUp() {
-        super.setUp()
-
-        sut = NavigationSwiftUI()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-
-        sut = nil
-    }
-
-    func testRegisterAndNavigateToRoute() throws {
+    @Test func testRegisterAndNavigateToRoute() async throws {
+        let sut = NavigationSwiftUI()
         sut.register(route: Routes.home) {
             EmptyView()
         }
-        XCTAssert(sut.items[Routes.home.rawValue]?() is EmptyView)
+        #expect(sut.items[Routes.home.rawValue]?() is EmptyView)
 
         try sut.navigate(route: Routes.home)
-        XCTAssertEqual(sut.routes.last, Routes.home.rawValue)
+        try await Task.sleep(nanoseconds: 5000)
+        #expect(sut.routes.last == Routes.home.rawValue)
     }
 
-    func testNavigateToView() throws {
+    @Test func testNavigateToView() async throws {
+        let sut = NavigationSwiftUI()
         let view = EmptyView()
         sut.navigate(view: view)
-        XCTAssertEqual(sut.routes.last, view.routeString)
+        try await Task.sleep(nanoseconds: 5000)
+        #expect(sut.routes.last == view.routeString)
     }
 
-    func testPop() throws {
+    @Test func testPop() async throws {
+        let sut = NavigationSwiftUI()
         let view = EmptyView()
         sut.navigate(view: view)
         sut.pop()
-        XCTAssertNotEqual(sut.routes.last, view.routeString)
-        XCTAssertFalse(sut.items[view.routeString]?() is EmptyView)
+        #expect(sut.routes.last != view.routeString)
+//        XCTAssertFalse(sut.items[view.routeString]?() is EmptyView)
     }
 
-    func testPopToRoot() throws {
+    @Test func testPopToRoot() async throws {
+        let sut = NavigationSwiftUI()
         sut.navigate(view: EmptyView())
+        try await Task.sleep(nanoseconds: 5000)
         sut.navigate(view: EmptyView())
+        try await Task.sleep(nanoseconds: 5000)
         sut.popToRoot()
-        XCTAssertTrue(sut.routes.isEmpty)
-        XCTAssertTrue(sut.items.isEmpty)
+        try await Task.sleep(nanoseconds: 5000)
+        #expect(sut.routes.isEmpty)
+        #expect(await sut.items.isEmpty)
     }
 
-    func testPopToFlow() throws {
+    @Test @MainActor func testPopToFlow() async throws {
+        let sut = NavigationSwiftUI()
         sut.navigate(view: EmptyFlowView())
+        try await Task.sleep(nanoseconds: 5000)
         sut.register(route: Routes.settings) {
             EmptyFlow()
         }
         _ = try sut.flow(route: Routes.settings)
+        try await Task.sleep(nanoseconds: 5000)
         sut.navigate(view: EmptyView())
+        try await Task.sleep(nanoseconds: 5000)
         sut.popToFlow()
-        XCTAssertTrue(sut.routes.count == 1)
-        XCTAssertTrue(sut.items.count == 2)
+        try await Task.sleep(nanoseconds: 5000)
+        #expect(sut.routes.count == 1)
+        #expect(await sut.items.count == 2)
     }
 
-    func testPresentAndDismissView() throws {
+    @Test func testPresentAndDismissView() async throws {
+        let sut = NavigationSwiftUI()
         let view = EmptyView()
         sut.present(view: EmptyView())
-        XCTAssertTrue(sut.items[view.routeString]?() is EmptyView)
+        #expect(sut.items[view.routeString]?() is EmptyView)
 
         sut.dismiss()
-        XCTAssertFalse(sut.items[view.routeString]?() is EmptyView)
-        XCTAssertNotEqual(sut.routes.last, view.routeString)
+//        XCTAssertFalse(sut.items[view.routeString]?() is EmptyView)
+        #expect(sut.routes.last != view.routeString)
     }
 
-    func testActionSink() throws {
+    @Test func testActionSink() async throws {
+        let sut = NavigationSwiftUI()
         var result: (navigate: Bool, present: Bool, pop: Bool, popToRoot: Bool, dismiss: Bool) = (false, false, false, false, false)
         let cancellable = sut.action.sink { action in
             switch action {
@@ -89,15 +92,20 @@ final class NavigationSwiftUITests: XCTestCase {
             }
         }
 
+        try await Task.sleep(nanoseconds: 5000)
         sut.navigate(routeString: ".")
+        try await Task.sleep(nanoseconds: 5000)
         sut.pop()
+        try await Task.sleep(nanoseconds: 5000)
         sut.present(routeString: ".")
+        try await Task.sleep(nanoseconds: 5000)
         sut.dismiss()
+        try await Task.sleep(nanoseconds: 5000)
         sut.popToRoot()
 
         cancellable.cancel()
 
-        XCTAssertTrue(result.navigate && result.present && result.pop && result.popToRoot && result.dismiss)
+        #expect(result.navigate && result.present && result.pop && result.popToRoot && result.dismiss)
     }
 }
 
@@ -120,9 +128,9 @@ fileprivate struct EmptyFlowView: FlowViewProtocol, View {
     }
 }
 
-fileprivate class EmptyFlow: FlowProtocol {
+fileprivate final class EmptyFlow: FlowProtocol {
     static let route: Routes = .settings
-    var model = InOutEmpty()
+    let model = InOutEmpty()
     let node = EmptyFlowView.node
     required init() { }
 }

@@ -9,7 +9,7 @@ public typealias Out = (any InOutProtocol) async throws -> Results
 public typealias Event = (any FlowEventProtocol) async throws -> any InOutProtocol
 
 /// Results is the enum that contains the Out function result
-public enum Results {
+public enum Results: Sendable {
     case model(any InOutProtocol)
     case node(any CoordinatorNodeProtocol, any InOutProtocol)
 //    case route(any Routable, any InOutProtocol)

@@ -56,7 +56,7 @@ struct Page1View: FlowViewProtocol, View {
     func onEventChanged(event: Event, model: some InOutProtocol) async {
         switch event {
         case .update(let date):
-            model.time = date.description
+            self.model.time = date.description
         }
     }
 }
@@ -68,6 +68,7 @@ struct WidgetView: View, FlowWidgetProtocol {
     public enum Out: FlowOutProtocol {
         case page2
     }
+    @EnumAllCases
     public enum Event: FlowEventProtocol {
         case update(Date)
     }

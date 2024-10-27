@@ -19,7 +19,7 @@ struct FlowApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                // 
+                // Join page to the flow
                 .join(flow: ContentFlow())
         }
     }

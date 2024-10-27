@@ -9,11 +9,11 @@ import FlowKit
 public final class ExampleFlow: FlowProtocol {
 
     // The route variable is mandatory and must be an enum that implements Routable.
-    public static var route: ExampleRoutes = .example
+    public static let route: ExampleRoutes = .example
 
     // The model variable is mandatory, it is an object that implements InOutProtocol 
     // and is the return value you have at the closure or completion of the flow.
-    public var model = InOutModel()
+    public let model = InOutModel()
 
     // The node variable is mandatory and represents the root node of your flow.
     // You can use the builder to construct your flow declaratively.
@@ -42,8 +42,8 @@ extension ExampleFlow {
     // You can use it to carry out checks before the flow starts,
     // to manage settings or more.
     public func onStart(model: some InOutProtocol) async throws -> any InOutProtocol {
-        let exampleService: ExampleServiceProtocol = NetworkService()
-        let user = try await exampleService.userInfo()
+        let networkService = await NetworkService()
+        let user = try await networkService.getUserInfo()
         guard user.isAdmin else {
             throw FlowError.generic
         }

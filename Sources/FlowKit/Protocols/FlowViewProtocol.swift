@@ -8,10 +8,10 @@
 import SwiftUI
 
 /// InOutProtocol is the protocol for the input/output model
-public protocol InOutProtocol: Identifiable { }
+public protocol InOutProtocol: Identifiable, Sendable { }
 
 /// FlowEventProtocol is the protocol for the action events
-public protocol FlowEventProtocol: Identifiable, CaseIterable {
+public protocol FlowEventProtocol: Identifiable, CaseIterable, Sendable {
     func udpate(associatedValue: some InOutProtocol) -> Self
 }
 
@@ -25,17 +25,17 @@ public protocol FlowViewProtocol: Navigable {
     associatedtype Event: FlowEventProtocol = EventBase
 
     /// The model for the view
-    @MainActor @preconcurrency var model: In { get }
+    @MainActor var model: In { get }
     /// AsyncSequence for manage the events
     var events: AsyncThrowingSubject<CoordinatorEvent> { get async }
     /// Init the view with model
-    @MainActor @preconcurrency init(model: In)
+    @MainActor init(model: In)
     /// Factory function to create the view
-    @MainActor @preconcurrency static func factory(model: some InOutProtocol) async throws -> Self
+    @MainActor static func factory(model: some InOutProtocol) async throws -> Self
     /// Function to handle the event change
-    @MainActor @preconcurrency func onEventChanged(event: Event, model: some InOutProtocol) async
+    @MainActor func onEventChanged(event: Event, model: some InOutProtocol) async
     /// Function to handle the commit
-    @MainActor @preconcurrency func onCommit(model: some InOutProtocol) async
+    @MainActor func onCommit(model: some InOutProtocol) async
 }
 
 public extension FlowViewProtocol {
@@ -48,7 +48,7 @@ public extension FlowViewProtocol {
     /// - Returns: the view event
     func parse(_ event: any FlowEventProtocol) throws -> any FlowEventProtocol {
         guard let parsed = Event.allCases.first(where: { $0.id == event.id}) else {
-            throw FlowError.partialMapping(String(describing: out))
+            throw FlowError.partialMapping(String(describing: event))
         }
         guard let associated = event.associated.value else {
             return parsed
@@ -81,7 +81,7 @@ public extension FlowViewProtocol {
     /// - Parameters:
     /// - model: the input model
     /// - Returns: the view
-    @MainActor @preconcurrency static func factory(model: some InOutProtocol) async throws -> Self {
+    @MainActor static func factory(model: some InOutProtocol) async throws -> Self {
         guard let m = model as? Self.In else {
             throw FlowError.invalidModel("\(model)".id)
         }
@@ -89,7 +89,7 @@ public extension FlowViewProtocol {
     }
 
     /// Function to handle the event change internally
-    internal func onEventChange(event: some FlowEventProtocol, model: some InOutProtocol) async {
+    @MainActor internal func onEventChange(event: some FlowEventProtocol, model: some InOutProtocol) async {
         guard let e = event as? Event else { return }
         await onEventChanged(event: e, model: model)
     }
@@ -98,12 +98,12 @@ public extension FlowViewProtocol {
     /// - Parameters:
     /// - event: the event
     /// - model: the model
-    @MainActor @preconcurrency func onEventChanged(event: Event, model: some InOutProtocol) async { }
+    @MainActor func onEventChanged(event: Event, model: some InOutProtocol) async { }
 
     /// Default implementation of function to handle the commit event
     /// - Parameters:
     /// - model: the model
-    @MainActor @preconcurrency func onCommit(model: some InOutProtocol) async { }
+    @MainActor func onCommit(model: some InOutProtocol) async { }
 
     /// Implementation of test function
     /// - Parameters:
@@ -114,7 +114,9 @@ public extension FlowViewProtocol {
     
     /// Navigate back
     func back() {
-        Task { await events.send(.back) }
+        Task {
+            await events.send(.back)
+        }
     }
     
     /// Navigate to next view
@@ -207,7 +209,7 @@ public extension InOutProtocol where Self == InOutEmpty  {
 /// FlowViewEmpty is the empty flow view
 public struct FlowViewEmpty: View, FlowViewProtocol {
     public let model: InOutEmpty
-    public init(model: InOutEmpty = .empty) {
+    @MainActor public init(model: InOutEmpty = .empty) {
         self.model = model
     }
     public var body: some View { EmptyView() }

@@ -6,7 +6,7 @@
 //
 
 /// CoordinatorJoinProtocol is the protocol for the coordinator join
-public protocol CoordinatorJoinProtocol {
+public protocol CoordinatorJoinProtocol: Sendable {
     associatedtype Event: FlowOutProtocol
     associatedtype Node: Nodable
 
@@ -33,13 +33,15 @@ public protocol CoordinatorProtocol {
 }
 
 /// Presentable is the protocol for the presentable view
-public protocol Presentable: Navigable {
+@MainActor public protocol Presentable: Navigable {
     /// Dismiss the view
     var dismiss: () -> () { get }
 }
 
 extension Presentable {
-    public var dismiss: () -> () { Resolver.resolve(NavigationProtocol.self).dismiss }
+    public var dismiss: () -> () {
+        Resolver.resolve(NavigationProtocol.self).dismiss
+    }
 }
 
 extension CoordinatorNodeProtocol {

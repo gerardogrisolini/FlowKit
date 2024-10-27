@@ -5,51 +5,51 @@
 //  Created by Gerardo Grisolini on 06/03/24.
 //
 
-import XCTest
+import Testing
 import SwiftUI
 @testable import FlowKit
 
-final class FlowTests: XCTestCase {
+final class FlowTests {
 
-    func testValidFlow() async throws {
+    @Test func testValidFlow() async throws {
         try await ValidFlow().test()
     }
 
-    func testPartialMappingFlow() async {
+    @Test func testPartialMappingFlow() async {
         do {
             try await PartialMappingFlow().test()
         } catch {
-            XCTAssert(error is FlowError)
+            #expect(error is FlowError)
         }
     }
 
-    func testInvalidFlow() async {
+    @Test func testInvalidFlow() async {
         do {
             try await InvalidFlow().test()
         } catch {
-            XCTAssert(error is FlowError)
+            #expect(error is FlowError)
         }
     }
 
-    func testRegistrationWithFlowRouting() {
-        let navigation = FlowKit.registerNavigationSwiftUI()
-        let assert = navigation.items.contains(Routes.valid.rawValue)
-        && navigation.items.contains(Routes.invalid.rawValue)
-        && navigation.items.contains(Routes.partial.rawValue)
-        XCTAssertTrue(assert)
+    @Test func testRegistrationWithFlowRouting() async throws {
+        let navigation = await FlowKit.registerNavigationSwiftUI()
+        try await Task.sleep(nanoseconds: 1500000)
+        #expect(await navigation.items.contains(Routes.valid.rawValue))
+        #expect(await navigation.items.contains(Routes.invalid.rawValue))
+        #expect(await navigation.items.contains(Routes.partial.rawValue))
     }
 
-    func testRegistrationWithoutFlowRouting() {
-        let navigation = FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
-        XCTAssertTrue(navigation.items.isEmpty)
+    @Test func testRegistrationWithoutFlowRouting() async {
+        let navigation = await FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
+        #expect(await navigation.items.isEmpty)
     }
 }
 
-private class InOutEmpty2: InOutProtocol {
+private final class InOutEmpty2: InOutProtocol {
     required init() { }
 }
 
-private class InOutEmpty3: InOutProtocol {
+private final class InOutEmpty3: InOutProtocol {
     required init() { }
 }
 
@@ -58,7 +58,14 @@ private struct InOutEmptyView: FlowViewProtocol, View {
     enum Out: FlowOutProtocol {
         case empty2(InOutEmpty2)
         case empty3(InOutEmpty3)
+//        typealias Model = {
+//            switch self {
+//            case .empty2: return InOutEmpty2.self
+//            case .empty3: return InOutEmpty3.self
+//            }
+//        }
     }
+
     let model: InOutEmpty
     init(model: InOutEmpty) {
         self.model = model
@@ -97,9 +104,9 @@ fileprivate enum Routes: String, Routable {
     case invalid
 }
 
-fileprivate class ValidFlow: FlowProtocol {
+fileprivate final class ValidFlow: FlowProtocol {
     static let route: Routes = .valid
-    var model = InOutEmpty()
+    let model = InOutEmpty()
     let node = InOutEmptyView.node {
         $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
         $0.empty3(InOutEmpty3()) ~ InOutEmpty3View.node
@@ -107,18 +114,18 @@ fileprivate class ValidFlow: FlowProtocol {
     required init() { }
 }
 
-fileprivate class PartialMappingFlow: FlowProtocol {
+fileprivate final class PartialMappingFlow: FlowProtocol {
     static let route: Routes = .partial
-    var model = InOutEmpty2()
+    let model = InOutEmpty2()
     let node = InOutEmptyView.node {
         $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
     }
     required init() { }
 }
 
-fileprivate class InvalidFlow: FlowProtocol {
+fileprivate final class InvalidFlow: FlowProtocol {
     static let route: Routes = .invalid
-    var model = InOutEmpty3()
+    let model = InOutEmpty3()
     let node = InOutEmptyView.node {
         $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
         $0.empty3(InOutEmpty3()) ~ InOutEmptyView.node

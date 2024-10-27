@@ -11,6 +11,7 @@ import Combine
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationControllerDelegate {
     public var navigationController: UINavigationController? {
         didSet {
@@ -30,12 +31,18 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     public var routes: [String] = []
 	public var items = NavigationItems()
 
-    public func navigate(routeString: String) {
-         try? push(route: routeString)
+    required public override init() { }
+
+    nonisolated public func navigate(routeString: String) {
+        Task { @MainActor in
+            try? push(route: routeString)
+        }
     }
     
-    public func present(routeString: String) {
-        try? present(route: routeString)
+    nonisolated public func present(routeString: String) {
+        Task { @MainActor in
+            try? present(route: routeString)
+        }
     }
     
     public func navigate(route: some Routable) throws {
@@ -54,23 +61,17 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
             guard let vc = items[route]?() as? UIViewController else {
                 throw FlowError.routeNotFound
             }
-            DispatchQueue.main.async {
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
+            navigationController?.pushViewController(vc, animated: true)
             return
 		}
-        DispatchQueue.main.async {
-            let controller = UIHostingController(rootView: AnyView(view))//.modifier(SwiftUIKitNavigationModifier()))
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
+        let controller = UIHostingController(rootView: AnyView(view))//.modifier(SwiftUIKitNavigationModifier()))
+        navigationController?.pushViewController(controller, animated: true)
 	}
 	
 	public func pop() {
         guard let route = routes.last else { return }
         removeRoute(route)
-        DispatchQueue.main.async {
-            self.navigationController?.popViewController(animated: true)
-        }
+        navigationController?.popViewController(animated: true)
 	}
 	
     public func popToFlow() {
@@ -102,24 +103,18 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
                 return
             }
 
-            DispatchQueue.main.async {
-                self.navigationController?.popToViewController(vc, animated: true)
-            }
+            navigationController?.popToViewController(vc, animated: true)
             return
         }
 
-        DispatchQueue.main.async {
-            self.navigationController?.popToViewController(vc, animated: true)
-        }
+        navigationController?.popToViewController(vc, animated: true)
     }
 
     public func popToRoot() {
         for route in routes {
             removeRoute(route)
         }
-        DispatchQueue.main.async {
-            self.navigationController?.popToRootViewController(animated: true)
-        }
+        navigationController?.popToRootViewController(animated: true)
 	}
 
     private func presentView(_ controller: UIViewController) {
@@ -144,24 +139,18 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
             guard let controller = items[route]?() as? UIViewController else {
                 throw FlowError.routeNotFound
             }
-            DispatchQueue.main.async {
-                self.presentView(controller)
-            }
+            presentView(controller)
             return
 		}
 
-        DispatchQueue.main.async {
-            let controller: UIViewController = UIHostingController(rootView: AnyView(view))
-            self.presentView(controller)
-        }
+        let controller: UIViewController = UIHostingController(rootView: AnyView(view))
+        presentView(controller)
 	}
 	
 	public func dismiss() {
         guard let route = routes.last else { return }
         removeRoute(route)
-        DispatchQueue.main.async {
-            self.navigationController?.dismiss(animated: true)
-        }
+        navigationController?.dismiss(animated: true)
 	}
     
     private func removeRoute(_ route: String) {
@@ -182,7 +171,6 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     }
     
     //MARK: - UINavigationControllerDelegate
-    
     public func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         guard let dismissedViewController = navigationController.transitionCoordinator?.viewController(forKey: .from),
                 !navigationController.viewControllers.contains(dismissedViewController) else {

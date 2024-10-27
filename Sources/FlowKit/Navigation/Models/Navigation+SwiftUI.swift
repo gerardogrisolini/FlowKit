@@ -8,21 +8,26 @@
 import SwiftUI
 import Combine
 
+@MainActor
 public class NavigationSwiftUI: NavigationProtocol {
     public var action = PassthroughSubject<NavigationAction, Never>()
 	public var routes: [String] = []
     public var items = NavigationItems()
 
-	required public init() { }
+    required public init() { }
 
-    public func navigate(routeString: String) {
-        routes.append(routeString)
-        action.send(.navigate(routeString))
+    nonisolated public func navigate(routeString: String) {
+        Task { @MainActor in
+            routes.append(routeString)
+            action.send(.navigate(routeString))
+        }
     }
     
-    public func present(routeString: String) {
-        routes.append(routeString)
-        action.send(.present(routeString))
+    nonisolated public func present(routeString: String) {
+        Task { @MainActor in
+            routes.append(routeString)
+            action.send(.present(routeString))
+        }
     }
     
 	public func navigate(route: some Routable) throws {

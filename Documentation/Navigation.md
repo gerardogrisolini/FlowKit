@@ -71,5 +71,4 @@ navigation.popToFlow()
 
 // Dismissal of a presented page
 navigation.dismiss()
-}
 ```
