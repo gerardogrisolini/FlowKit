@@ -62,7 +62,7 @@ struct Page1View: FlowViewProtocol, View {
 ```
 
 ##### Widget of page
-```
+```swift
 struct WidgetView: View, FlowWidgetProtocol {
     public enum Out: FlowOutProtocol {
         case page2
