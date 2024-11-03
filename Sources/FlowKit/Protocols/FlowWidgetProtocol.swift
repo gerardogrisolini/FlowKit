@@ -39,7 +39,7 @@ public extension EnvironmentValues {
     func out(_ event: Out) {
         do {
             let next = try parent.parse(event)
-            Task { await parent.events.send(.next(next)) }
+            parent.events.send(.next(next))
         } catch {
             print(error)
         }
@@ -51,7 +51,7 @@ public extension EnvironmentValues {
     func event(_ event: Event) {
         do {
             let e = try parent.parse(event)
-            Task { await parent.events.send(.event(e)) }
+            parent.events.send(.event(e))
         } catch {
             print(error)
         }
@@ -69,13 +69,13 @@ public extension EnvironmentValues {
     /// - Parameters:
     /// - view: the view to present
     func present(_ view: some Presentable) {
-        Task { await parent.events.send(.present(view)) }
+        parent.events.send(.present(view))
     }
 
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
     func navigate(_ view: some Navigable) {
-        Task { await parent.events.send(.navigate(view)) }
+        parent.events.send(.navigate(view))
     }
 }

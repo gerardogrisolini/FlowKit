@@ -3,13 +3,14 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 import SwiftDiagnostics
-import Foundation
 
-public struct EnumAllCasesMacro: MemberMacro {
+public struct FlowCasesMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
         of node: SwiftSyntax.AttributeSyntax,
         providingMembersOf declaration: Declaration,
         in context: Context) throws -> [SwiftSyntax.DeclSyntax] where Declaration : SwiftSyntax.DeclGroupSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
+
+            let modifier = declaration.hasPublicModifier ? "public " : ""
 
             guard let declaration = declaration.as(EnumDeclSyntax.self) else {
                 let enumError = Diagnostic(node: node._syntaxNode, message: Diagnostics.mustBeEnum)
@@ -31,8 +32,8 @@ public struct EnumAllCasesMacro: MemberMacro {
             }
 
             let caseIds: [String] = enumCases.map(\.description).map { $0.replacingOccurrences(of: ",", with: "") }
-            let modifier = declaration.hasPublicModifier ? "public " : ""
             let allCases = "\(modifier)static var allCases: [\(declaration.name)] { [\(caseIds.map { ".\($0.hasSuffix(")") ? $0.replacingOccurrences(of: ")", with: "())") : $0 )" }.joined(separator: ","))] }"
+            var joinFuncs: [DeclSyntax] = []
             var updateFunc = """
 \(modifier)func udpate(associatedValue: some InOutProtocol) -> Self {
     switch self {
@@ -47,10 +48,19 @@ public struct EnumAllCasesMacro: MemberMacro {
                 updateFunc += "case .\(name)(_):"
                 updateFunc += "guard let model = associatedValue as? \(type) else { return self }"
                 updateFunc += "return .\(name)(model)"
+
+                let joinFunc = """
+\(modifier)static var \(name): (out: Self, model: \(type)) {
+    (.\(name)(\(type)()), \(type)())
+}
+"""
+                joinFuncs.append(DeclSyntax(stringLiteral: joinFunc))
             }
+
             if filteredCaseIds.count < caseIds.count {
                 updateFunc += "default: return self"
             }
+
             updateFunc += """
     }
 }
@@ -58,7 +68,7 @@ public struct EnumAllCasesMacro: MemberMacro {
             return [
                 DeclSyntax(stringLiteral: allCases),
                 DeclSyntax(stringLiteral: updateFunc)
-            ]
+            ] + joinFuncs
         }
 
     public enum Diagnostics: String, DiagnosticMessage {
@@ -68,14 +78,14 @@ public struct EnumAllCasesMacro: MemberMacro {
         public var message: String {
             switch self {
             case .mustBeEnum:
-                return "`@EnumAllCasesMacro` can only be applied to an `enum`"
+                return "`@FlowCases` can only be applied to an `enum`"
             case .mustHaveCases:
-                return "`@EnumAllCasesMacro` can only be applied to an `enum` with `case` statements"
+                return "`@FlowCases` can only be applied to an `enum` with `case` statements"
             }
         }
 
         public var diagnosticID: MessageID {
-            MessageID(domain: "EnumAllCasesMacro", id: rawValue)
+            MessageID(domain: "FlowCasesMacro", id: rawValue)
         }
 
         public var severity: DiagnosticSeverity { .error }
@@ -104,7 +114,6 @@ private extension DeclGroupSyntax {
 @main
 struct MacroPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        EnumAllCasesMacro.self,
+        FlowCasesMacro.self
     ]
 }
-

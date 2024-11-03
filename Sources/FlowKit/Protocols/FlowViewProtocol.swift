@@ -25,17 +25,17 @@ public protocol FlowViewProtocol: Navigable {
     associatedtype Event: FlowEventProtocol = EventBase
 
     /// The model for the view
-    @MainActor var model: In { get }
+    var model: In { get }
     /// AsyncSequence for manage the events
-    var events: AsyncThrowingSubject<CoordinatorEvent> { get async }
+    var events: AsyncThrowingSubject<CoordinatorEvent> { get }
     /// Init the view with model
     @MainActor init(model: In)
     /// Factory function to create the view
-    @MainActor static func factory(model: some InOutProtocol) async throws -> Self
+    static func factory(model: some InOutProtocol) async throws -> Self
     /// Function to handle the event change
-    @MainActor func onEventChanged(event: Event, model: some InOutProtocol) async
+    func onEventChanged(event: Event, model: some InOutProtocol) async
     /// Function to handle the commit
-    @MainActor func onCommit(model: some InOutProtocol) async
+    func onCommit(model: some InOutProtocol) async
 }
 
 public extension FlowViewProtocol {
@@ -71,25 +71,25 @@ public extension FlowViewProtocol {
     }
 
     /// Implementation of events injected from a EventStore
-    var events: AsyncThrowingSubject<CoordinatorEvent> {
-        get async {
-            await eventStore.get(key: id)
-        }
-    }
+//    var events: AsyncThrowingSubject<CoordinatorEvent> {
+//        get async {
+//            await eventStore.get(key: id)
+//        }
+//    }
 
     /// Implementation of factory function to create the view
     /// - Parameters:
     /// - model: the input model
     /// - Returns: the view
-    @MainActor static func factory(model: some InOutProtocol) async throws -> Self {
+    static func factory(model: some InOutProtocol) async throws -> Self {
         guard let m = model as? Self.In else {
             throw FlowError.invalidModel("\(model)".id)
         }
-        return Self(model: m)
+        return await Self(model: m)
     }
 
     /// Function to handle the event change internally
-    @MainActor internal func onEventChange(event: some FlowEventProtocol, model: some InOutProtocol) async {
+    internal func onEventChange(event: some FlowEventProtocol, model: some InOutProtocol) async {
         guard let e = event as? Event else { return }
         await onEventChanged(event: e, model: model)
     }
@@ -98,39 +98,37 @@ public extension FlowViewProtocol {
     /// - Parameters:
     /// - event: the event
     /// - model: the model
-    @MainActor func onEventChanged(event: Event, model: some InOutProtocol) async { }
+    func onEventChanged(event: Event, model: some InOutProtocol) async { }
 
     /// Default implementation of function to handle the commit event
     /// - Parameters:
     /// - model: the model
-    @MainActor func onCommit(model: some InOutProtocol) async { }
+    func onCommit(model: some InOutProtocol) async { }
 
     /// Implementation of test function
     /// - Parameters:
     /// - event: the event
     func test(event: Event) async throws {
-        await onEventChanged(event: event, model: .empty)
+        await onEventChanged(event: event, model: InOutEmpty())
     }
     
     /// Navigate back
     func back() {
-        Task {
-            await events.send(.back)
-        }
+        events.send(.back)
     }
     
     /// Navigate to next view
     /// - Parameters:
     /// - event: the event
     func out(_ event: Out) {
-        Task { await events.send(.next(event)) }
+        events.send(.next(event))
     }
     
     /// Execute an event
     /// - Parameters:
     /// - event: the event
     func event(_ event: Event) {
-        Task { await events.send(.event(event)) }
+        events.send(.event(event))
     }
     
     /// Commit the model and popToFlow or popToRoot
@@ -138,25 +136,28 @@ public extension FlowViewProtocol {
     /// - model: the model to commit
     /// - toRoot: if true pop to root
     func commit(_ model: some InOutProtocol, toRoot: Bool = false) {
-        Task { await events.send(.commit(model, toRoot: toRoot)) }
+        events.send(.commit(model, toRoot: toRoot))
     }
     
     /// Present a view
     /// - Parameters:
     /// - view: the view to present
     func present(_ view: some Presentable) {
-        Task { await events.send(.present(view)) }
+        events.send(.present(view))
     }
 
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
     func navigate(_ view: some Navigable) {
-        Task { await events.send(.navigate(view)) }
+        events.send(.navigate(view))
     }
 }
 
 public extension InOutProtocol {
+    /// The id of the model
+    var id: String { className }
+
     /// The className of the model
     var className: String {
         String(describing: self).className
@@ -202,15 +203,8 @@ public extension String {
     }
 }
 
-public extension InOutProtocol where Self == InOutEmpty  {
-    static var empty: Self { .init() }
-}
-
 /// FlowViewEmpty is the empty flow view
+@FlowView(InOutEmpty.self)
 public struct FlowViewEmpty: View, FlowViewProtocol {
-    public let model: InOutEmpty
-    @MainActor public init(model: InOutEmpty = .empty) {
-        self.model = model
-    }
     public var body: some View { EmptyView() }
 }

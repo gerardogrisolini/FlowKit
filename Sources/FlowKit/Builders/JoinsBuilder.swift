@@ -59,6 +59,17 @@ public extension FlowViewProtocol {
 }
 
 infix operator ~
-public func ~<Out: FlowOutProtocol, Node: Nodable>(out: Out, node: Node) -> any CoordinatorJoinProtocol {
+public func ~<Out: FlowOutProtocol, Node: Nodable>(out: Out, node: Node) -> any CoordinatorJoinProtocol where Node.Model == InOutEmpty {
     Join(out, node)
+}
+
+public typealias JoinView<E: FlowEventProtocol, M: InOutProtocol> = (E, M)
+public typealias JoinRoute<R: Routable, M: InOutProtocol> = (R, M)
+
+public func ~<E: FlowOutProtocol, M: InOutProtocol, Node: Nodable>(out: JoinView<E, M>, node: Node) -> any CoordinatorJoinProtocol where M == Node.Model {
+    Join(out.0, node)
+}
+
+public func ~<E: FlowOutProtocol, R: Routable, M: InOutProtocol>(out: JoinView<E, M>, node: JoinRoute<R, M>) -> any CoordinatorJoinProtocol {
+    Join(out.0, node.0)
 }

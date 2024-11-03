@@ -18,7 +18,7 @@ public struct OutJoin<T: FlowOutProtocol>: OutJoinProtocol {
     public let from: T
     public let to: Out
 
-    public init(_ from: T, _ to: @escaping Out) {
+    public init(_ from: T, _ to: @escaping @Sendable Out) {
         self.from = from
         self.to = to
     }
@@ -66,6 +66,11 @@ public enum OutsBuilder {
 }
 
 infix operator ~
-public func ~<T: FlowOutProtocol>(from: T, to: @escaping Out) -> any OutJoinProtocol {
+public func ~<T: FlowOutProtocol>(from: T, to: @escaping @Sendable Out) -> any OutJoinProtocol {
     OutJoin(from, to)
 }
+
+public func ~<E: FlowOutProtocol, M: InOutProtocol>(out: JoinView<E, M>, to: @escaping @Sendable Out) -> any OutJoinProtocol {
+    OutJoin(out.0, to)
+}
+

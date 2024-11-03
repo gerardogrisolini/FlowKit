@@ -11,12 +11,11 @@ import Testing
 
 struct FlowViewTests {
 
-    fileprivate let sut = ParentView(model: .empty)
-
     @Test func testAllEvents() async throws {
         var eventsCount: Int = 0
+        let sut = await ParentView()
 
-        Task {
+        Task { @MainActor in
             try await Task.sleep(nanoseconds: 1500000)
             sut.back()
             sut.out(.out1)
@@ -29,7 +28,7 @@ struct FlowViewTests {
             sut.commit(InOutEmpty(), toRoot: false)
         }
 
-        for try await event in await sut.events {
+        for try await event in sut.events {
             switch event {
             case .back:
                 eventsCount += 1
@@ -48,7 +47,7 @@ struct FlowViewTests {
             case .commit(_, toRoot: let toRoot):
                 eventsCount += 1
                 #expect(!toRoot)
-                await sut.events.finish()
+                sut.events.finish()
             }
         }
 
@@ -56,12 +55,12 @@ struct FlowViewTests {
     }
 
     @Test func testGoodMappingWidget() async throws {
-        try await WidgetView(model: .empty).test(parent: ParentView(model: .empty))
+        try await WidgetView().test(parent: ParentView())
     }
 
     @Test func testBadMappingWidget() async throws {
         do {
-            try await WidgetView(model: .empty).test(parent: BadParentView(model: .empty))
+            try await WidgetView().test(parent: BadParentView())
         } catch {
             #expect(true)
         }
@@ -77,35 +76,35 @@ fileprivate struct WidgetView: FlowWidgetProtocol, View {
     enum Event: FlowEventProtocol {
         case event1, event2
     }
-    let model: InOutEmpty
+    let model = InOutEmpty()
 
     var body: some View {
         Text("WidgetView")
     }
 }
 
-fileprivate struct ParentView: FlowViewProtocol, View {
+@FlowView(InOutEmpty.self)
+private struct ParentView: FlowViewProtocol, View {
     enum Out: FlowOutProtocol {
         case out1, out2
     }
     enum Event: FlowEventProtocol {
         case event1, event2
     }
-    let model: InOutEmpty
 
     var body: some View {
         Text("ParentView")
     }
 }
 
-fileprivate struct BadParentView: FlowViewProtocol, View {
+@FlowView(InOutEmpty.self)
+private struct BadParentView: FlowViewProtocol, View {
     enum Out: FlowOutProtocol {
         case out1
     }
     enum Event: FlowEventProtocol {
         case event1
     }
-    let model: InOutEmpty
 
     var body: some View {
         Text("BadParentView")

@@ -12,8 +12,8 @@ public protocol Navigable: Sendable { }
 
 /// Nodable is the protocol that must implement to be nodable
 public protocol Nodable: Sendable {
-//    associatedtype Model: InOutProtocol
-//    var model: Model.Type { get }
+    associatedtype Model: InOutProtocol
+    var model: Model.Type { get }
 }
 
 /// Routable is the protocol that a view or flow must implement to be routable
@@ -97,7 +97,7 @@ public extension Navigable {
     }
 }
 
-//public extension Routable {
-//    
-//    var model: InOutEmpty.Type { InOutEmpty.self }
-//}
+public extension Routable {
+    
+    var model: InOutEmpty.Type { InOutEmpty.self }
+}

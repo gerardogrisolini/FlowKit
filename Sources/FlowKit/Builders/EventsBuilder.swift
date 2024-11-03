@@ -18,7 +18,7 @@ public struct EventJoin<T: FlowEventProtocol>: EventJoinProtocol {
     public let from: T
     public let to: Event
 
-    public init(_ from: T, _ to: @escaping Event) {
+    public init(_ from: T, _ to: @escaping @Sendable Event) {
         self.from = from
         self.to = to
     }
@@ -66,6 +66,10 @@ public enum EventsBuilder {
 }
 
 infix operator ~
-public func ~<T: FlowEventProtocol>(from: T, to: @escaping Event) -> any EventJoinProtocol {
+public func ~<T: FlowEventProtocol>(from: T, to: @escaping @Sendable Event) -> any EventJoinProtocol {
     EventJoin(from, to)
+}
+
+public func ~<E: FlowEventProtocol, M: InOutProtocol>(out: JoinView<E, M>, to: @escaping @Sendable Event) -> any EventJoinProtocol {
+    EventJoin(out.0, to)
 }

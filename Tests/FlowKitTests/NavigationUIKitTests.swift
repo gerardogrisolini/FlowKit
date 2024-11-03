@@ -19,7 +19,7 @@ final class NavigationUIKitTests {
     @Test func testRegisterAndNavigateToRoute() async throws {
         let view = UIViewController()
         sut.register(route: Routes.home) { view }
-        #expect(await sut.items[Routes.home.rawValue]?() is UIViewController)
+        #expect(sut.items[Routes.home.rawValue]?() is UIViewController)
 
         try sut.navigate(route: Routes.home)
         #expect(sut.routes.last == Routes.home.rawValue)
@@ -47,7 +47,7 @@ final class NavigationUIKitTests {
         sut.popToRoot()
         try await Task.sleep(nanoseconds: 5000)
         #expect(sut.routes.isEmpty)
-        #expect(await sut.items.isEmpty)
+        #expect(sut.items.isEmpty)
     }
 
     @Test func testPopToFlow() async throws {
@@ -63,7 +63,7 @@ final class NavigationUIKitTests {
         sut.popToFlow()
         try await Task.sleep(nanoseconds: 5000)
         #expect(sut.routes.count == 1)
-        #expect(await sut.items.count == 2)
+        #expect(sut.items.count == 2)
     }
 
     @Test func testPresentAndDismissView() async throws {
@@ -86,21 +86,13 @@ fileprivate enum Routes: String, Routable {
     case settings
 }
 
+@Flow(InOutEmpty.self, route: Routes.settings)
 fileprivate final class EmptyFlow: FlowProtocol {
-    static let route: Routes = .settings
-    let model = InOutEmpty()
     let node = EmptyFlowView.node
-    required init() { }
 }
 
-fileprivate class EmptyFlowView: UIViewController, FlowViewProtocol {
-    let model: InOutEmpty
-
-    required init(model: InOutEmpty = InOutEmpty()) {
-        self.model = model
-        super.init(nibName: nil, bundle: nil)
-    }
-
+@FlowView(InOutEmpty.self)
+fileprivate final class EmptyFlowView: UIViewController, FlowViewProtocol {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

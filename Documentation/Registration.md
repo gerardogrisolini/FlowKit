@@ -7,10 +7,10 @@ Register the navigation and services your app requires.
 @main
 struct FlowApp: App {
     init() {
-        // Inizialize and register the navigation
+        /// Inizialize and register the navigation
         FlowKit.initialize()
         
-        // Register the other services you need
+        /// Register the other services you need
         FlowKit.register(scope: .application) {
             FlowNetwork() as FlowNetworkProtocol
         }
@@ -19,7 +19,7 @@ struct FlowApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                // Join page to the flow
+                /// Join page to the flow
                 .join(flow: ContentFlow())
         }
     }

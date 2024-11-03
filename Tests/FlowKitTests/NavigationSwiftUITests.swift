@@ -43,7 +43,7 @@ final class NavigationSwiftUITests {
         sut.popToRoot()
         try await Task.sleep(nanoseconds: 5000)
         #expect(sut.routes.isEmpty)
-        #expect(await sut.items.isEmpty)
+        #expect(sut.items.isEmpty)
     }
 
     @Test @MainActor func testPopToFlow() async throws {
@@ -60,7 +60,7 @@ final class NavigationSwiftUITests {
         sut.popToFlow()
         try await Task.sleep(nanoseconds: 5000)
         #expect(sut.routes.count == 1)
-        #expect(await sut.items.count == 2)
+        #expect(sut.items.count == 2)
     }
 
     @Test func testPresentAndDismissView() async throws {
@@ -117,21 +117,15 @@ fileprivate enum Routes: String, Routable {
     case settings
 }
 
+@FlowView(InOutEmpty.self)
 fileprivate struct EmptyFlowView: FlowViewProtocol, View {
-    let model: InOutEmpty
-    init(model: InOutEmpty = InOutEmpty()) {
-        self.model = model
-    }
-
     var body: some View {
         EmptyView()
     }
 }
 
+@Flow(InOutEmpty.self, route: Routes.settings)
 fileprivate final class EmptyFlow: FlowProtocol {
-    static let route: Routes = .settings
-    let model = InOutEmpty()
     let node = EmptyFlowView.node
-    required init() { }
 }
 

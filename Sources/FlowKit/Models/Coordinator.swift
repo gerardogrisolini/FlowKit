@@ -5,9 +5,6 @@
 //  Created by Gerardo Grisolini on 07/02/23.
 //
 
-// Global events store
-let eventStore = EventStore()
-
 /// Coordinator is the object that manages the flow
 @MainActor final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 
@@ -50,59 +47,61 @@ let eventStore = EventStore()
             navigation.navigate(view: view)
         }
 
-        for try await event in await view.events {
-            switch event {
-            case .back:
-                navigation.pop()
+        for try await event in view.events {
+            do {
+                switch event {
+                case .back:
+                    navigation.pop()
 
-            case .next(let next):
-                let data = next.associated.value ?? InOutEmpty()
-                guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
-                    throw FlowError.eventNotFound
+                case .next(let next):
+                    let data = next.associated.value ?? InOutEmpty()
+                    guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
+                        throw FlowError.eventNotFound
+                    }
+
+                    guard let out = getOut(next) else {
+                        try await parseJoin(join, data)
+                        continue
+                    }
+
+                    switch try await out(data) {
+                    case .model(let m):
+                        try await parseJoin(join, m)
+                    case .node(let n, let m):
+                        try await show(node: n, model: m)
+                    }
+
+                case .event(let event):
+                    guard let flowEvent = getEvent(event) else {
+                        await view.onEventChange(event: event, model: view.model)
+                        continue
+                    }
+                    let model = try await flowEvent(event)
+                    await view.onEventChange(event: event, model: model)
+
+                case .commit(let m, let toRoot):
+                    guard let model = m as? Flow.Model else {
+                        throw FlowError.invalidModel(String(describing: Flow.Model.self))
+                    }
+                    await parent?.onCommit(model: model)
+                    guard toRoot else {
+                        navigation.popToFlow()
+                        continue
+                    }
+                    navigation.popToRoot()
+
+                case .navigate(let view):
+                    navigation.navigate(view: view)
+
+                case .present(let view):
+                    navigation.present(view: view)
                 }
 
-                guard let out = getOut(next) else {
-                    try await parseJoin(join, data)
-                    continue
-                }
-
-                switch try? await out(data) {
-                case .model(let m):
-                    try await parseJoin(join, m)
-                case .node(let n, let m):
-                    try await show(node: n, model: m)
-                case .none:
-                    continue
-                }
-                
-            case .event(let event):
-                guard let flowEvent = getEvent(event) else {
-                    await view.onEventChange(event: event, model: view.model)
-                    continue
-                }
-                let model = try await flowEvent(event)
-                await view.onEventChange(event: event, model: model)
-
-            case .commit(let m, let toRoot):
-                guard let model = m as? Flow.Model else {
-                    throw FlowError.invalidModel(String(describing: Flow.Model.self))
-                }
-                await parent?.onCommit(model: model)
-                guard toRoot else {
-                    navigation.popToFlow()
-                    continue
-                }
-                navigation.popToRoot()
-
-            case .navigate(let view):
-                navigation.navigate(view: view)
-
-            case .present(let view):
-                navigation.present(view: view)
+            } catch {
+                print(error)
+                continue
             }
-		}
-
-        await eventStore.remove(view.id)
+        }
     }
 }
 
@@ -121,9 +120,6 @@ public enum CoordinatorEvent: Sendable {
 public final class InOutEmpty: InOutProtocol {
     public init() { }
 }
-public final class InOutNotEmpty: InOutProtocol {
-    public init() { }
-}
 
 /// EventEmpty is the empty event
 public enum EventBase: FlowEventProtocol {
@@ -131,6 +127,4 @@ public enum EventBase: FlowEventProtocol {
 }
 
 /// OutEmpty is the empty out event
-public enum OutEmpty: FlowOutProtocol {
-    public typealias Model = InOutEmpty
-}
+public enum OutEmpty: FlowOutProtocol { }

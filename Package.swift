@@ -14,8 +14,16 @@ let package = Package(
             targets: ["FlowKit"]
         ),
         .library(
-            name: "EnumAllCases",
-            targets: ["EnumAllCases"]
+            name: "FlowCases",
+            targets: ["FlowCases"]
+        ),
+        .library(
+            name: "FlowView",
+            targets: ["FlowView"]
+        ),
+        .library(
+            name: "Flow",
+            targets: ["Flow"]
         )
     ],
     dependencies: [
@@ -25,19 +33,41 @@ let package = Package(
     ],
     targets: [
         .macro(
-            name: "EnumAllCasesMacro",
+            name: "FlowCasesMacro",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+            ]
+        ),
+        .macro(
+            name: "FlowViewMacro",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+            ]
+        ),
+        .macro(
+            name: "FlowMacro",
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ]
         ),
         .target(
-            name: "EnumAllCases",
-            dependencies: ["EnumAllCasesMacro"]
+            name: "FlowCases",
+            dependencies: ["FlowCasesMacro"]
+        ),
+        .target(
+            name: "FlowView",
+            dependencies: ["FlowViewMacro"]
+        ),
+        .target(
+            name: "Flow",
+            dependencies: ["FlowMacro"]
         ),
         .target(
             name: "FlowKit",
-            dependencies: ["Resolver", "EnumAllCases"],
+            dependencies: ["Resolver", "FlowCases", "FlowView", "Flow"],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency=complete", .when(platforms: [.macOS, .iOS]))
             ]
@@ -46,7 +76,9 @@ let package = Package(
             name: "FlowKitTests",
             dependencies:  [
                 "FlowKit",
-                "EnumAllCasesMacro",
+                "FlowCasesMacro",
+                "FlowViewMacro",
+                "Flow",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         )

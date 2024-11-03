@@ -45,30 +45,20 @@ final class FlowTests {
     }
 }
 
-private final class InOutEmpty2: InOutProtocol {
+final class InOutEmpty2: InOutProtocol {
     required init() { }
 }
 
-private final class InOutEmpty3: InOutProtocol {
+final class InOutEmpty3: InOutProtocol {
     required init() { }
 }
 
-private struct InOutEmptyView: FlowViewProtocol, View {
-    @EnumAllCases
+@FlowView(InOutEmpty.self)
+struct InOutEmptyView: FlowViewProtocol, View {
+    @FlowCases
     enum Out: FlowOutProtocol {
         case empty2(InOutEmpty2)
         case empty3(InOutEmpty3)
-//        typealias Model = {
-//            switch self {
-//            case .empty2: return InOutEmpty2.self
-//            case .empty3: return InOutEmpty3.self
-//            }
-//        }
-    }
-
-    let model: InOutEmpty
-    init(model: InOutEmpty) {
-        self.model = model
     }
 
     var body: some View {
@@ -76,23 +66,15 @@ private struct InOutEmptyView: FlowViewProtocol, View {
     }
 }
 
-private struct InOutEmpty2View: FlowViewProtocol, View {
-    let model: InOutEmpty2
-    init(model: InOutEmpty2) {
-        self.model = model
-    }
-
+@FlowView(InOutEmpty2.self)
+struct InOutEmpty2View: FlowViewProtocol, View {
     var body: some View {
         EmptyView()
     }
 }
 
-private struct InOutEmpty3View: FlowViewProtocol, View {
-    let model: InOutEmpty3
-    init(model: InOutEmpty3) {
-        self.model = model
-    }
-
+@FlowView(InOutEmpty3.self)
+struct InOutEmpty3View: FlowViewProtocol, View {
     var body: some View {
         EmptyView()
     }
@@ -104,31 +86,25 @@ fileprivate enum Routes: String, Routable {
     case invalid
 }
 
+@Flow(InOutEmpty.self, route: Routes.valid)
 fileprivate final class ValidFlow: FlowProtocol {
-    static let route: Routes = .valid
-    let model = InOutEmpty()
     let node = InOutEmptyView.node {
-        $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
-        $0.empty3(InOutEmpty3()) ~ InOutEmpty3View.node
+        $0.empty2 ~ InOutEmpty2View.node
+        $0.empty3 ~ InOutEmpty3View.node
     }
-    required init() { }
 }
 
+@Flow(InOutEmpty2.self, route: Routes.partial)
 fileprivate final class PartialMappingFlow: FlowProtocol {
-    static let route: Routes = .partial
-    let model = InOutEmpty2()
     let node = InOutEmptyView.node {
-        $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
+        $0.empty2 ~ InOutEmpty2View.node
     }
-    required init() { }
 }
 
+@Flow(InOutEmpty3.self, route: Routes.invalid)
 fileprivate final class InvalidFlow: FlowProtocol {
-    static let route: Routes = .invalid
-    let model = InOutEmpty3()
     let node = InOutEmptyView.node {
-        $0.empty2(InOutEmpty2()) ~ InOutEmpty2View.node
+        $0.empty2 ~ InOutEmpty2View.node
         $0.empty3(InOutEmpty3()) ~ InOutEmptyView.node
     }
-    required init() { }
 }

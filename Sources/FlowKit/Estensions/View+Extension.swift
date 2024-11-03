@@ -28,7 +28,7 @@ public extension View where Self: FlowViewProtocol {
         self
             .task {
                 do {
-                    for try await event in await events {
+                    for try await event in events {
                         guard case .event(let e) = event, let e = e as? Event else { continue }
                         await onEventChanged(event: e, model: model)
                     }
@@ -37,7 +37,7 @@ public extension View where Self: FlowViewProtocol {
                 }
             }
             .onDisappear {
-                Task { await events.finish() }
+                events.finish()
             }
     }
 }

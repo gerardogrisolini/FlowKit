@@ -161,7 +161,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
 
         if let view = view as? any FlowViewProtocol {
-            Task { await view.events.finish() }
+            view.events.finish()
         }
 
         guard view is any FlowProtocol else {

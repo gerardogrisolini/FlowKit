@@ -26,7 +26,7 @@ public protocol FlowProtocol: FlowRouteProtocol, Navigable {
     /// The route of the flow
     static var route: Route { get }
     /// The return model of the flow
-    var model: Model { get }
+//    var model: Model { get }
     /// The entry node of the flow
     var node: CoordinatorNode { get }
     /// The behavior of the flow
@@ -45,7 +45,7 @@ public extension FlowProtocol {
     var behavior: FlowBehavior { .init() }
 
     /// Default flow return model
-    var model: InOutEmpty { .init() }
+//    var model: InOutEmpty { .init() }
 
     /// Default implementation for the onStart function
     /// - Parameters:
