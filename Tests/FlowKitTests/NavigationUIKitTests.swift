@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import Testing
 import UIKit
 @testable import FlowKit
@@ -97,3 +98,4 @@ fileprivate final class EmptyFlowView: UIViewController, FlowViewProtocol {
         fatalError("init(coder:) has not been implemented")
     }
 }
+#endif

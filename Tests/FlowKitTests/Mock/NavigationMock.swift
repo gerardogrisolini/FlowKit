@@ -15,7 +15,9 @@ final class NavigationMock: NavigationProtocol {
     var routes: [String] = []
     var items = NavigationItems()
     var navigationAction: NavigationAction? = nil
+#if canImport(UIKit)
     var navigationController: UINavigationController? = nil
+#endif
 
     var currentView: (any FlowViewProtocol)? {
         guard let route = routes.last, let view = items[route]?() as? any FlowViewProtocol else {

@@ -19,9 +19,9 @@ public struct FlowCasesMacro: MemberMacro {
             }
 
             guard let enumCases: [SyntaxProtocol] = declaration.memberBlock
-                .children(viewMode: .fixedUp).filter({ $0.kind == .memberDeclList })
+                .children(viewMode: .fixedUp).filter({ $0.kind == .memberBlockItemList })
                 .first?
-                .children(viewMode: .fixedUp).filter({ $0.kind == SyntaxKind.memberDeclListItem })
+                .children(viewMode: .fixedUp).filter({ $0.kind == .memberBlockItem })
                 .flatMap({ $0.children(viewMode: .fixedUp).filter({ $0.kind == .enumCaseDecl })})
                 .flatMap({ $0.children(viewMode: .fixedUp).filter({ $0.kind == .enumCaseElementList })})
                 .flatMap({ $0.children(viewMode: .fixedUp).filter({ $0.kind == .enumCaseElement })})
@@ -45,9 +45,9 @@ public struct FlowCasesMacro: MemberMacro {
                 var type = caseId.suffix(from: index)
                 type.removeLast()
                 type.removeFirst()
-                updateFunc += "case .\(name)(_):"
-                updateFunc += "guard let model = associatedValue as? \(type) else { return self }"
-                updateFunc += "return .\(name)(model)"
+                updateFunc += "case .\(name)(_):\n"
+                updateFunc += "guard let model = associatedValue as? \(type) else { return self }\n"
+                updateFunc += "return .\(name)(model)\n"
 
                 let joinFunc = """
 \(modifier)static var \(name): (out: Self, model: \(type)) {

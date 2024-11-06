@@ -11,7 +11,7 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 import SwiftDiagnostics
 
-enum FlowMacro: MemberMacro {
+public struct FlowMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
         of node: SwiftSyntax.AttributeSyntax,
         providingMembersOf declaration: Declaration,

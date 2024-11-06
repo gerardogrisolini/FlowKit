@@ -6,7 +6,7 @@ import CompilerPluginSupport
 
 let package = Package(
     name: "FlowKit",
-    platforms: [.iOS(.v15), .macOS(.v14)],
+    platforms: [.macOS(.v14), .iOS(.v15), .macCatalyst(.v14)],
     products: [
         .library(
             name: "FlowKit",
@@ -28,7 +28,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/hmlongco/Resolver.git", from: "1.5.1"),
-        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.1.1"),
+        .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0-latest"),
 //        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     ],
     targets: [
@@ -37,33 +37,45 @@ let package = Package(
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
-            ]
+            ],
+            path: "Sources/FlowKitMacro",
+            sources: ["FlowCasesMacro.swift"]
         ),
         .macro(
             name: "FlowViewMacro",
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
-            ]
+            ],
+            path: "Sources/FlowKitMacro",
+            sources: ["FlowViewMacro.swift"]
         ),
         .macro(
             name: "FlowMacro",
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
-            ]
+            ],
+            path: "Sources/FlowKitMacro",
+            sources: ["FlowMacro.swift"]
         ),
         .target(
             name: "FlowCases",
-            dependencies: ["FlowCasesMacro"]
+            dependencies: ["FlowCasesMacro"],
+            path: "Sources/FlowKitMacro",
+            sources: ["FlowCases.swift"]
         ),
         .target(
             name: "FlowView",
-            dependencies: ["FlowViewMacro"]
+            dependencies: ["FlowViewMacro"],
+            path: "Sources/FlowKitMacro",
+            sources: ["FlowView.swift"]
         ),
         .target(
             name: "Flow",
-            dependencies: ["FlowMacro"]
+            dependencies: ["FlowMacro"],
+            path: "Sources/FlowKitMacro",
+            sources: ["Flow.swift"]
         ),
         .target(
             name: "FlowKit",
@@ -75,11 +87,16 @@ let package = Package(
         .testTarget(
             name: "FlowKitTests",
             dependencies:  [
-                "FlowKit",
-                "FlowCasesMacro",
+                "FlowKit"
+            ]
+        ),
+        .testTarget(
+            name: "FlowKitMacroTests",
+            dependencies:  [
+                "FlowMacro",
                 "FlowViewMacro",
-                "Flow",
-                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+                "FlowCasesMacro",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax")
             ]
         )
     ],
