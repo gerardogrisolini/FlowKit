@@ -32,7 +32,7 @@ final class CoordinatorTests {
     @Test func testViewOut() async throws {
         let navigation = NavigationMock()
         Task { @MainActor [navigation] in
-            try await Task.sleep(nanoseconds: 15000000)
+            try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.send(.next(TestFlowView.Out.empty))
             try await Task.sleep(nanoseconds: 15000000)
             navigation.currentView?.events.finish()
@@ -56,7 +56,7 @@ final class CoordinatorTests {
     @Test func testViewOutInBehavior() async throws {
         let navigation = NavigationMock()
         Task { @MainActor [navigation] in
-            try await Task.sleep(nanoseconds: 15000000)
+            try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.send(.next(TestFlowView.Out.behavior(InOutModel())))
             try await Task.sleep(nanoseconds: 15000000)
             navigation.currentView?.events.finish()

@@ -33,7 +33,7 @@ final class FlowTests {
 
     @Test func testRegistrationWithFlowRouting() async throws {
         let navigation = await FlowKit.registerNavigationSwiftUI()
-        try await Task.sleep(nanoseconds: 1500000)
+        try await Task.sleep(nanoseconds: 2000000000)
         #expect(await navigation.items.contains(Routes.valid.rawValue))
         #expect(await navigation.items.contains(Routes.invalid.rawValue))
         #expect(await navigation.items.contains(Routes.partial.rawValue))

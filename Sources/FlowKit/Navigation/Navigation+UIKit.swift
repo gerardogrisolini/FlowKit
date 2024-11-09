@@ -17,14 +17,6 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         didSet {
             navigationController?.delegate = self
             navigationController?.navigationBar.prefersLargeTitles = true
-//            navigationController?.navigationBar.isHidden = true
-//            navigationController?.navigationItem.hidesBackButton = true
-
-//            routes = navigationController!
-//                .viewControllers
-//                .map { $0 as! UIHostingController<AnyView> }
-//                .map { $0.rootView }
-//                .map { String(describing: type(of: $0)) }
         }
     }
 	public var action = PassthroughSubject<NavigationAction, Never>()
@@ -33,16 +25,12 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 
     required public override init() { }
 
-    nonisolated public func navigate(routeString: String) {
-        Task { @MainActor in
-            try? push(route: routeString)
-        }
+    public func navigate(routeString: String) {
+        try? push(route: routeString)
     }
     
-    nonisolated public func present(routeString: String) {
-        Task { @MainActor in
-            try? present(route: routeString)
-        }
+    public func present(routeString: String) {
+        try? present(route: routeString)
     }
     
     public func navigate(route: some Routable) throws {

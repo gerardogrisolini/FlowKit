@@ -8,6 +8,7 @@
 import SwiftUI
 
 @available(iOS 14.0, *)
+//@available(macOS, unavailable)
 public struct SwiftUINavigationV1Modifier: ViewModifier {
     @StateObject var stack = FlowNavigationStackV1()
 

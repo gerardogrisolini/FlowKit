@@ -16,18 +16,14 @@ public class NavigationSwiftUI: NavigationProtocol {
 
     required public init() { }
 
-    nonisolated public func navigate(routeString: String) {
-        Task { @MainActor in
-            routes.append(routeString)
-            action.send(.navigate(routeString))
-        }
+    public func navigate(routeString: String) {
+        routes.append(routeString)
+        action.send(.navigate(routeString))
     }
     
-    nonisolated public func present(routeString: String) {
-        Task { @MainActor in
-            routes.append(routeString)
-            action.send(.present(routeString))
-        }
+    public func present(routeString: String) {
+        routes.append(routeString)
+        action.send(.present(routeString))
     }
     
 	public func navigate(route: some Routable) throws {

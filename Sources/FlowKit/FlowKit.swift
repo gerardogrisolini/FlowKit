@@ -1,5 +1,8 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+//  FlowKit.swift
+//
+//  Framework for building modular applications with composable flows.
+//
 
 @_exported import Resolver
 @_exported import FlowCases
@@ -36,7 +39,7 @@ public struct FlowKit {
             let classesPtr = UnsafeMutablePointer<AnyClass>.allocate(capacity: numberOfClasses)
             let autoreleasingClasses = AutoreleasingUnsafeMutablePointer<AnyClass>(classesPtr)
             let count = objc_getClassList(autoreleasingClasses, Int32(numberOfClasses))
-            assert(numberOfClasses == count)
+            guard numberOfClasses == count else { return [] }
             defer { classesPtr.deallocate() }
             let classes = (0 ..< numberOfClasses).map { classesPtr[$0] }
             return classes
@@ -57,7 +60,6 @@ public struct FlowKit {
     /// - navigation: the navigation to use
     /// - withFlowRouting: if true, it also registers the routing of the flows
     /// - Returns: the navigation
-    @MainActor
     @discardableResult
     private static func register(navigation: NavigationProtocol, withFlowRouting: Bool) -> any NavigationProtocol {
         Resolver
@@ -66,12 +68,14 @@ public struct FlowKit {
 
         guard withFlowRouting else { return navigation }
 
-        print("Registering flows...")
-        let classes = Self.classes(conformTo: FlowRouteProtocol.self)
-        for item in classes {
-            guard let flow = item as? (any FlowProtocol.Type) else { continue }
-            print("\(flow.route)")
-            navigation.register(route: flow.route) { flow.init() }
+        Task.detached {
+            print("Registering flows...")
+            let classes = Self.classes(conformTo: FlowRouteProtocol.self)
+            for item in classes {
+                guard let flow = item as? (any FlowProtocol.Type) else { continue }
+                print("\(flow.route)")
+                await navigation.register(route: flow.route) { flow.init() }
+            }
         }
 
         return navigation

@@ -89,6 +89,37 @@ struct EmptyFlowView: FlowViewProtocol, View {
 #endif
     }
 
+    @Test func flowViewClassMacroTest() {
+#if canImport(FlowViewMacro)
+        assertMacroExpansion(#"""
+final class EmptyFlowView: UIViewController, FlowViewProtocol {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+"""#,
+            expandedSource: #"""
+final class EmptyFlowView: UIViewController, FlowViewProtocol {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    let events = AsyncThrowingSubject<CoordinatorEvent>()
+
+    let model: InOutEmpty
+
+    required init(model: InOutEmpty = InOutEmpty()) {
+        self.model = model
+        super.init(nibName: nil, bundle: nil)
+}
+}
+"""#,
+            macros: providingMacro
+        )
+#else
+        withKnownIssue("macros are only supported when running tests for the host platform") { }
+#endif
+    }
+
     @Test func flowCasesMacroTest() {
 #if canImport(FlowCasesMacro)
         assertMacroExpansion(#"""

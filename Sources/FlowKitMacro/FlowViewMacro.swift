@@ -35,11 +35,12 @@ public struct FlowViewMacro: MemberMacro {
             var text = """
 \(modifier)\(isClass ? "required " : "")init(model: \(model) = \(model)()) {
     self.model = model
-}
 """
             if isClass {
-                text += "super.init(nibName: nil, bundle: nil)"
+                text += "\n    super.init(nibName: nil, bundle: nil)"
             }
+            text += "}"
+
             decl.append(.init(stringLiteral: text))
         }
 

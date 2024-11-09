@@ -6,7 +6,8 @@
 //
 
 /// Coordinator is the object that manages the flow
-@MainActor final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
+@MainActor
+final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 
     let flow: Flow
     let parent: (any FlowViewProtocol)?

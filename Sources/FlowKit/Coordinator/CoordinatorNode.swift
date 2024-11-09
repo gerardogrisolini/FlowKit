@@ -32,15 +32,4 @@ public struct Node<View: FlowViewProtocol>: CoordinatorNodeProtocol, Sendable {
         self.init(view)
         self.joins = joins
     }
-
-//    public init(_ view: View.Type, _ joins: [View.Out: any Nodable]) {
-//        self.init(view)
-//        self.joins = joins.map { Join($0.key, $0.value) }
-//    }
-
-//    public static func ~>(_ node: Self, _ joins: [Self.View.Out: any Nodable] = [:]) -> Self {
-//        var node = node
-//        node.joins = joins.map { Join($0.key, $0.value) }
-//        return node
-//    }
 }

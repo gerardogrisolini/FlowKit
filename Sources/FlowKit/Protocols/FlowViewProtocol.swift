@@ -70,13 +70,6 @@ public extension FlowViewProtocol {
         return parsed.udpate(associatedValue: associated)
     }
 
-    /// Implementation of events injected from a EventStore
-//    var events: AsyncThrowingSubject<CoordinatorEvent> {
-//        get async {
-//            await eventStore.get(key: id)
-//        }
-//    }
-
     /// Implementation of factory function to create the view
     /// - Parameters:
     /// - model: the input model
