@@ -21,13 +21,13 @@ public struct FlowKit {
     }
 
     @MainActor
-    public static func initialize(navigationType: NavigationType = .swiftUI) {
+    public static func initialize(navigationType: NavigationType = .swiftUI, withFlowRouting: Bool = true) {
        switch navigationType {
         case .swiftUI:
-            registerNavigationSwiftUI()
+           registerNavigationSwiftUI(withFlowRouting: withFlowRouting)
 #if canImport(UIKit)
        case .uiKit(navigationController: let navigationController):
-           registerNavigationUIKit(navigationController: navigationController)
+           registerNavigationUIKit(navigationController: navigationController, withFlowRouting: withFlowRouting)
 #endif
         }
     }

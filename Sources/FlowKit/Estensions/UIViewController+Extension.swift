@@ -10,17 +10,32 @@ import SwiftUI
 import UIKit
 
 extension UIViewController {
-	struct UIKitWrapper<T: UIViewController>: UIViewControllerRepresentable {
-		let view: T
-		public init(_ view: T) {
-			self.view = view
-		}
-		public func makeUIViewController(context: Context) -> T { view }
-		public func updateUIViewController(_ uiViewController: T, context: Context) { }
-	}
+    struct UIViewControllerWrapper<T: UIViewController>: UIViewControllerRepresentable {
+        let view: T
+        public init(_ view: T) {
+            self.view = view
+        }
+        public func makeUIViewController(context: Context) -> T { view }
+        public func updateUIViewController(_ uiViewController: T, context: Context) { }
+    }
 
     public func toSwiftUI() -> some UIViewControllerRepresentable {
-		UIKitWrapper(self)
-	}
+        UIViewControllerWrapper(self)
+    }
+}
+
+extension UIView {
+    struct UIViewWrapper<T: UIView>: UIViewRepresentable {
+        let view: T
+        public init(_ view: T) {
+            self.view = view
+        }
+        public func makeUIView(context: Context) -> T { view }
+        public func updateUIView(_ uiView: T, context: Context) { }
+    }
+
+    public func toSwiftUI() -> some UIViewRepresentable {
+        UIViewWrapper(self)
+    }
 }
 #endif

@@ -35,7 +35,7 @@ public class FlowNavigationStackV2: ObservableObject {
 			guard let vc = view as? UIViewController else {
 				return nil
 			}
-			return AnyView(vc.toSwiftUI().navigationTitle(vc.title ?? ""))
+            return AnyView(vc.toSwiftUI().navigationTitle(vc.title ?? "").ignoresSafeArea(.all))
 #else
             return nil
 #endif
