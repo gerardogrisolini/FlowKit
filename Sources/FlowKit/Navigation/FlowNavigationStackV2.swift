@@ -9,11 +9,11 @@ import SwiftUI
 
 @available(iOS 16.0, *)
 @available(macOS 13.0, *)
-class FlowNavigationStackV2: FlowNavigationStack {
+final class FlowNavigationStackV2: FlowNavigationStack {
 
 	@Published public var routes: [String] = []
 
-    var presentedView: any View {
+    @MainActor var presentedView: any View {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
             guard let view = view as? any View else {
@@ -62,12 +62,7 @@ class FlowNavigationStackV2: FlowNavigationStack {
         }
     }
 
-    override init() {
-        super.init()
-        routes = navigation.routes
-	}
-	
-    func getView(route: String) -> AnyView? {
+    @MainActor func getView(route: String) -> AnyView? {
         guard let view = navigation.items[route]?() else { return nil }
 		guard let page = view as? any View else {
 #if canImport(UIKit)

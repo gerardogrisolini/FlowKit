@@ -31,13 +31,16 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// The items for the routes of the navigation
     var items: NavigationItems { get set }
 
-    
+    /// The presentation mode of the navigation
+    var presentMode: PresentMode? { get set }
+
     /// Register a route with a view
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
     func register(route: some Routable, with: @escaping @Sendable () -> (any Sendable))
 
+    
     /// Get a flow with a route
     /// - Parameters:
     /// - route: the route to register

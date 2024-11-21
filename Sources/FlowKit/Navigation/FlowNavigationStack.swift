@@ -10,8 +10,8 @@ import UIKit
 import Combine
 import Resolver
 
-@MainActor
 class FlowNavigationStack: ObservableObject {
+
     @Injected var navigation: NavigationProtocol
     @Published var presentMode: PresentMode? = nil
     private var cancellables = Set<AnyCancellable>()
@@ -41,7 +41,7 @@ class FlowNavigationStack: ObservableObject {
         }
     }
 
-    init() {
+    @MainActor init() {
         navigation.action
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)

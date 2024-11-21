@@ -10,11 +10,11 @@ import SwiftUI
 @available(iOS 14.0, *)
 @available(iOS, deprecated: 16.0)
 @available(macOS, deprecated: 13.0)
-class FlowNavigationStackV1: FlowNavigationStack {
+final class FlowNavigationStackV1: FlowNavigationStack {
 
     @Published var route: String? = nil
 
-    var presentedView: any View {
+    @MainActor var presentedView: any View {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
             guard let view = view as? any View else {
@@ -35,7 +35,7 @@ class FlowNavigationStackV1: FlowNavigationStack {
         }
     }
 
-    var view: AnyView? {
+    @MainActor var view: AnyView? {
         guard let route, let view = navigation.items[route]?() else { return nil }
         guard let page = view as? any View else {
             #if canImport(UIKit)

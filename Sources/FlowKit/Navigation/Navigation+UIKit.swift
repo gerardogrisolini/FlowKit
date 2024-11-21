@@ -11,7 +11,6 @@ import Combine
 #if canImport(UIKit)
 import UIKit
 
-@MainActor
 public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationControllerDelegate {
 
     public var navigationController: UINavigationController? {
@@ -23,6 +22,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 	public var action = PassthroughSubject<NavigationAction, Never>()
     public var routes: [String] = []
 	public var items = NavigationItems()
+    public var presentMode: PresentMode? = nil
 
 
     public func navigate(routeString: String) {
@@ -107,6 +107,8 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     }
 
     public func present(_ mode: PresentMode) {
+        presentMode = mode
+
         if let routeString = mode.routeString {
             routes.append(routeString)
         }
@@ -150,13 +152,14 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     }
 
 	public func dismiss() {
-//        let styles: [UIModalPresentationStyle] = [.fullScreen, .pageSheet, .overFullScreen]
-//        guard let style = navigationController?.modalPresentationStyle, styles.contains(style) else {
-//            return
-//        }
-        guard let last = routes.last, last.hasPrefix("sheet-") || last.hasPrefix("fullScreenCover-") else { return }
-        routes.removeLast()
-        navigationController?.dismiss(animated: true)
+        if let mode = presentMode {
+            navigationController?.dismiss(animated: true)
+
+            if let routeString = mode.routeString {
+                routes.removeAll(where: { $0 == routeString })
+            }
+            presentMode = nil
+        }
 	}
     
     private func removeRoute(_ route: String) {

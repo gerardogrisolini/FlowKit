@@ -8,11 +8,12 @@
 import SwiftUI
 import Combine
 
-@MainActor
-public class NavigationSwiftUI: NavigationProtocol {
+public final class NavigationSwiftUI: NavigationProtocol {
     public var action = PassthroughSubject<NavigationAction, Never>()
 	public var routes: [String] = []
     public var items = NavigationItems()
+    public var presentMode: PresentMode? = nil
+
 
     public func navigate(routeString: String) {
         routes.append(routeString)
@@ -67,8 +68,13 @@ public class NavigationSwiftUI: NavigationProtocol {
     }
 
 	public func dismiss() {
-        guard let last = routes.last, last.hasPrefix("sheet-") || last.hasPrefix("fullScreenCover-") else { return }
-        action.send(.dismiss)
-        routes.removeLast()
+        if let mode = presentMode {
+            action.send(.dismiss)
+
+            if let routeString = mode.routeString {
+                routes.removeAll(where: { $0 == routeString })
+            }
+            presentMode = nil
+        }
 	}
 }
