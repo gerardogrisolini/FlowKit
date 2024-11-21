@@ -82,6 +82,22 @@ final class NavigationSwiftUITests {
         #expect(sut.routes.last == mode.routeString)
     }
 
+    @Test func testPresentAlert() async throws {
+        let sut = NavigationSwiftUI()
+        let mode: PresentMode = .alert(title: "Title", message: "Message")
+        sut.present(mode)
+        #expect(sut.routes.last == nil)
+        #expect(sut.presentMode != nil)
+    }
+
+    @Test func testPresentConfirmationDialog() async throws {
+        let sut = NavigationSwiftUI()
+        let mode: PresentMode = .confirmationDialog(title: "Title", actions: [])
+        sut.present(mode)
+        #expect(sut.routes.last == nil)
+        #expect(sut.presentMode != nil)
+    }
+
     @Test func testActionSink() async throws {
         let sut = NavigationSwiftUI()
         var result: (navigate: Bool, present: Bool, pop: Bool, popToRoot: Bool, dismiss: Bool) = (false, false, false, false, false)
