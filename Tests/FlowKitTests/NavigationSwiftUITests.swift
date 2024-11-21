@@ -78,7 +78,7 @@ final class NavigationSwiftUITests {
             EmptyView()
         }
         let mode: PresentMode = .fullScreenCover(Routes.home)
-        sut.present(.alert(title: "Exception", message: "Parameter cannot be null"))
+        sut.present(mode)
         #expect(sut.routes.last == mode.routeString)
     }
 
