@@ -47,8 +47,9 @@ public extension NavigationProtocol {
     /// - Parameters:
     /// - mode: Presentation mode
     func present(_ mode: PresentMode) {
-        let routeString = String(describing: mode)
-        routes.append(routeString)
+        if let route = mode.routeString {
+            routes.append(route)
+        }
         action.send(.present(mode))
     }
 }

@@ -37,7 +37,7 @@ struct FlowViewTests {
                 #expect(view is EmptyView)
             case .present(let mode):
                 eventsCount += 1
-                guard case .sheet(let view) = mode else { continue }
+                guard case .sheet(let view, _) = mode else { continue }
                 #expect(view is EmptyView)
             case .next(let event):
                 eventsCount += 1

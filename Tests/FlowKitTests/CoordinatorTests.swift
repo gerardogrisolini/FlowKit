@@ -19,10 +19,9 @@ final class CoordinatorTests {
     @Test func testViewCommit() async throws {
         let navigation = NavigationMock()
         Task { [navigation] in
-            try await Task.sleep(nanoseconds: 15000000)
+            try await Task.sleep(nanoseconds: 150000000)
             let view = navigation.currentView
             view?.commit(InOutEmpty(), toRoot: true)
-            try await Task.sleep(nanoseconds: 500000)
             view?.events.finish()
         }
         try await startCoordinator(navigation)

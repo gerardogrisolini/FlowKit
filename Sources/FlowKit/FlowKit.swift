@@ -60,7 +60,7 @@ public struct FlowKit {
     /// - navigation: the navigation to use
     /// - withFlowRouting: if true, it also registers the routing of the flows
     /// - Returns: the navigation
-    @discardableResult
+    @MainActor @discardableResult
     private static func register(navigation: NavigationProtocol, withFlowRouting: Bool) -> any NavigationProtocol {
         Resolver
             .register { navigation as NavigationProtocol }
@@ -68,7 +68,7 @@ public struct FlowKit {
 
         guard withFlowRouting else { return navigation }
 
-        Task { @MainActor in
+//        Task { @MainActor in
             print("Registering flows...")
             let classes = Self.classes(conformTo: FlowRouteProtocol.self)
             for item in classes {
@@ -76,7 +76,7 @@ public struct FlowKit {
                 print("\(flow.route)")
                 navigation.register(route: flow.route) { flow.init() }
             }
-        }
+//        }
 
         return navigation
     }

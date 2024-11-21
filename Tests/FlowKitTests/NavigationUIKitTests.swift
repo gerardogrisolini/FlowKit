@@ -68,11 +68,11 @@ final class NavigationUIKitTests {
     }
 
     @Test func testPresentAndDismissView() async throws {
-        let routeString = "sheet(<UIViewController:"
-        sut.present(.sheet(UIViewController()))
-        #expect(sut.routes.last?.hasPrefix(routeString) ?? false)
+        let mode: PresentMode = .sheet(UIViewController())
+        sut.present(mode)
+        #expect(sut.routes.last == mode.routeString)
         sut.dismiss()
-        #expect(sut.routes.last != routeString)
+        #expect(sut.routes.last != mode.routeString)
     }
 }
 

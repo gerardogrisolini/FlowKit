@@ -34,11 +34,12 @@ extension View {
             nav.present(.alert(title: "Warning", message: "Message"))
         }
         Button("ConfirmationDialog") {
-            nav.present(.confirmationDialog(title: "Confirmation", actions: [
-                .init(title: "1", style: .default, handler: {}),
-                .init(title: "2", style: .cancel, handler: {}),
-                .init(title: "3", style: .destructive, handler: {}),
-            ]))
+            let actions: [AlertAction] = [
+                .init(title: "Hide", style: .default, handler: {}),
+                .init(title: "Delete logical", style: .cancel, handler: {}),
+                .init(title: "Delete physical", style: .destructive, handler: {})
+            ]
+            nav.present(.confirmationDialog(title: "Confirmation", actions: actions))
         }
         Button("Sheet") {
             nav.present(.sheet(PresentableView()))

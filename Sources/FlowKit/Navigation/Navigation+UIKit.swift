@@ -13,7 +13,6 @@ import UIKit
 
 @MainActor
 public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationControllerDelegate {
-    public typealias Navigable = UIViewController
 
     public var navigationController: UINavigationController? {
         didSet {
@@ -33,11 +32,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     public func navigate(route: some Routable) throws {
         try push(route: "\(route)")
     }
-    
-    public func present(route: some Routable) throws {
-        try present(route: "\(route)")
-    }
-    
+
     public func push(route: String) throws {
         guard !routes.contains(route) else { return }
         routes.append(route)
@@ -98,7 +93,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         navigationController?.popToRootViewController(animated: true)
 	}
 
-    private func presentView(_ controller: UIViewController, detents: [UISheetPresentationController.Detent] = [.medium(), .large()]) {
+    private func presentView(_ controller: UIViewController, detents: [UISheetPresentationController.Detent]) {
         controller.modalPresentationStyle = .pageSheet
 
         if #available(iOS 15.0, *) {
@@ -110,25 +105,11 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
         navigationController?.present(controller, animated: true, completion: dismiss)
     }
-    
-    private func present(route: String) throws {
-        routes.append(route)
-
-        guard let view = items[route]?() as? any View else {
-            guard let controller = items[route]?() as? UIViewController else {
-                throw FlowError.routeNotFound
-            }
-            presentView(controller)
-            return
-		}
-
-        let controller: UIViewController = UIHostingController(rootView: AnyView(view))
-        presentView(controller)
-	}
 
     public func present(_ mode: PresentMode) {
-        let routeString = String(describing: mode)
-        routes.append(routeString)
+        if let routeString = mode.routeString {
+            routes.append(routeString)
+        }
 
         switch mode {
         case .alert(title: let title, message: let message):
@@ -169,14 +150,13 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     }
 
 	public func dismiss() {
-        let styles: [UIModalPresentationStyle] = [.fullScreen, .pageSheet, .overFullScreen]
-        if let style = navigationController?.modalPresentationStyle, styles.contains(style) {
-            navigationController?.dismiss(animated: true)
-            guard let route = routes.last else { return }
-            removeRoute(route)
-//        } else {
-//            navigationController?.popViewController(animated: true)
-        }
+//        let styles: [UIModalPresentationStyle] = [.fullScreen, .pageSheet, .overFullScreen]
+//        guard let style = navigationController?.modalPresentationStyle, styles.contains(style) else {
+//            return
+//        }
+        guard let last = routes.last, last.hasPrefix("sheet-") || last.hasPrefix("fullScreenCover-") else { return }
+        routes.removeLast()
+        navigationController?.dismiss(animated: true)
 	}
     
     private func removeRoute(_ route: String) {

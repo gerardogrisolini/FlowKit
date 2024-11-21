@@ -6,43 +6,51 @@
 //
 
 import SwiftUI
-import Combine
-import Resolver
 
-@MainActor
-public class FlowNavigationStackV1: ObservableObject {
-    @Injected var navigation: NavigationProtocol
+@available(iOS 14.0, *)
+@available(iOS, deprecated: 16.0)
+@available(macOS, deprecated: 13.0)
+class FlowNavigationStackV1: FlowNavigationStack {
 
     @Published var route: String? = nil
-    @Published var presentMode: PresentMode? = nil
-    private var cancellables: [AnyCancellable] = []
-    
+
+    var presentedView: any View {
+        switch presentMode {
+        case .sheet(let view, _), .fullScreenCover(let view):
+            guard let view = view as? any View else {
+                guard let vc = view as? UIViewController else {
+                    return EmptyView()
+                }
+                return vc.toSwiftUI()
+            }
+            return view
+        case .alert(title: _, message: let message):
+            return Text(message)
+        case .confirmationDialog(title: _, actions: let actions):
+            return ForEach(actions, id: \.title) { action in
+                Button(action.title) { action.handler() }
+            }
+        default:
+            return EmptyView()
+        }
+    }
+
     var view: AnyView? {
-		guard let route, let view = navigation.items[route]?() else { return nil }
-		guard let page = view as? any View else {
+        guard let route, let view = navigation.items[route]?() else { return nil }
+        guard let page = view as? any View else {
             #if canImport(UIKit)
             guard let vc = view as? UIViewController else {
-				return nil
-			}
-			return AnyView(vc.toSwiftUI().navigationTitle(vc.title ?? ""))
+                return nil
+            }
+            return AnyView(vc.toSwiftUI().navigationTitle(vc.title ?? ""))
             #else
             return nil
             #endif
         }
-		return AnyView(page)
-    }
-    
-    public init() {
-        navigation.action
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] action in
-                self?.onChange(action: action)
-            }
-            .store(in: &cancellables)
+        return AnyView(page)
     }
 
-    private func onChange(action: NavigationAction) {
+    override func onChange(action: NavigationAction) {
         switch action {
         case .navigate(route: let route):
             if self.route == nil {
@@ -61,10 +69,7 @@ public class FlowNavigationStackV1: ObservableObject {
             presentMode = mode
 
         case .dismiss:
-            if presentMode != nil {
-                presentMode = nil
-                navigation.routes.popLast()
-            }
+            presentMode = nil
         }
     }
 }

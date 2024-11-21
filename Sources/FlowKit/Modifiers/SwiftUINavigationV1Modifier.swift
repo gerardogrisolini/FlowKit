@@ -13,52 +13,6 @@ import SwiftUI
 public struct SwiftUINavigationV1Modifier: ViewModifier {
     @StateObject var stack = FlowNavigationStackV1()
 
-    private var isAlert: Bool {
-        guard let mode = stack.presentMode, case .alert(title: _, message: _) = mode else { return false }
-        return true
-    }
-    private var isConfirmationDialog: Bool {
-        guard let mode = stack.presentMode, case .confirmationDialog(title: _, actions: _) = mode else { return false }
-        return true
-    }
-    private var isSheet: Bool {
-        guard let mode = stack.presentMode, case .sheet(_, _) = mode else { return false }
-        return true
-    }
-    private var isFullScreenCover: Bool {
-        guard let mode = stack.presentMode, case .fullScreenCover(_) = mode else { return false }
-        return true
-    }
-
-    private var title: String {
-        switch stack.presentMode {
-        case .alert(title: let title, _), .confirmationDialog(title: let title, _):
-            return title
-        default: return ""
-        }
-    }
-
-    private var presentedView: any View {
-        switch stack.presentMode {
-        case .sheet(let view, _), .fullScreenCover(let view):
-            guard let view = view as? any View else {
-                guard let vc = view as? UIViewController else {
-                    return EmptyView()
-                }
-                return vc.toSwiftUI()
-            }
-            return view
-        case .alert(title: _, message: let message):
-            return Text(message)
-        case .confirmationDialog(title: _, actions: let actions):
-            return ForEach(actions, id: \.title) { action in
-                Button(action.title) { action.handler() }
-            }
-        default:
-            return EmptyView()
-        }
-    }
-
     public func body(content: Content) -> some View {
         NavigationView {
             content
@@ -84,25 +38,25 @@ public struct SwiftUINavigationV1Modifier: ViewModifier {
         }
 //        .navigationBarHidden(true)
         .alert(
-            title,
-            isPresented: .constant(isAlert)
+            stack.title,
+            isPresented: .constant(stack.isAlert)
         ) {
         } message: {
-            AnyView(presentedView)
+            AnyView(stack.presentedView)
         }
         .confirmationDialog(
-            title,
-            isPresented: .constant(isConfirmationDialog),
-            titleVisibility: title.isEmpty ? .hidden : .visible
+            stack.title,
+            isPresented: .constant(stack.isConfirmationDialog),
+            titleVisibility: stack.title.isEmpty ? .hidden : .visible
         ) {
-            AnyView(presentedView)
+            AnyView(stack.presentedView)
         }
-        .sheet(isPresented: .constant(isSheet)) {
-            AnyView(presentedView)
+        .sheet(isPresented: .constant(stack.isSheet)) {
+            AnyView(stack.presentedView)
         }
 #if os(iOS)
-        .fullScreenCover(isPresented: .constant(isFullScreenCover)) {
-            AnyView(presentedView)
+        .fullScreenCover(isPresented: .constant(stack.isFullScreenCover)) {
+            AnyView(stack.presentedView)
         }
 #endif
     }

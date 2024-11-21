@@ -43,7 +43,7 @@ try await navigation.flow(route: Routes.example).start()
 
 #### If the page is visible from the module
 ```swift
-navigation.present(view: ErrorView())
+navigation.present(.sheet(ErrorView(), detents: [.medium]))
 ```
 
 #### If the page is not visible from the module
@@ -54,7 +54,19 @@ navigation.register(route: Routes.example) {
 }
 
 /// And then you can present it by passing the route
-try navigation.present(route: Routes.example)
+try navigation.present(.fullScreenCover(Routes.example))
+```
+
+### Alerts and condirmation dialogs
+```swift
+navigation.present(.alert(title: "Exception", message: "Parameter cannot be null"))
+
+let actions: [AlertAction] = [
+    .init(title: "Hide", style: .default, handler: {}),
+    .init(title: "Delete logical", style: .cancel, handler: {}),
+    .init(title: "Delete physical", style: .destructive, handler: {})
+]
+navigation.present(.confirmationDialog(title: "Confirmation", actions: actions))
 ```
 
 ### Pop and dismiss

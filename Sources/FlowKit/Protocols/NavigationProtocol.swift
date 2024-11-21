@@ -64,10 +64,10 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// - mode: Presentation mode
     func present(_ mode: PresentMode)
 
-    /// Present a route
-    /// - Parameters:
-    /// - route: the route to present
-    func present(route: some Routable) throws
+//    /// Present a route
+//    /// - Parameters:
+//    /// - route: the route to present
+//    func present(route: some Routable) throws
 
     /// Pop the current route
 	func pop()
@@ -117,6 +117,14 @@ public enum PresentMode: Sendable {
     case confirmationDialog(title: String = "", actions: [AlertAction])
     case sheet(any Sendable, detents: [PresentationDetents] = [.medium, .large])
     case fullScreenCover(any Sendable)
+
+    var routeString: String? {
+        switch self {
+        case .alert, .confirmationDialog: return nil
+        case .sheet(let view, let detents): return "sheet-\(view)-\(String(describing: detents))"
+        case .fullScreenCover(let view): return "fullScreenCover-\(view)"
+        }
+    }
 }
 
 public extension View {

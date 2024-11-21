@@ -27,15 +27,6 @@ public class NavigationSwiftUI: NavigationProtocol {
 		navigate(routeString: routeString)
 	}
 
-	public func present(route: some Routable) throws {
-		let routeString = "\(route)"
-        guard let view = items[routeString]?() else {
-			throw FlowError.routeNotFound
-		}
-        routes.append(routeString)
-        present(.sheet(view))
-	}
-
 	private func removeRoute(_ route: String) {
         let view = items[route]?()
 
@@ -76,6 +67,8 @@ public class NavigationSwiftUI: NavigationProtocol {
     }
 
 	public func dismiss() {
+        guard let last = routes.last, last.hasPrefix("sheet-") || last.hasPrefix("fullScreenCover-") else { return }
         action.send(.dismiss)
+        routes.removeLast()
 	}
 }

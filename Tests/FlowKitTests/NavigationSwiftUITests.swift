@@ -65,11 +65,21 @@ final class NavigationSwiftUITests {
 
     @Test func testPresentAndDismissView() async throws {
         let sut = NavigationSwiftUI()
-        let routeString = "sheet(SwiftUI.EmptyView(), presentationDetents: [FlowKit.PresentationDetents.fraction(0.5)])"
-        sut.present(.sheet(EmptyView(), detents: [.fraction(0.5)]))
-        #expect(sut.routes.last == routeString)
+        let mode: PresentMode = .sheet(EmptyView(), detents: [.fraction(0.5)])
+        sut.present(mode)
+        #expect(sut.routes.last == mode.routeString)
         sut.dismiss()
-        #expect(sut.routes.last != routeString)
+        #expect(sut.routes.last != mode.routeString)
+    }
+
+    @Test func testPresentViewWithRoute() async throws {
+        let sut = NavigationSwiftUI()
+        sut.register(route: Routes.home) {
+            EmptyView()
+        }
+        let mode: PresentMode = .fullScreenCover(Routes.home)
+        sut.present(.alert(title: "Exception", message: "Parameter cannot be null"))
+        #expect(sut.routes.last == mode.routeString)
     }
 
     @Test func testActionSink() async throws {
@@ -95,7 +105,7 @@ final class NavigationSwiftUITests {
         try await Task.sleep(nanoseconds: 5000)
         sut.pop()
         try await Task.sleep(nanoseconds: 5000)
-        sut.present(.alert(title: "", message: ""))
+        sut.present(.fullScreenCover(Text("fullScreenCover")))
         try await Task.sleep(nanoseconds: 5000)
         sut.dismiss()
         try await Task.sleep(nanoseconds: 5000)

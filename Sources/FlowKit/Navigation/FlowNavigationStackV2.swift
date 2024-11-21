@@ -6,30 +6,68 @@
 //
 
 import SwiftUI
-import Combine
-import Resolver
 
-@available(iOS 16.0.0, *)
-@MainActor
-public class FlowNavigationStackV2: ObservableObject {
-    @Injected var navigation: NavigationProtocol
+@available(iOS 16.0, *)
+@available(macOS 13.0, *)
+class FlowNavigationStackV2: FlowNavigationStack {
 
 	@Published public var routes: [String] = []
-    @Published var presentMode: PresentMode? = nil
-    private var cancellables = Set<AnyCancellable>()
 
-	public init() {
-		routes = navigation.routes
-        navigation.action
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] action in
-                self?.onChange(action: action)
+    var presentedView: any View {
+        switch presentMode {
+        case .sheet(let view, _), .fullScreenCover(let view):
+            guard let view = view as? any View else {
+                guard let vc = view as? UIViewController else {
+                    guard let route = view as? any Routable else {
+                        return EmptyView()
+                    }
+                    let routeString = "\(route)"
+                    return getView(route: routeString)
+                }
+                return vc.toSwiftUI()
             }
-            .store(in: &cancellables)
+            return view
+        case .alert(title: _, message: let message):
+            return Text(message)
+        case .confirmationDialog(title: _, actions: let actions):
+            return ForEach(actions, id: \.title) { action in
+                Button(
+                    action.title,
+                    role: action.style == .destructive ? .destructive : nil
+                ) {
+                    action.handler()
+                }
+            }
+        default:
+            return EmptyView()
+        }
+    }
+
+    var presentationDetents: Set<PresentationDetent> {
+        switch presentMode {
+        case .sheet(_, detents: let detents):
+            return Set(detents.map {
+                switch $0 {
+                case .medium:
+                    return PresentationDetent.medium
+                case .large:
+                    return PresentationDetent.large
+                case .fraction(let fraction):
+                    return PresentationDetent.fraction(fraction)
+                case .height(let height):
+                    return PresentationDetent.height(height)
+                }
+            })
+        default: return []
+        }
+    }
+
+    override init() {
+        super.init()
+        routes = navigation.routes
 	}
 	
-    func view(route: String) -> AnyView? {
+    func getView(route: String) -> AnyView? {
         guard let view = navigation.items[route]?() else { return nil }
 		guard let page = view as? any View else {
 #if canImport(UIKit)
@@ -60,7 +98,7 @@ public class FlowNavigationStackV2: ObservableObject {
 		routes = []
 	}
 	
-	private func onChange(action: NavigationAction) {
+    override func onChange(action: NavigationAction) {
 		switch action {
 		case .navigate(route: let route):
 			navigate(route: route)
@@ -75,10 +113,7 @@ public class FlowNavigationStackV2: ObservableObject {
             presentMode = mode
 
 		case .dismiss:
-            if presentMode != nil {
-                presentMode = nil
-                navigation.routes.popLast()
-            }
+            presentMode = nil
 		}
 	}
 }

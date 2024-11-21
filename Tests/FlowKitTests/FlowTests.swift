@@ -11,10 +11,10 @@ import SwiftUI
 
 final class FlowTests {
 
-//    @Test func testRegistrationWithoutFlowRouting() async throws {
-//        let navigation = await FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
-//        #expect(await navigation.items.isEmpty)
-//    }
+    @Test func testRegistrationWithoutFlowRouting() async throws {
+        let navigation = await FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
+        #expect(await navigation.items.isEmpty)
+    }
 
     @Test func testRegistrationWithFlowRouting() async throws {
         let navigation = await FlowKit.registerNavigationSwiftUI()
