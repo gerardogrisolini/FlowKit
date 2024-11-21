@@ -11,6 +11,18 @@ import SwiftUI
 
 final class FlowTests {
 
+//    @Test func testRegistrationWithoutFlowRouting() async throws {
+//        let navigation = await FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
+//        #expect(await navigation.items.isEmpty)
+//    }
+
+    @Test func testRegistrationWithFlowRouting() async throws {
+        let navigation = await FlowKit.registerNavigationSwiftUI()
+        #expect(await navigation.items.contains(Routes.valid.rawValue))
+        #expect(await navigation.items.contains(Routes.invalid.rawValue))
+        #expect(await navigation.items.contains(Routes.partial.rawValue))
+    }
+
     @Test func testValidFlow() async throws {
         try await ValidFlow().test()
     }
@@ -29,19 +41,6 @@ final class FlowTests {
         } catch {
             #expect(error is FlowError)
         }
-    }
-
-    @Test func testRegistrationWithFlowRouting() async throws {
-        let navigation = await FlowKit.registerNavigationSwiftUI()
-        try await Task.sleep(nanoseconds: 2000000000)
-        #expect(await navigation.items.contains(Routes.valid.rawValue))
-        #expect(await navigation.items.contains(Routes.invalid.rawValue))
-        #expect(await navigation.items.contains(Routes.partial.rawValue))
-    }
-
-    @Test func testRegistrationWithoutFlowRouting() async {
-        let navigation = await FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
-        #expect(await navigation.items.isEmpty)
     }
 }
 

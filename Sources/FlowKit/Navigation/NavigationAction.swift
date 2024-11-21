@@ -6,11 +6,19 @@
 //
 
 /// NavigationAction is the enum that contains the navigation actions
-public enum NavigationAction: Equatable, Sendable {
-	case navigate(String)
-	case present(String)
-	case pop(String)
-	case popToRoot
-	case dismiss
+public enum NavigationAction: Identifiable, Equatable, Sendable {
+    case navigate(String)
+    case present(PresentMode)
+    case pop(String)
+    case popToRoot
+    case dismiss
+
+    public var id: String {
+        String(describing: type(of: self))
+    }
+
+    public static func == (lhs: NavigationAction, rhs: NavigationAction) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// InOutProtocol is the protocol for the input/output model
 public protocol InOutProtocol: Identifiable, Sendable { }
@@ -19,7 +20,8 @@ public protocol FlowEventProtocol: Identifiable, CaseIterable, Sendable {
 public protocol FlowOutProtocol: FlowEventProtocol { }
 
 /// FlowViewProtocol is the protocol for the flow view
-public protocol FlowViewProtocol: Navigable {
+public protocol FlowViewProtocol: Sendable {
+    //associatedtype Navigable: Sendable
     associatedtype In: InOutProtocol
     associatedtype Out: FlowOutProtocol = OutEmpty
     associatedtype Event: FlowEventProtocol = EventBase
@@ -134,15 +136,15 @@ public extension FlowViewProtocol {
     
     /// Present a view
     /// - Parameters:
-    /// - view: the view to present
-    func present(_ view: some Presentable) {
-        events.send(.present(view))
+    /// - mode: presentation mode
+    func present(_ mode: PresentMode) {
+        events.send(.present(mode))
     }
 
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
-    func navigate(_ view: some Navigable) {
+    func navigate(_ view: any Sendable) {
         events.send(.navigate(view))
     }
 }

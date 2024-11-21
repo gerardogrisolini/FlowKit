@@ -12,7 +12,7 @@ public extension NavigationProtocol {
     /// - Parameters:
     /// - route: the route
     /// - with: the closure of navigable view
-    func register(route: some Routable, with: @escaping @Sendable () -> (any Navigable)) {
+    func register(route: some Routable, with: @escaping @Sendable () -> (any Sendable)) {
         let routeString = "\(route)"
         items[routeString] = with
 	}
@@ -35,7 +35,7 @@ public extension NavigationProtocol {
     /// Navigate to a view
     /// - Parameters:
     /// - view: the navigable view
-	func navigate(view: some Navigable) {
+	func navigate(view: any Sendable) {
 		let routeString = String(describing: type(of: view))
 		if !items.contains(routeString) {
 			items[routeString] = { view }
@@ -45,12 +45,10 @@ public extension NavigationProtocol {
 	
     /// Present a view
     /// - Parameters:
-    /// - view: the presentable view
-	func present(view: some Presentable) {
-		let routeString = String(describing: type(of: view))
-		if !items.contains(routeString) {
-			items[routeString] = { view }
-		}
-		present(routeString: routeString)
-	}
+    /// - mode: Presentation mode
+    func present(_ mode: PresentMode) {
+        let routeString = String(describing: mode)
+        routes.append(routeString)
+        action.send(.present(mode))
+    }
 }

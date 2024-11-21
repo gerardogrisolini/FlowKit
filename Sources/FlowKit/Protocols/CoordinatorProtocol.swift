@@ -32,18 +32,6 @@ public protocol CoordinatorProtocol {
     func start(model: Flow.CoordinatorNode.View.In, navigate: Bool) async throws
 }
 
-/// Presentable is the protocol for the presentable view
-@MainActor public protocol Presentable: Navigable {
-    /// Dismiss the view
-    var dismiss: () -> () { get }
-}
-
-extension Presentable {
-    public var dismiss: () -> () {
-        Resolver.resolve(NavigationProtocol.self).dismiss
-    }
-}
-
 extension CoordinatorNodeProtocol {
     /// Function to validate the model
     /// - Parameters:

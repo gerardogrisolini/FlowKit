@@ -67,15 +67,15 @@ public extension EnvironmentValues {
 
     /// Present a view
     /// - Parameters:
-    /// - view: the view to present
-    func present(_ view: some Presentable) {
-        parent.events.send(.present(view))
+    /// - mode: presentation mode
+    func present(_ mode: PresentMode) {
+        parent.events.send(.present(mode))
     }
 
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
-    func navigate(_ view: some Navigable) {
+    func navigate(_ view: any Sendable) {
         parent.events.send(.navigate(view))
     }
 }

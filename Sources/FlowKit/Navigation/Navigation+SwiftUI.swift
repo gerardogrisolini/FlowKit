@@ -14,18 +14,11 @@ public class NavigationSwiftUI: NavigationProtocol {
 	public var routes: [String] = []
     public var items = NavigationItems()
 
-    required public init() { }
-
     public func navigate(routeString: String) {
         routes.append(routeString)
         action.send(.navigate(routeString))
     }
-    
-    public func present(routeString: String) {
-        routes.append(routeString)
-        action.send(.present(routeString))
-    }
-    
+
 	public func navigate(route: some Routable) throws {
 		let routeString = "\(route)"
         guard items.contains(routeString) else {
@@ -36,10 +29,11 @@ public class NavigationSwiftUI: NavigationProtocol {
 
 	public func present(route: some Routable) throws {
 		let routeString = "\(route)"
-		guard items.contains(routeString) else {
+        guard let view = items[routeString]?() else {
 			throw FlowError.routeNotFound
 		}
-		present(routeString: routeString)
+        routes.append(routeString)
+        present(.sheet(view))
 	}
 
 	private func removeRoute(_ route: String) {
@@ -82,10 +76,6 @@ public class NavigationSwiftUI: NavigationProtocol {
     }
 
 	public func dismiss() {
-		action.send(.dismiss)
-
-        if let route = routes.popLast() {
-            removeRoute(route)
-        }
+        action.send(.dismiss)
 	}
 }

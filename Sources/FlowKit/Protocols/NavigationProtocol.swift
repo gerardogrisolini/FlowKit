@@ -5,10 +5,9 @@
 //  Created by Gerardo Grisolini on 11/10/22.
 //
 
+import SwiftUI
+import UIKit
 import Combine
-
-/// Navigable is the protocol that a view or flow must implement to be navigable
-public protocol Navigable: Sendable { }
 
 /// Nodable is the protocol that must implement to be nodable
 public protocol Nodable: Sendable {
@@ -32,13 +31,12 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// The items for the routes of the navigation
     var items: NavigationItems { get set }
 
-	init()
-
+    
     /// Register a route with a view
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-    func register(route: some Routable, with: @escaping @Sendable () -> (any Navigable))
+    func register(route: some Routable, with: @escaping @Sendable () -> (any Sendable))
 
     /// Get a flow with a route
     /// - Parameters:
@@ -51,25 +49,20 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// - routeString: the route string to navigate
     func navigate(routeString: String)
 
-    /// Present a route string
-    /// - Parameters:
-    /// - routeString: the route string to present
-    func present(routeString: String)
-
     /// Navigate to a view
     /// - Parameters:
     /// - view: the view to navigate
-    func navigate(view: some Navigable)
-
-    /// Present a view
-    /// - Parameters:
-    /// - view: the view to present
-	func present(view: some Presentable)
+    func navigate(view: any Sendable)
 
     /// Navigate to a route
     /// - Parameters:
     /// - route: the route to navigate
     func navigate(route: some Routable) throws
+
+    /// Present a view
+    /// - Parameters:
+    /// - mode: Presentation mode
+    func present(_ mode: PresentMode)
 
     /// Present a route
     /// - Parameters:
@@ -89,7 +82,57 @@ public protocol NavigationProtocol: AnyObject, Sendable {
 	func dismiss()
 }
 
-public extension Navigable {
+/// Alert action for confirmation dialog
+public struct AlertAction: Sendable {
+
+    public enum Style: Int, Sendable {
+        case `default` = 0
+        case cancel = 1
+        case destructive = 2
+    }
+
+    public let title: String
+    public let style: Style
+    public let handler: @Sendable () -> Void
+}
+
+public enum PresentationDetents: Sendable {
+    /// The system detent for a sheet that's approximately half the height of
+    /// the screen, and is inactive in compact height.
+    case medium
+
+    /// The system detent for a sheet at full height.
+    case large
+
+    /// A custom detent with the specified fractional height.
+    case fraction(_ fraction: CGFloat)
+
+    /// A custom detent with the specified height.
+    case height(_ height: CGFloat)
+}
+
+/// Presentation modes
+public enum PresentMode: Sendable {
+    case alert(title: String = "", message: String = "")
+    case confirmationDialog(title: String = "", actions: [AlertAction])
+    case sheet(any Sendable, detents: [PresentationDetents] = [.medium, .large])
+    case fullScreenCover(any Sendable)
+}
+
+public extension View {
+
+    /// The route string for the navigable
+    var routeString: String {
+        String(describing: type(of: self))
+    }
+
+    /// Dismiss presented view
+    var dismiss: () -> () {
+        Resolver.resolve(NavigationProtocol.self).dismiss
+    }
+}
+
+public extension UIViewController {
 
     /// The route string for the navigable
     var routeString: String {
@@ -98,6 +141,7 @@ public extension Navigable {
 }
 
 public extension Routable {
-    
+
+    /// Default model for view
     var model: InOutEmpty.Type { InOutEmpty.self }
 }

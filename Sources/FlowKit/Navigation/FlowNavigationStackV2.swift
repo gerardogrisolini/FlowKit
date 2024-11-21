@@ -9,12 +9,13 @@ import SwiftUI
 import Combine
 import Resolver
 
+@available(iOS 16.0.0, *)
 @MainActor
 public class FlowNavigationStackV2: ObservableObject {
-	@Injected var navigation: NavigationProtocol
-	
+    @Injected var navigation: NavigationProtocol
+
 	@Published public var routes: [String] = []
-	@Published public var presentedView: (any View)? = nil
+    @Published var presentMode: PresentMode? = nil
     private var cancellables = Set<AnyCancellable>()
 
 	public init() {
@@ -28,8 +29,8 @@ public class FlowNavigationStackV2: ObservableObject {
             .store(in: &cancellables)
 	}
 	
-	func view(route: String) -> AnyView? {
-		guard let view = navigation.items[route]?() else { return nil }
+    func view(route: String) -> AnyView? {
+        guard let view = navigation.items[route]?() else { return nil }
 		guard let page = view as? any View else {
 #if canImport(UIKit)
 			guard let vc = view as? UIViewController else {
@@ -70,20 +71,14 @@ public class FlowNavigationStackV2: ObservableObject {
 		case .popToRoot:
 			popToRoot()
 			
-		case .present(let route):
-            guard let page = navigation.items[route]?() as? any View else {
-#if canImport(UIKit)
-                guard let page = navigation.items[route]?() as? UIViewController else {
-                    return
-                }
-                presentedView = page.toSwiftUI()
-#endif
-                return
-            }
-			presentedView = page
-			
+		case .present(let mode):
+            presentMode = mode
+
 		case .dismiss:
-			presentedView = nil
+            if presentMode != nil {
+                presentMode = nil
+                navigation.routes.popLast()
+            }
 		}
 	}
 }

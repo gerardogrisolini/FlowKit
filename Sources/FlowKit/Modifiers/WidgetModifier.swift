@@ -33,8 +33,8 @@ struct WidgetModifier<Parent: FlowViewProtocol>: ViewModifier {
                             parent.back()
                         case .commit(let model, toRoot: let toRoot):
                             parent.commit(model, toRoot: toRoot)
-                        case .present(let view):
-                            parent.present(view)
+                        case .present(let mode):
+                            parent.present(mode)
                         }
                     }
                 } catch {

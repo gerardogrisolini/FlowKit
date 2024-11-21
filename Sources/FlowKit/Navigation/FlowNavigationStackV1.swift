@@ -14,7 +14,7 @@ public class FlowNavigationStackV1: ObservableObject {
     @Injected var navigation: NavigationProtocol
 
     @Published var route: String? = nil
-    @Published public var presentedView: (any View)? = nil
+    @Published var presentMode: PresentMode? = nil
     private var cancellables: [AnyCancellable] = []
     
     var view: AnyView? {
@@ -57,14 +57,13 @@ public class FlowNavigationStackV1: ObservableObject {
         case .popToRoot:
             route = nil
 
-        case .present(let route):
-            guard self.route == navigation.routes.last else { return }
-            guard let page = navigation.items[route]?() as? any View else { return }
-            presentedView = page
+        case .present(let mode):
+            presentMode = mode
 
         case .dismiss:
-            if presentedView != nil {
-                presentedView = nil
+            if presentMode != nil {
+                presentMode = nil
+                navigation.routes.popLast()
             }
         }
     }

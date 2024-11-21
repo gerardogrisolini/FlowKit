@@ -28,6 +28,7 @@ public extension View where Self: FlowViewProtocol {
         self
             .task {
                 do {
+                    //let nav = NavigationSwiftUI()
                     let nav: NavigationProtocol = Resolver.resolve()
                     for try await event in events {
                         print(event)
@@ -37,8 +38,8 @@ public extension View where Self: FlowViewProtocol {
                             await onEventChanged(event: e, model: model)
                         case .navigate(let view):
                             nav.navigate(view: view)
-                        case .present(let view):
-                            nav.present(view: view)
+                        case .present(let mode):
+                            nav.present(mode)
                         default:
                             continue
                         }
@@ -68,9 +69,10 @@ public extension View where Self: FlowWidgetProtocol {
     }
 }
 
+#if canImport(UIKit)
 public extension View {
-    public func toUIKit() -> UIView {
+    func toUIKit() -> UIView {
         UIHostingController(rootView: self).view!
     }
 }
-
+#endif

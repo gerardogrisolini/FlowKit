@@ -68,13 +68,13 @@ public struct FlowKit {
 
         guard withFlowRouting else { return navigation }
 
-        Task.detached {
+        Task { @MainActor in
             print("Registering flows...")
             let classes = Self.classes(conformTo: FlowRouteProtocol.self)
             for item in classes {
                 guard let flow = item as? (any FlowProtocol.Type) else { continue }
                 print("\(flow.route)")
-                await navigation.register(route: flow.route) { flow.init() }
+                navigation.register(route: flow.route) { flow.init() }
             }
         }
 

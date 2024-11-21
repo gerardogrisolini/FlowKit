@@ -94,12 +94,13 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                 case .navigate(let view):
                     navigation.navigate(view: view)
 
-                case .present(let view):
-                    navigation.present(view: view)
+                case .present(let mode):
+                    navigation.present(mode)
                 }
 
             } catch {
                 print(error)
+                navigation.present(.alert(title: "Exception", message: "\(error)"))
                 continue
             }
         }
@@ -113,8 +114,8 @@ public enum CoordinatorEvent: Sendable {
     case commit(any InOutProtocol, toRoot: Bool)
     case event(any FlowEventProtocol)
 
-    case present(any Presentable)
-    case navigate(any Navigable)
+    case present(_ mode: PresentMode)
+    case navigate(any Sendable)
 }
 
 /// InOutEmpty is the empty inout model

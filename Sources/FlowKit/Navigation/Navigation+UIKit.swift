@@ -13,6 +13,8 @@ import UIKit
 
 @MainActor
 public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationControllerDelegate {
+    public typealias Navigable = UIViewController
+
     public var navigationController: UINavigationController? {
         didSet {
             navigationController?.delegate = self
@@ -23,16 +25,11 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     public var routes: [String] = []
 	public var items = NavigationItems()
 
-    required public override init() { }
 
     public func navigate(routeString: String) {
         try? push(route: routeString)
     }
-    
-    public func present(routeString: String) {
-        try? present(route: routeString)
-    }
-    
+
     public func navigate(route: some Routable) throws {
         try push(route: "\(route)")
     }
@@ -81,21 +78,17 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 
         let view = items[route]?()
 
-        guard let vc = view as? UIViewController else {
-            guard view is any View else {
-                return
-            }
+        guard view is any View else {
+            return
+        }
 
-            guard let vc = navigationController?.viewControllers[routes.count - 1] else {
-                popToRoot()
-                return
-            }
-
-            navigationController?.popToViewController(vc, animated: true)
+        guard let vc = navigationController?.viewControllers[routes.count - 1] else {
+            popToRoot()
             return
         }
 
         navigationController?.popToViewController(vc, animated: true)
+        return
     }
 
     public func popToRoot() {
@@ -105,22 +98,20 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         navigationController?.popToRootViewController(animated: true)
 	}
 
-    private func presentView(_ controller: UIViewController) {
-        let nav = UINavigationController()
-        nav.setViewControllers([controller], animated: true)
-        nav.modalPresentationStyle = .pageSheet
+    private func presentView(_ controller: UIViewController, detents: [UISheetPresentationController.Detent] = [.medium(), .large()]) {
+        controller.modalPresentationStyle = .pageSheet
 
         if #available(iOS 15.0, *) {
-            if let sheet = nav.sheetPresentationController {
-                sheet.detents = [.medium(), .large()]
+            if let sheet = controller.sheetPresentationController {
+                sheet.detents = detents
                 sheet.prefersScrollingExpandsWhenScrolledToEdge = false
                 sheet.preferredCornerRadius = 48
             }
         }
-        navigationController?.present(nav, animated: true, completion: nil)
+        navigationController?.present(controller, animated: true, completion: dismiss)
     }
     
-    public func present(route: String) throws {
+    private func present(route: String) throws {
         routes.append(route)
 
         guard let view = items[route]?() as? any View else {
@@ -134,11 +125,58 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         let controller: UIViewController = UIHostingController(rootView: AnyView(view))
         presentView(controller)
 	}
-	
+
+    public func present(_ mode: PresentMode) {
+        let routeString = String(describing: mode)
+        routes.append(routeString)
+
+        switch mode {
+        case .alert(title: let title, message: let message):
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            navigationController?.present(alert, animated: true, completion: nil)
+
+        case .confirmationDialog(title: let title, actions: let actions):
+            let alert = UIAlertController(title: title, message: nil, preferredStyle: .actionSheet)
+            actions.forEach { item in
+                alert.addAction(UIAlertAction(
+                    title: item.title,
+                    style: UIAlertAction.Style(rawValue: item.style.rawValue) ?? .default,
+                    handler: { _ in
+                        item.handler()
+                    }
+                ))
+            }
+            navigationController?.present(alert, animated: true, completion: nil)
+
+        case .sheet(let view, let detents):
+            guard let controller = view as? UIViewController else { return }
+            let detentsMapped: [UISheetPresentationController.Detent] = detents.map {
+                switch $0 {
+                case .large:
+                    return UISheetPresentationController.Detent.large()
+                default:
+                    return UISheetPresentationController.Detent.medium()
+                }
+            }
+            presentView(controller, detents: detentsMapped)
+
+        case .fullScreenCover(let view):
+            guard let controller = view as? UIViewController else { return }
+            controller.modalPresentationStyle = .fullScreen
+            navigationController?.present(controller, animated: true, completion: dismiss)
+        }
+    }
+
 	public func dismiss() {
-        guard let route = routes.last else { return }
-        removeRoute(route)
-        navigationController?.dismiss(animated: true)
+        let styles: [UIModalPresentationStyle] = [.fullScreen, .pageSheet, .overFullScreen]
+        if let style = navigationController?.modalPresentationStyle, styles.contains(style) {
+            navigationController?.dismiss(animated: true)
+            guard let route = routes.last else { return }
+            removeRoute(route)
+//        } else {
+//            navigationController?.popViewController(animated: true)
+        }
 	}
     
     private func removeRoute(_ route: String) {

@@ -10,7 +10,7 @@ import Foundation
 /// A collection of navigation items
 @MainActor
 public struct NavigationItems {
-    private var items = Dictionary<String, () -> (any Navigable)>()
+    private var items = Dictionary<String, () -> (any Sendable)>()
 
     var isEmpty: Bool {
         items.isEmpty
@@ -20,7 +20,7 @@ public struct NavigationItems {
         items.count
     }
 
-    subscript(key: String) -> (() -> (any Navigable))? {
+    subscript(key: String) -> (() -> (any Sendable))? {
         get { items[key] }
         set { items[key] = newValue }
     }

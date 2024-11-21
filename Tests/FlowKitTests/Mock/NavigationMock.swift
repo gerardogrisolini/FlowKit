@@ -38,13 +38,14 @@ final class NavigationMock: NavigationProtocol {
     }
 
     func present(route: some Routable) throws {
-        present(routeString: "\(route)")
+        present(.sheet(EmptyView()))
     }
 
-    func present(routeString: String) {
+    func present(_ mode: PresentMode) {
+        let routeString = String(describing: type(of: mode))
         Task { @MainActor in
             routes.append(routeString)
-            navigationAction = .present(routeString)
+            navigationAction = .present(mode)
         }
     }
 

@@ -18,7 +18,7 @@ final class CoordinatorTests {
     
     @Test func testViewCommit() async throws {
         let navigation = NavigationMock()
-        Task { @MainActor [navigation] in
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 15000000)
             let view = navigation.currentView
             view?.commit(InOutEmpty(), toRoot: true)
@@ -26,51 +26,50 @@ final class CoordinatorTests {
             view?.events.finish()
         }
         try await startCoordinator(navigation)
-        #expect(await navigation.navigationAction == .popToRoot)
+        #expect(navigation.navigationAction == NavigationAction.popToRoot)
     }
 
     @Test func testViewOut() async throws {
         let navigation = NavigationMock()
-        Task { @MainActor [navigation] in
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.send(.next(TestFlowView.Out.empty))
-            try await Task.sleep(nanoseconds: 15000000)
+            try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.finish()
             navigation.routes.removeLast()
             navigation.currentView?.events.finish()
         }
         try await startCoordinator(navigation)
-        #expect(await navigation.navigationAction == .navigate("EmptyFlowView"))
+        #expect(navigation.navigationAction == .navigate("EmptyFlowView"))
     }
 
     @Test func testViewEvent() async throws {
         let navigation = NavigationMock()
-        Task { @MainActor [navigation] in
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 15000000)
-            let view = navigation.currentView
-            view?.events.send(.event(TestFlowView.Event.empty))
+            navigation.currentView?.events.send(.event(TestFlowView.Event.empty))
         }
         try await startCoordinator(navigation)
     }
 
     @Test func testViewOutInBehavior() async throws {
         let navigation = NavigationMock()
-        Task { @MainActor [navigation] in
+        Task { [navigation] in
             try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.send(.next(TestFlowView.Out.behavior(InOutModel())))
-            try await Task.sleep(nanoseconds: 15000000)
+            try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.finish()
             navigation.routes.removeLast()
             navigation.currentView?.events.finish()
         }
         try await startCoordinator(navigation)
-        #expect(await navigation.navigationAction == .navigate("EmptyFlowView"))
+        #expect(navigation.navigationAction == .navigate("EmptyFlowView"))
     }
 
     @Test func testViewEventInBehavior() async throws {
         let navigation = NavigationMock()
-        Task { @MainActor [navigation] in
-            try await Task.sleep(nanoseconds: 15000000)
+        Task { [navigation] in
+            try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.send(.event(TestFlowView.Event.behavior))
         }
         try await startCoordinator(navigation)
@@ -78,15 +77,15 @@ final class CoordinatorTests {
 
     @Test func testViewBack() async throws {
         let navigation = NavigationMock()
-        Task { @MainActor [navigation] in
-            try await Task.sleep(nanoseconds: 10000000)
+        Task { [navigation] in
+            try await Task.sleep(nanoseconds: 150000000)
             let view = navigation.currentView
             view?.back()
             try await Task.sleep(nanoseconds: 5000000)
             view?.events.finish()
         }
         try await startCoordinator(navigation)
-        #expect(await navigation.navigationAction == .pop(""))
+        #expect(navigation.navigationAction == .pop(""))
     }
 }
 

@@ -38,7 +38,7 @@ final class NavigationUIKitTests {
         sut.navigate(view: view)
         sut.pop()
         #expect(sut.routes.last != view.routeString)
-//        XCTAssertFalse(sut.items[view.routeString]?() is UIViewController)
+        #expect(sut.items[view.routeString]?() == nil)
     }
 
     @Test func testPopToRoot() async throws {
@@ -68,22 +68,16 @@ final class NavigationUIKitTests {
     }
 
     @Test func testPresentAndDismissView() async throws {
-        let view = UIViewController()
-        sut.present(view: UIViewController())
-        #expect(sut.items[view.routeString]?() is UIViewController)
-
+        let routeString = "sheet(<UIViewController:"
+        sut.present(.sheet(UIViewController()))
+        #expect(sut.routes.last?.hasPrefix(routeString) ?? false)
         sut.dismiss()
-//        XCTAssertFalse(sut.items[view.routeString]?() is UIViewController)
-        #expect(sut.routes.last != view.routeString)
+        #expect(sut.routes.last != routeString)
     }
 }
 
-extension UIViewController: @retroactive Sendable {}
-extension UIViewController: Navigable, Presentable { }
-
 fileprivate enum Routes: String, Routable {
     case home
-    case profile
     case settings
 }
 

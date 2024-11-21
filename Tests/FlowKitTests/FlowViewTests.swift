@@ -23,7 +23,7 @@ struct FlowViewTests {
             sut.event(.event1)
             sut.event(.event2)
             sut.navigate(EmptyView())
-            sut.present(EmptyView())
+            sut.present(.sheet(EmptyView()))
             try await Task.sleep(nanoseconds: 500000)
             sut.commit(InOutEmpty(), toRoot: false)
         }
@@ -35,8 +35,9 @@ struct FlowViewTests {
             case .navigate(let view):
                 eventsCount += 1
                 #expect(view is EmptyView)
-            case .present(let view):
+            case .present(let mode):
                 eventsCount += 1
+                guard case .sheet(let view) = mode else { continue }
                 #expect(view is EmptyView)
             case .next(let event):
                 eventsCount += 1

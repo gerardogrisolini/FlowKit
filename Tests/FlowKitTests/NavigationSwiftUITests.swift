@@ -31,7 +31,7 @@ final class NavigationSwiftUITests {
         sut.navigate(view: view)
         sut.pop()
         #expect(sut.routes.last != view.routeString)
-//        XCTAssertFalse(sut.items[view.routeString]?() is EmptyView)
+        #expect(sut.items[view.routeString]?() == nil)
     }
 
     @Test func testPopToRoot() async throws {
@@ -46,14 +46,14 @@ final class NavigationSwiftUITests {
         #expect(sut.items.isEmpty)
     }
 
-    @Test @MainActor func testPopToFlow() async throws {
+    @Test func testPopToFlow() async throws {
         let sut = NavigationSwiftUI()
         sut.navigate(view: EmptyFlowView())
         try await Task.sleep(nanoseconds: 5000)
-        sut.register(route: Routes.settings) {
+        sut.register(route: Routes.profile) {
             EmptyFlow()
         }
-        _ = try sut.flow(route: Routes.settings)
+        _ = try sut.flow(route: Routes.profile)
         try await Task.sleep(nanoseconds: 5000)
         sut.navigate(view: EmptyView())
         try await Task.sleep(nanoseconds: 5000)
@@ -65,13 +65,11 @@ final class NavigationSwiftUITests {
 
     @Test func testPresentAndDismissView() async throws {
         let sut = NavigationSwiftUI()
-        let view = EmptyView()
-        sut.present(view: EmptyView())
-        #expect(sut.items[view.routeString]?() is EmptyView)
-
+        let routeString = "sheet(SwiftUI.EmptyView(), presentationDetents: [FlowKit.PresentationDetents.fraction(0.5)])"
+        sut.present(.sheet(EmptyView(), detents: [.fraction(0.5)]))
+        #expect(sut.routes.last == routeString)
         sut.dismiss()
-//        XCTAssertFalse(sut.items[view.routeString]?() is EmptyView)
-        #expect(sut.routes.last != view.routeString)
+        #expect(sut.routes.last != routeString)
     }
 
     @Test func testActionSink() async throws {
@@ -97,7 +95,7 @@ final class NavigationSwiftUITests {
         try await Task.sleep(nanoseconds: 5000)
         sut.pop()
         try await Task.sleep(nanoseconds: 5000)
-        sut.present(routeString: ".")
+        sut.present(.alert(title: "", message: ""))
         try await Task.sleep(nanoseconds: 5000)
         sut.dismiss()
         try await Task.sleep(nanoseconds: 5000)
@@ -109,12 +107,9 @@ final class NavigationSwiftUITests {
     }
 }
 
-extension EmptyView: Navigable, Presentable { }
-
 fileprivate enum Routes: String, Routable {
     case home
     case profile
-    case settings
 }
 
 @FlowView(InOutEmpty.self)
@@ -124,8 +119,7 @@ fileprivate struct EmptyFlowView: FlowViewProtocol, View {
     }
 }
 
-@Flow(InOutEmpty.self, route: Routes.settings)
+@Flow(InOutEmpty.self, route: Routes.profile)
 fileprivate final class EmptyFlow: FlowProtocol {
     let node = EmptyFlowView.node
 }
-

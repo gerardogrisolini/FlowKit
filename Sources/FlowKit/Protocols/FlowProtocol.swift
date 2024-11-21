@@ -17,7 +17,7 @@ public enum FlowError: Error {
 @objc public protocol FlowRouteProtocol { }
 
 /// FlowProtocol is the main protocol for the flow
-public protocol FlowProtocol: FlowRouteProtocol, Navigable {
+public protocol FlowProtocol: FlowRouteProtocol, Sendable {
     associatedtype Route: Routable
     associatedtype CoordinatorNode: CoordinatorNodeProtocol
     associatedtype Model: InOutProtocol
