@@ -79,13 +79,11 @@ final class FlowNavigationStackV2: FlowNavigationStack {
 	
 	private func navigate(route: String) {
 		guard routes.last != route else { return }
-
 		routes.append(route)
 	}
 	
 	private func pop(route: String) {
 		guard routes.last == route else { return }
-
 		routes.removeLast()
 	}
 

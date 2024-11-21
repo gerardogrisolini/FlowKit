@@ -71,8 +71,23 @@ final class NavigationUIKitTests {
         let mode: PresentMode = .sheet(UIViewController())
         sut.present(mode)
         #expect(sut.routes.last == mode.routeString)
+        #expect(sut.presentMode == mode)
         sut.dismiss()
         #expect(sut.routes.last != mode.routeString)
+    }
+
+    @Test func testPresentAlert() async throws {
+        let mode: PresentMode = .alert(title: "Title", message: "Message")
+        sut.present(mode)
+        #expect(sut.routes.last == nil)
+        #expect(sut.presentMode == mode)
+    }
+
+    @Test func testPresentConfirmationDialog() async throws {
+        let mode: PresentMode = .confirmationDialog(title: "Title", actions: [])
+        sut.present(mode)
+        #expect(sut.routes.last == nil)
+        #expect(sut.presentMode == mode)
     }
 }
 

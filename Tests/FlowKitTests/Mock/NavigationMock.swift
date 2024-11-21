@@ -27,16 +27,14 @@ final class NavigationMock: NavigationProtocol {
     }
 
     func navigate(route: some Routable) throws {
-        navigate(routeString: "\(route)")
+        navigationAction = .navigate("\(route)")
+        action.send(navigationAction!)
     }
 
     func navigate(routeString: String) {
         routes.append(routeString)
         navigationAction = .navigate(routeString)
-    }
-
-    func present(route: some Routable) throws {
-        present(.sheet(EmptyView()))
+        action.send(navigationAction!)
     }
 
     func present(_ mode: PresentMode) {
@@ -45,21 +43,25 @@ final class NavigationMock: NavigationProtocol {
             routes.append(routeString)
         }
         navigationAction = .present(mode)
+        action.send(navigationAction!)
     }
 
     func pop() {
-        routes.removeLast()
-        navigationAction = .pop("")
+        let route = routes.removeLast()
+        navigationAction = .pop(route)
+        action.send(navigationAction!)
     }
 
     func popToFlow() {
         routes = []
         navigationAction = .popToRoot
+        action.send(navigationAction!)
     }
 
     func popToRoot() {
         routes = []
         navigationAction = .popToRoot
+        action.send(navigationAction!)
     }
 
     func dismiss() {
@@ -68,6 +70,7 @@ final class NavigationMock: NavigationProtocol {
                 routes.removeAll(where: { $0 == routeString })
             }
             navigationAction = .dismiss
+            action.send(navigationAction!)
         }
     }
 }
