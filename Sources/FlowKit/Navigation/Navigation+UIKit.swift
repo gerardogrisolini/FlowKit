@@ -25,20 +25,20 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
     public var presentMode: PresentMode? = nil
 
 
-    public func navigate(routeString: String) {
-        try? push(route: routeString)
+    public func navigate(routeString: String) async {
+        try? await push(route: routeString)
     }
 
-    public func navigate(route: some Routable) throws {
-        try push(route: "\(route)")
+    public func navigate(route: some Routable) async throws {
+        try await push(route: route.routeString)
     }
 
-    public func push(route: String) throws {
+    public func push(route: String) async throws {
         guard !routes.contains(route) else { return }
         routes.append(route)
 
-        guard let view = items[route]?() as? any View else {
-            guard let vc = items[route]?() as? UIViewController else {
+        guard let view = await items.getValue(for: route) as? any View else {
+            guard let vc = await items.getValue(for: route) as? UIViewController else {
                 throw FlowError.routeNotFound
             }
             navigationController?.pushViewController(vc, animated: true)
@@ -48,37 +48,37 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         navigationController?.pushViewController(controller, animated: true)
 	}
 	
-	public func pop() {
+	public func pop() async {
         guard let route = routes.last else { return }
-        removeRoute(route)
+        await removeRoute(route)
         navigationController?.popViewController(animated: true)
 	}
 	
-    public func popToFlow() {
+    public func popToFlow() async {
         var count = routes.count - 1
         while count >= 0 {
             let route = routes[count]
-            if items[route]?() is any FlowProtocol {
+            if await items.getValue(for: route) is any FlowProtocol {
                 routes.removeLast()
                 break
             }
-            removeRoute(route)
+            await removeRoute(route)
             count -= 1
         }
 
         guard let route = routes.last else {
-            popToRoot()
+            await popToRoot()
             return
         }
 
-        let view = items[route]?()
+        let view = await items.getValue(for: route)
 
         guard view is any View else {
             return
         }
 
         guard let vc = navigationController?.viewControllers[routes.count - 1] else {
-            popToRoot()
+            await popToRoot()
             return
         }
 
@@ -86,9 +86,9 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         return
     }
 
-    public func popToRoot() {
+    public func popToRoot() async {
         for route in routes {
-            removeRoute(route)
+            await removeRoute(route)
         }
         navigationController?.popToRootViewController(animated: true)
 	}
@@ -162,8 +162,8 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
 	}
     
-    private func removeRoute(_ route: String) {
-        let view = items[route]?()
+    private func removeRoute(_ route: String) async {
+        let view = await items.getValue(for: route)
 
         if let index = routes.firstIndex(of: route) {
             routes.remove(at: index)
@@ -174,7 +174,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
 
         guard view is any FlowProtocol else {
-            items.remove(route)
+            await items.remove(route)
             return
         }
     }
@@ -187,12 +187,15 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
         
         guard let route = routes.last else { return }
-        removeRoute(route)
 
-        guard let route = routes.last else { return }
+        Task { @MainActor in
+            await removeRoute(route)
 
-        if items[route]?() is any FlowProtocol {
-            routes.removeLast()
+            guard let route = routes.last else { return }
+
+            if await items.getValue(for: route) is any FlowProtocol {
+                routes.removeLast()
+            }
         }
     }
 }

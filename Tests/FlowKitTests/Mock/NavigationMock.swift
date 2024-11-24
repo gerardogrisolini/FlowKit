@@ -19,22 +19,31 @@ final class NavigationMock: NavigationProtocol {
     var navigationController: UINavigationController? = nil
 #endif
 
-    var currentView: (any FlowViewProtocol)? {
-        guard let route = routes.last, let view = items[route]?() as? any FlowViewProtocol else {
-            return nil
+    var currentView: (any FlowViewProtocol)? = nil
+
+    func setView() async {
+        guard let routeString = routes.last, let view = await items.getValue(for: routeString) as? any FlowViewProtocol else {
+            currentView = nil
+            return
         }
-        return view
+        currentView = view
     }
 
-    func navigate(route: some Routable) throws {
-        navigationAction = .navigate("\(route)")
-        action.send(navigationAction!)
+    func navigate(route: some Routable) async throws {
+        let routeString = route.routeString
+        guard await items.setParam(for: routeString, param: route.associated.value) else {
+            throw FlowError.routeNotFound
+        }
+        navigate(routeString: routeString)
     }
 
     func navigate(routeString: String) {
         routes.append(routeString)
         navigationAction = .navigate(routeString)
         action.send(navigationAction!)
+        Task { @MainActor in
+            await setView()
+        }
     }
 
     func present(_ mode: PresentMode) {

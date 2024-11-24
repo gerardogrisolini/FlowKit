@@ -38,29 +38,34 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-    func register(route: some Routable, with: @escaping @Sendable () -> (any Sendable))
+    func register(route: some Routable, with: @escaping @Sendable (any InOutProtocol) async -> (any Sendable)) async
 
-    
+    /// Register a route and parameter with a view
+    /// - Parameters:
+    ///  - route: the route to register
+    ///  - with: the closure to create the view
+    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, with: @escaping @Sendable (M) async -> (any Sendable)) async
+
     /// Get a flow with a route
     /// - Parameters:
     /// - route: the route to register
     /// - Returns: the flow
-	func flow(route: some Routable) throws -> (any FlowProtocol)
+	func flow(route: some Routable) async throws -> (any FlowProtocol)
 
     /// Navigate to a route string
     /// - Parameters:
     /// - routeString: the route string to navigate
-    func navigate(routeString: String)
+    func navigate(routeString: String) async
 
     /// Navigate to a view
     /// - Parameters:
     /// - view: the view to navigate
-    func navigate(view: any Sendable)
+    func navigate(view: any Sendable) async
 
     /// Navigate to a route
     /// - Parameters:
     /// - route: the route to navigate
-    func navigate(route: some Routable) throws
+    func navigate(route: some Routable) async throws
 
     /// Present a view
     /// - Parameters:
@@ -68,13 +73,13 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     func present(_ mode: PresentMode)
 
     /// Pop the current route
-	func pop()
+	func pop() async
 
     /// Pop to the beginning of the flow
-    func popToFlow()
+    func popToFlow() async
 
     /// Pop to the root of the navigation
-    func popToRoot()
+    func popToRoot() async
 
     /// Dismiss the presented view
 	func dismiss()
@@ -154,6 +159,21 @@ public extension UIViewController {
 
 public extension Routable {
 
+    /// The route string for the navigable
+    var routeString: String {
+        let text = String(describing: self)
+        return "\(text.className)-\(text.id)"
+    }
+
     /// Default model for view
     var model: InOutEmpty.Type { InOutEmpty.self }
+
+    /// Associated value of the route
+    var associated: (label: String, value: (any InOutProtocol)?) {
+        let mirror = Mirror(reflecting: self)
+        guard let associated = mirror.children.first else {
+            return ("\(self)", nil)
+        }
+        return (associated.label!, associated.value as? any InOutProtocol)
+    }
 }

@@ -13,14 +13,15 @@ final class FlowTests {
 
     @Test func testRegistrationWithFlowRouting() async throws {
         let navigation2 = await FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
-        try await Task.sleep(nanoseconds: 5000)
+        try await Task.sleep(nanoseconds: 150000000)
         #expect(await navigation2.items.isEmpty)
 
         let navigation1 = await FlowKit.registerNavigationSwiftUI()
-        try await Task.sleep(nanoseconds: 5000)
-        #expect(await navigation1.items.contains(Routes.valid.rawValue))
-        #expect(await navigation1.items.contains(Routes.invalid.rawValue))
-        #expect(await navigation1.items.contains(Routes.partial.rawValue))
+        try await Task.sleep(nanoseconds: 150000000)
+        #expect(await navigation1.items.contains(Routes.valid.routeString))
+        #expect(await navigation1.items.contains(Routes.invalid.routeString))
+        #expect(await navigation1.items.contains(Routes.partial.routeString))
+        #expect(await navigation1.items.count == 6)
     }
 
     @Test func testValidFlow() async throws {
@@ -79,7 +80,7 @@ struct InOutEmpty3View: FlowViewProtocol, View {
     }
 }
 
-fileprivate enum Routes: String, Routable {
+fileprivate enum Routes: Routable {
     case valid
     case partial
     case invalid

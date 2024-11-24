@@ -21,27 +21,27 @@ struct FlowNavigationStackV1Tests {
     @Test func testNavigate() async throws {
         let view = EmptyView()
         let stack = FlowNavigationStackV1(navigation: NavigationMock())
-        stack.navigation.navigate(view: view)
+        await stack.navigation.navigate(view: view)
         try await Task.sleep(nanoseconds: 15000000)
         #expect(stack.route == view.routeString)
     }
 
     @Test func testPop() async throws {
         let stack = FlowNavigationStackV1(navigation: NavigationMock())
-        stack.navigation.navigate(view: EmptyView())
+        await stack.navigation.navigate(view: EmptyView())
         try await Task.sleep(nanoseconds: 15000000)
-        stack.navigation.pop()
+        await stack.navigation.pop()
         try await Task.sleep(nanoseconds: 15000000)
         #expect(stack.route == nil)
     }
 
     @Test func testPopToRoot() async throws {
         let stack = FlowNavigationStackV1(navigation: NavigationMock())
-        stack.navigation.navigate(view: Text(""))
+        await stack.navigation.navigate(view: Text(""))
         try await Task.sleep(nanoseconds: 15000000)
-        stack.navigation.navigate(view: EmptyView())
+        await stack.navigation.navigate(view: EmptyView())
         try await Task.sleep(nanoseconds: 15000000)
-        stack.navigation.popToRoot()
+        await stack.navigation.popToRoot()
         try await Task.sleep(nanoseconds: 15000000)
         #expect(stack.route == nil)
     }
@@ -82,7 +82,7 @@ struct FlowNavigationStackV2Tests {
     @Test func testNavigate() async throws {
         let view = EmptyView()
         let stack = FlowNavigationStackV2(navigation: NavigationMock())
-        stack.navigation.navigate(view: view)
+        await stack.navigation.navigate(view: view)
         try await Task.sleep(nanoseconds: 15000000)
         #expect(stack.routes.count == 1)
         #expect(stack.routes.last == view.routeString)
@@ -91,9 +91,9 @@ struct FlowNavigationStackV2Tests {
     @available(iOS 16.0, *)
     @Test func testPop() async throws {
         let stack = FlowNavigationStackV2(navigation: NavigationMock())
-        stack.navigation.navigate(view: EmptyView())
+        await stack.navigation.navigate(view: EmptyView())
         try await Task.sleep(nanoseconds: 15000000)
-        stack.navigation.pop()
+        await stack.navigation.pop()
         try await Task.sleep(nanoseconds: 15000000)
         #expect(stack.routes.isEmpty)
     }
@@ -101,11 +101,11 @@ struct FlowNavigationStackV2Tests {
     @available(iOS 16.0, *)
     @Test func testPopToRoot() async throws {
         let stack = FlowNavigationStackV2(navigation: NavigationMock())
-        stack.navigation.navigate(view: Text(""))
+        await stack.navigation.navigate(view: Text(""))
         try await Task.sleep(nanoseconds: 15000000)
-        stack.navigation.navigate(view: EmptyView())
+        await stack.navigation.navigate(view: EmptyView())
         try await Task.sleep(nanoseconds: 15000000)
-        stack.navigation.popToRoot()
+        await stack.navigation.popToRoot()
         try await Task.sleep(nanoseconds: 15000000)
         #expect(stack.routes.isEmpty)
     }

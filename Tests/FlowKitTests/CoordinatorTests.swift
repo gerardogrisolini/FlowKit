@@ -36,6 +36,7 @@ final class CoordinatorTests {
             try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.finish()
             navigation.routes.removeLast()
+            await navigation.setView()
             navigation.currentView?.events.finish()
         }
         try await startCoordinator(navigation)
@@ -45,7 +46,7 @@ final class CoordinatorTests {
     @Test func testViewEvent() async throws {
         let navigation = NavigationMock()
         Task { [navigation] in
-            try await Task.sleep(nanoseconds: 15000000)
+            try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.send(.event(TestFlowView.Event.empty))
         }
         try await startCoordinator(navigation)
@@ -59,6 +60,7 @@ final class CoordinatorTests {
             try await Task.sleep(nanoseconds: 150000000)
             navigation.currentView?.events.finish()
             navigation.routes.removeLast()
+            await navigation.setView()
             navigation.currentView?.events.finish()
         }
         try await startCoordinator(navigation)
@@ -80,7 +82,6 @@ final class CoordinatorTests {
             try await Task.sleep(nanoseconds: 150000000)
             let view = navigation.currentView
             view?.back()
-            try await Task.sleep(nanoseconds: 5000000)
             view?.events.finish()
         }
         try await startCoordinator(navigation)

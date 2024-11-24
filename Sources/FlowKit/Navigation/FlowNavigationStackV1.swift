@@ -14,40 +14,46 @@ final class FlowNavigationStackV1: FlowNavigationStack {
 
     @Published var route: String? = nil
 
-    @MainActor var presentedView: any View {
+    @MainActor func setPresentedView() async {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
             guard let view = view as? any View else {
                 guard let vc = view as? UIViewController else {
-                    return EmptyView()
+                    presentedView = EmptyView()
+                    return
                 }
-                return vc.toSwiftUI()
+                presentedView = vc.toSwiftUI()
+                return
             }
-            return view
+            presentedView = view
         case .alert(title: _, message: let message):
-            return Text(message)
+            presentedView = Text(message)
         case .confirmationDialog(title: _, actions: let actions):
-            return ForEach(actions, id: \.title) { action in
+            presentedView = ForEach(actions, id: \.title) { action in
                 Button(action.title) { action.handler() }
             }
         default:
-            return EmptyView()
+            presentedView = EmptyView()
         }
     }
 
-    @MainActor var view: AnyView? {
-        guard let route, let view = navigation.items[route]?() else { return nil }
+    @MainActor func setView(route: String) async {
+        view = await getView(route: route)
+    }
+
+    @MainActor private func getView(route: String) async -> (any View)? {
+        guard let view = await navigation.items.getValue(for: route) else { return nil }
         guard let page = view as? any View else {
             #if canImport(UIKit)
             guard let vc = view as? UIViewController else {
                 return nil
             }
-            return AnyView(vc.toSwiftUI().navigationTitle(vc.title ?? ""))
+            return vc.toSwiftUI().navigationTitle(vc.title ?? "")
             #else
             return nil
             #endif
         }
-        return AnyView(page)
+        return page
     }
 
     override func onChange(action: NavigationAction) {

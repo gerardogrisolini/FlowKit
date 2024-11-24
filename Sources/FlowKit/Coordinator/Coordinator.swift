@@ -45,14 +45,14 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     private func show(node: any CoordinatorNodeProtocol, model m: some InOutProtocol, navigate: Bool = true) async throws {
         let view = navigate ? try await node.view.factory(model: m) : parent!
         if navigate {
-            navigation.navigate(view: view)
+            await navigation.navigate(view: view)
         }
 
         for try await event in view.events {
             do {
                 switch event {
                 case .back:
-                    navigation.pop()
+                    await navigation.pop()
 
                 case .next(let next):
                     let data = next.associated.value ?? InOutEmpty()
@@ -86,13 +86,13 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     }
                     await parent?.onCommit(model: model)
                     guard toRoot else {
-                        navigation.popToFlow()
+                        await navigation.popToFlow()
                         continue
                     }
-                    navigation.popToRoot()
+                    await navigation.popToRoot()
 
                 case .navigate(let view):
-                    navigation.navigate(view: view)
+                    await navigation.navigate(view: view)
 
                 case .present(let mode):
                     navigation.present(mode)

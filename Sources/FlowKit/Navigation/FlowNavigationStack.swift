@@ -14,6 +14,8 @@ class FlowNavigationStack: ObservableObject {
 
     var navigation: NavigationProtocol
     @Published var presentMode: PresentMode? = nil
+    @Published var view: (any View)?
+    @Published var presentedView: any View = EmptyView()
     private var cancellables = Set<AnyCancellable>()
 
     var isAlert: Bool {

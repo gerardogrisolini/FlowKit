@@ -20,39 +20,39 @@ public final class NavigationSwiftUI: NavigationProtocol {
         action.send(.navigate(routeString))
     }
 
-	public func navigate(route: some Routable) throws {
-		let routeString = "\(route)"
-        guard items.contains(routeString) else {
+	public func navigate(route: some Routable) async throws {
+        let routeString = route.routeString
+        guard await items.setParam(for: routeString, param: route.associated.value) else {
 			throw FlowError.routeNotFound
 		}
 		navigate(routeString: routeString)
 	}
 
-	private func removeRoute(_ route: String) {
-        let view = items[route]?()
+	private func removeRoute(_ route: String) async {
+        let view = await items.getValue(for: route)
 
         if let view = view as? any FlowViewProtocol {
             view.events.finish()
         }
 
         guard view is any FlowProtocol else {
-            items.remove(route)
+            await items.remove(route)
             return
         }
     }
 
-	public func pop() {
+	public func pop() async {
 		if let route = routes.popLast() {
-			removeRoute(route)
+			await removeRoute(route)
 			action.send(.pop(route))
 		}
 	}
 
-    public func popToFlow() {
+    public func popToFlow() async {
         while let route = routes.popLast() {
-			removeRoute(route)
+			await removeRoute(route)
 
-            if items[route]?() is any FlowProtocol {
+            if await items.getValue(for: route) is any FlowProtocol {
                 break
             }
 
@@ -60,9 +60,9 @@ public final class NavigationSwiftUI: NavigationProtocol {
 		}
 	}
 
-    public func popToRoot() {
+    public func popToRoot() async {
         while let route = routes.popLast() {
-            removeRoute(route)
+            await removeRoute(route)
         }
         action.send(.popToRoot)
     }

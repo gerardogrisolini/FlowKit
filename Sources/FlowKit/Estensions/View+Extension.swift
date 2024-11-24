@@ -37,7 +37,7 @@ public extension View where Self: FlowViewProtocol {
                             guard let e = e as? Event else { continue }
                             await onEventChanged(event: e, model: model)
                         case .navigate(let view):
-                            nav.navigate(view: view)
+                            await nav.navigate(view: view)
                         case .present(let mode):
                             nav.present(mode)
                         default:

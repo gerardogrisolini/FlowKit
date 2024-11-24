@@ -16,15 +16,24 @@ public struct SwiftUINavigationV2Modifier: ViewModifier {
 		NavigationStack(path: $stack.routes) {
 			content
 				.navigationDestination(for: String.self) { route in
-					stack.getView(route: route)
-						.navigationBarBackButtonHidden()
-                        .toolbar {
-                            ToolbarItem(placement: .navigation) {
-                                Button(action: stack.navigation.pop) {
-                                    Image(systemName: "chevron.backward")
-                                }
+                    Group {
+                        if let view = stack.view {
+                            AnyView(view)
+                        } else {
+                            EmptyView()
+                        }
+                    }
+                    .task {
+                        await stack.setView(route: route)
+                    }
+                    .navigationBarBackButtonHidden()
+                    .toolbar {
+                        ToolbarItem(placement: .navigation) {
+                            Button(action: { Task { await stack.navigation.pop() }}) {
+                                Image(systemName: "chevron.backward")
                             }
                         }
+                    }
 				}
 		}
         .alert(

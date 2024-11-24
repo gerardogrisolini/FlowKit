@@ -19,17 +19,24 @@ public struct SwiftUINavigationV1Modifier: ViewModifier {
                 .navigationBarBackButtonHidden()
                 .toolbar {
                     ToolbarItem(placement: .navigation) {
-                        Button(action: stack.navigation.pop) {
+                        Button(action: { Task { await stack.navigation.pop() }}) {
                             Image(systemName: "chevron.backward")
                         }
                     }
                 }
                 .background(
                     NavigationLink(isActive: $stack.route.mappedToBool()) {
-                        if let view = stack.view {
-                            view.modifier(SwiftUINavigationV1Modifier())
-                        } else {
-                            EmptyView()
+                        Group {
+                            if let view = stack.view {
+                                AnyView(view).modifier(SwiftUINavigationV1Modifier())
+                            } else {
+                                EmptyView()
+                            }
+                        }
+                        .onAppear {
+                            if let route = stack.route {
+                                Task { await stack.setView(route: route) }
+                            }
                         }
                     } label: {
                         EmptyView()

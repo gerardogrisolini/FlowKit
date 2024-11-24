@@ -13,24 +13,27 @@ final class FlowNavigationStackV2: FlowNavigationStack {
 
 	@Published public var routes: [String] = []
 
-    @MainActor var presentedView: any View {
+    @MainActor func setPresentedView() async {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
             guard let view = view as? any View else {
                 guard let vc = view as? UIViewController else {
                     guard let route = view as? any Routable else {
-                        return EmptyView()
+                        presentedView = EmptyView()
+                        return
                     }
-                    let routeString = "\(route)"
-                    return getView(route: routeString)
+                    let routeString = route.routeString
+                    presentedView = await getView(route: routeString) ?? EmptyView()
+                    return
                 }
-                return vc.toSwiftUI()
+                presentedView = vc.toSwiftUI()
+                return
             }
-            return view
+            presentedView = view
         case .alert(title: _, message: let message):
-            return Text(message)
+            presentedView = Text(message)
         case .confirmationDialog(title: _, actions: let actions):
-            return ForEach(actions, id: \.title) { action in
+            presentedView = ForEach(actions, id: \.title) { action in
                 Button(
                     action.title,
                     role: action.style == .destructive ? .destructive : nil
@@ -39,7 +42,7 @@ final class FlowNavigationStackV2: FlowNavigationStack {
                 }
             }
         default:
-            return EmptyView()
+            presentedView = EmptyView()
         }
     }
 
@@ -62,19 +65,24 @@ final class FlowNavigationStackV2: FlowNavigationStack {
         }
     }
 
-    @MainActor func getView(route: String) -> AnyView? {
-        guard let view = navigation.items[route]?() else { return nil }
+    @MainActor func setView(route: String) async {
+        view = await getView(route: route)
+    }
+
+    @MainActor
+    private func getView(route: String) async -> (any View)? {
+        guard let view = await navigation.items.getValue(for: route) else { return nil }
 		guard let page = view as? any View else {
 #if canImport(UIKit)
 			guard let vc = view as? UIViewController else {
 				return nil
 			}
-            return AnyView(vc.toSwiftUI().navigationTitle(vc.title ?? "").ignoresSafeArea(.all))
+            return vc.toSwiftUI().navigationTitle(vc.title ?? "").ignoresSafeArea(.all)
 #else
             return nil
 #endif
 		}
-		return AnyView(page)
+		return page
 	}
 	
 	private func navigate(route: String) {
