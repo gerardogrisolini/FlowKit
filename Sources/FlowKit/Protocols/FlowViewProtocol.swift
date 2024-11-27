@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// InOutProtocol is the protocol for the input/output model
 public protocol InOutProtocol: Identifiable, Sendable { }
@@ -21,7 +20,6 @@ public protocol FlowOutProtocol: FlowEventProtocol { }
 
 /// FlowViewProtocol is the protocol for the flow view
 public protocol FlowViewProtocol: Sendable {
-    //associatedtype Navigable: Sendable
     associatedtype In: InOutProtocol
     associatedtype Out: FlowOutProtocol = OutEmpty
     associatedtype Event: FlowEventProtocol = EventBase

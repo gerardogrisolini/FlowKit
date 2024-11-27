@@ -33,45 +33,37 @@ public protocol FlowProtocol: FlowRouteProtocol, Sendable {
     init()
 
     /// Function performed before the flow starts
-    func onStart(model: some InOutProtocol) async throws -> any InOutProtocol
+    //func onStart(model: some InOutProtocol) async throws -> any InOutProtocol
     /// Function to start the flow with a model
-    func start(model: some InOutProtocol, parent: (any FlowViewProtocol)?) async throws
+    func start(parent: (any FlowViewProtocol)?) async throws
 }
 
 public extension FlowProtocol {
     /// Default flow behavior
     var behavior: FlowBehavior { .init() }
 
-    /// Default implementation for the onStart function
-    /// - Parameters:
-    /// - model: the input model
-    /// - Returns: the output model
-    func onStart(model: some InOutProtocol) async throws -> any InOutProtocol {
-        model
-    }
-
     /// Default implementation for the start function with a model
     /// - Parameters:
-    /// - model: the input model
+    /// - parent: the parent page
     /// - Returns: the output model
-    func start(model: some InOutProtocol, parent: (any FlowViewProtocol)? = nil) async throws {
-        let m = try await onStart(model: model)
-
-        guard let m = m as? CoordinatorNode.View.In else {
-            let modelName = String(describing: m)
-            throw FlowError.invalidModel(modelName)
-        }
-
+    func start(parent: (any FlowViewProtocol)? = nil) async throws {
         Resolver
             .register { self.behavior }
             .implements(FlowBehaviorProtocol.self)
             .scope(.shared)
 
-        try await Coordinator(flow: self, parent: parent).start(model: m)
+        try await Coordinator(flow: self, parent: parent).start()
     }
 
     /// Function to test the flow
-    func test() async throws {
+    func test(route: Route) async throws {
+        var m = route.associated.value?.className ?? "InOutEmpty"
+        if let index = m.lastIndex(of: ".") {
+            m = String(m.suffix(from: m.index(after: index)))
+        }
+        guard m == String(describing: node.model) else {
+            throw FlowError.invalidModel(m)
+        }
         try testNode(node: node)
     }
 

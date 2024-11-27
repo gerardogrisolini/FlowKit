@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 import Combine
 
 /// Nodable is the protocol that must implement to be nodable
@@ -149,6 +148,9 @@ public extension View {
     }
 }
 
+#if canImport(UIKit)
+import UIKit
+
 public extension UIViewController {
 
     /// The route string for the navigable
@@ -156,6 +158,7 @@ public extension UIViewController {
         String(describing: type(of: self))
     }
 }
+#endif
 
 public extension Routable {
 

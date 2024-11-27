@@ -29,13 +29,13 @@ public protocol CoordinatorProtocol {
     associatedtype Flow: FlowProtocol
     var flow: Flow { get }
     var parent: (any FlowViewProtocol)? { get }
-    func start(model: Flow.CoordinatorNode.View.In, navigate: Bool) async throws
+    func start(navigate: Bool) async throws
 }
 
 extension CoordinatorNodeProtocol {
     /// Function to validate the model
     /// - Parameters:
-    /// - model: the model to validate
+    /// - className: the class name
     func validate(className fromId: String) throws {
         let toId = String(describing: view.In).className
         guard fromId == toId else {

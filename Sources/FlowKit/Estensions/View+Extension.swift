@@ -17,13 +17,14 @@ public extension View where Self: FlowViewProtocol {
             .task {
                 do {
                     try await Coordinator(flow: flow, parent: self)
-                        .start(model: model as! F.CoordinatorNode.View.In, navigate: false)
+                        .start(navigate: false)
                 } catch {
                     print("Error on joining flow: \(error)")
                 }
             }
     }
 
+    /// To enable events and navigation management in preview
     func preview() -> some View {
         self
             .task {

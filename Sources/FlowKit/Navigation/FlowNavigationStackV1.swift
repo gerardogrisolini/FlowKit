@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @available(iOS 14.0, *)
 @available(iOS, deprecated: 16.0)
@@ -18,11 +21,20 @@ final class FlowNavigationStackV1: FlowNavigationStack {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
             guard let view = view as? any View else {
-                guard let vc = view as? UIViewController else {
+                guard let route = view as? any Routable else {
+#if canImport(UIKit)
+                    guard let vc = view as? UIViewController else {
+                        presentedView = EmptyView()
+                        return
+                    }
+                    presentedView = vc.toSwiftUI()
+#else
                     presentedView = EmptyView()
+#endif
                     return
                 }
-                presentedView = vc.toSwiftUI()
+                let routeString = route.routeString
+                presentedView = await getView(route: routeString) ?? EmptyView()
                 return
             }
             presentedView = view
@@ -44,14 +56,14 @@ final class FlowNavigationStackV1: FlowNavigationStack {
     @MainActor private func getView(route: String) async -> (any View)? {
         guard let view = await navigation.items.getValue(for: route) else { return nil }
         guard let page = view as? any View else {
-            #if canImport(UIKit)
+#if canImport(UIKit)
             guard let vc = view as? UIViewController else {
                 return nil
             }
             return vc.toSwiftUI().navigationTitle(vc.title ?? "")
-            #else
+#else
             return nil
-            #endif
+#endif
         }
         return page
     }

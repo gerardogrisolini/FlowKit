@@ -13,7 +13,7 @@ import SwiftUI
 final class CoordinatorTests {
 
     private func startCoordinator(_ navigation: NavigationMock) async throws {
-        try await Coordinator(flow: TestFlow(), navigation: navigation).start(model: InOutEmpty())
+        try await Coordinator(flow: TestFlow(), navigation: navigation).start()
     }
     
     @Test func testViewCommit() async throws {
@@ -85,7 +85,7 @@ final class CoordinatorTests {
             view?.events.finish()
         }
         try await startCoordinator(navigation)
-        #expect(navigation.navigationAction == .pop(""))
+        #expect(navigation.navigationAction == .pop("TestFlowView"))
     }
 }
 

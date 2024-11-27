@@ -7,14 +7,19 @@
 
 import Testing
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 @testable import FlowKit
 
 final class FlowTests {
 
     @Test func testRegistrationWithFlowRouting() async throws {
+#if canImport(UIKit)
         let navigation2 = await FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
         try await Task.sleep(nanoseconds: 150000000)
         #expect(await navigation2.items.isEmpty)
+#endif
 
         let navigation1 = await FlowKit.registerNavigationSwiftUI()
         try await Task.sleep(nanoseconds: 150000000)
@@ -25,21 +30,32 @@ final class FlowTests {
     }
 
     @Test func testValidFlow() async throws {
-        try await ValidFlow().test()
+        try await ValidFlow().test(route: .valid)
     }
 
     @Test func testPartialMappingFlow() async {
         do {
-            try await PartialMappingFlow().test()
+            try await PartialMappingFlow().test(route: .partial)
         } catch {
+            print(error)
             #expect(error is FlowError)
         }
     }
 
     @Test func testInvalidFlow() async {
         do {
-            try await InvalidFlow().test()
+            try await InvalidFlow().test(route: .invalid)
         } catch {
+            print(error)
+            #expect(error is FlowError)
+        }
+    }
+
+    @Test func testInvalidParameterOfFlow() async {
+        do {
+            try await ValidFlow().test(route: .custom(InOutEmpty3()))
+        } catch {
+            print(error)
             #expect(error is FlowError)
         }
     }
@@ -84,6 +100,7 @@ fileprivate enum Routes: Routable {
     case valid
     case partial
     case invalid
+    case custom(InOutEmpty3)
 }
 
 @Flow(InOutEmpty.self, route: Routes.valid)
