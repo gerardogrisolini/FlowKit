@@ -18,44 +18,44 @@ final class NavigationUIKitTests {
     }
 
     @Test func testRegisterAndNavigateToRoute() async throws {
-        await sut.register(route: Routes.home, with: { _ in await UIViewController() })
-        await sut.register(route: Routes.settings, with: { _ in EmptyFlow() })
-        #expect(await sut.items.getValue(for: Routes.home.routeString) is UIViewController)
+        sut.register(route: Routes.home, with: { _ in UIViewController() })
+        sut.register(route: Routes.settings, with: { _ in EmptyFlow() })
+        #expect(sut.items.getValue(for: Routes.home.routeString) is UIViewController)
 
-        try await sut.navigate(route: Routes.home)
+        try sut.navigate(route: Routes.home)
         #expect(sut.routes.last == Routes.home.routeString)
     }
 
     @Test func testNavigateToView() async throws {
         let view = UIViewController()
-        await sut.navigate(view: view)
+        sut.navigate(view: view)
         #expect(sut.routes.last == view.routeString)
     }
 
     @Test func testPop() async throws {
         let view = UIViewController()
-        await sut.navigate(view: view)
-        await sut.pop()
+        sut.navigate(view: view)
+        sut.pop()
         #expect(sut.routes.last != view.routeString)
-        #expect(await sut.items.getValue(for: view.routeString) == nil)
+        #expect(sut.items.getValue(for: view.routeString) == nil)
     }
 
     @Test func testPopToRoot() async throws {
-        await sut.navigate(view: UIViewController())
-        await sut.navigate(view: EmptyFlowView())
-        await sut.popToRoot()
+        sut.navigate(view: UIViewController())
+        sut.navigate(view: EmptyFlowView())
+        sut.popToRoot()
         #expect(sut.routes.isEmpty)
-        #expect(await sut.items.isEmpty)
+        #expect(sut.items.isEmpty)
     }
 
     @Test func testPopToFlow() async throws {
-        await sut.navigate(view: EmptyFlowView())
-        await sut.register(route: Routes.settings, with: { _ in EmptyFlow() })
-        _ = try await sut.flow(route: Routes.settings)
-        await sut.navigate(view: UIViewController())
-        await sut.popToFlow()
+        sut.navigate(view: EmptyFlowView())
+        sut.register(route: Routes.settings, with: { _ in EmptyFlow() })
+        _ = try sut.flow(route: Routes.settings)
+        sut.navigate(view: UIViewController())
+        sut.popToFlow()
         #expect(sut.routes.count == 1)
-        #expect(await sut.items.count == 2)
+        #expect(sut.items.count == 2)
     }
 
     @Test func testPresentAndDismissView() async throws {

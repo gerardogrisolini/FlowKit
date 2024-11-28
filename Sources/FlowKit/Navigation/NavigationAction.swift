@@ -14,7 +14,7 @@ public enum NavigationAction: Identifiable, Equatable, Sendable {
     case dismiss
 
     public var id: String {
-        String(describing: self)
+        String(describing: type(of: self))
     }
 
     public static func == (lhs: NavigationAction, rhs: NavigationAction) -> Bool {

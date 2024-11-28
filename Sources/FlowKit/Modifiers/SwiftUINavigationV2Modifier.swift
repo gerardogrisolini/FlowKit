@@ -26,7 +26,7 @@ public struct SwiftUINavigationV2Modifier: ViewModifier {
                     .navigationBarBackButtonHidden()
                     .toolbar {
                         ToolbarItem(placement: .navigation) {
-                            Button(action: { Task { await stack.navigation.pop() }}) {
+                            Button(action: stack.navigation.pop) {
                                 Image(systemName: "chevron.backward")
                             }
                         }

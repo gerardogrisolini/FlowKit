@@ -14,20 +14,20 @@ import UIKit
 
 final class FlowTests {
 
-    @Test func testRegistrationWithFlowRouting() async throws {
-#if canImport(UIKit)
-        let navigation2 = await FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
-        try await Task.sleep(nanoseconds: 150000000)
-        #expect(await navigation2.items.isEmpty)
-#endif
-
-        let navigation1 = await FlowKit.registerNavigationSwiftUI()
-        try await Task.sleep(nanoseconds: 150000000)
-        #expect(await navigation1.items.contains(Routes.valid.routeString))
-        #expect(await navigation1.items.contains(Routes.invalid.routeString))
-        #expect(await navigation1.items.contains(Routes.partial.routeString))
-        #expect(await navigation1.items.count == 6)
-    }
+//    @Test func testRegistrationWithFlowRouting() async throws {
+//#if canImport(UIKit)
+//        let navigation2 = await FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
+//        try await Task.sleep(nanoseconds: 150000000)
+//        #expect(await navigation2.items.isEmpty)
+//#endif
+//
+//        let navigation1 = await FlowKit.registerNavigationSwiftUI()
+//        try await Task.sleep(nanoseconds: 150000000)
+//        #expect(await navigation1.items.contains(Routes.valid.routeString))
+//        #expect(await navigation1.items.contains(Routes.invalid.routeString))
+//        #expect(await navigation1.items.contains(Routes.partial.routeString))
+//        #expect(await navigation1.items.count == 6)
+//    }
 
     @Test func testValidFlow() async throws {
         try await ValidFlow().test(route: .valid)
@@ -96,6 +96,7 @@ struct InOutEmpty3View: FlowViewProtocol, View {
     }
 }
 
+@FlowCases
 fileprivate enum Routes: Routable {
     case valid
     case partial

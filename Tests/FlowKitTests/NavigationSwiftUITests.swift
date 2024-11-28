@@ -7,51 +7,51 @@ final class NavigationSwiftUITests {
 
     @Test func testRegisterAndNavigateToRoute() async throws {
         let sut = NavigationSwiftUI()
-        await sut.register(route: Routes.home) { _ in
+        sut.register(route: Routes.home) { _ in
             EmptyView()
         }
-        #expect(await sut.items.getValue(for: Routes.home.routeString) is EmptyView)
+        #expect(sut.items.getValue(for: Routes.home.routeString) is EmptyView)
 
-        try await sut.navigate(route: Routes.home)
+        try sut.navigate(route: Routes.home)
         #expect(sut.routes.last == Routes.home.routeString)
     }
 
     @Test func testNavigateToView() async throws {
         let sut = NavigationSwiftUI()
         let view = EmptyView()
-        await sut.navigate(view: view)
+        sut.navigate(view: view)
         #expect(sut.routes.last == view.routeString)
     }
 
     @Test func testPop() async throws {
         let sut = NavigationSwiftUI()
         let view = EmptyView()
-        await sut.navigate(view: view)
-        await sut.pop()
+        sut.navigate(view: view)
+        sut.pop()
         #expect(sut.routes.last != view.routeString)
-        #expect(await sut.items.getValue(for: view.routeString) == nil)
+        #expect(sut.items.getValue(for: view.routeString) == nil)
     }
 
     @Test func testPopToRoot() async throws {
         let sut = NavigationSwiftUI()
-        await sut.navigate(view: EmptyView())
-        await sut.navigate(view: EmptyView())
-        await sut.popToRoot()
+        sut.navigate(view: EmptyView())
+        sut.navigate(view: EmptyView())
+        sut.popToRoot()
         #expect(sut.routes.isEmpty)
-        #expect(await sut.items.isEmpty)
+        #expect(sut.items.isEmpty)
     }
 
     @Test func testPopToFlow() async throws {
         let sut = NavigationSwiftUI()
-        await sut.navigate(view: EmptyFlowView())
-        await sut.register(route: Routes.home) { _ in
+        sut.navigate(view: EmptyFlowView())
+        sut.register(route: Routes.home) { _ in
             EmptyFlow()
         }
-        _ = try await sut.flow(route: Routes.home)
-        await sut.navigate(view: EmptyView())
-        await sut.popToFlow()
+        _ = try sut.flow(route: Routes.home)
+        sut.navigate(view: EmptyView())
+        sut.popToFlow()
         #expect(sut.routes.count == 1)
-        #expect(await sut.items.count == 2)
+        #expect(sut.items.count == 2)
     }
 
     @Test func testPresentAndDismissView() async throws {
@@ -65,7 +65,7 @@ final class NavigationSwiftUITests {
 
     @Test func testPresentViewWithRoute() async throws {
         let sut = NavigationSwiftUI()
-        await sut.register(route: Routes.home) { _ in
+        sut.register(route: Routes.home) { _ in
             EmptyView()
         }
         let mode: PresentMode = .fullScreenCover(Routes.home)
@@ -108,25 +108,25 @@ final class NavigationSwiftUITests {
         }
 
         sut.navigate(routeString: ".")
-        await sut.pop()
+        sut.pop()
         sut.present(.fullScreenCover(Text("fullScreenCover")))
         sut.dismiss()
-        await sut.popToRoot()
+        sut.popToRoot()
 
         cancellable.cancel()
 
         #expect(result.navigate && result.present && result.pop && result.popToRoot && result.dismiss)
     }
 
-    @Test func testRoutableWithParameter() async throws {
+    @Test func testRoutableWithParameter() throws {
         let sut = NavigationSwiftUI()
-        await sut.register(route: Routes.profile) { model in
-            await EmptyFlowView(model: model)
+        sut.register(route: Routes.profile) { model in
+            EmptyFlowView(model: model)
         }
-        #expect(await sut.items.contains(Routes.profile.out.routeString))
+        #expect(sut.items.contains(Routes.profile.out.routeString))
 
-        try await sut.navigate(route: Routes.profile(InOutModel(text: "Ok")))
-        let item = await sut.items.getValue(for: Routes.profile.out.routeString) as? EmptyFlowView
+        try sut.navigate(route: Routes.profile(InOutModel(text: "Ok")))
+        let item = sut.items.getValue(for: Routes.profile.out.routeString) as? EmptyFlowView
         #expect(item?.model.text == "Ok")
     }
 }

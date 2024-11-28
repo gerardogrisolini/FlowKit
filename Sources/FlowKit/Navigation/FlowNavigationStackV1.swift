@@ -28,8 +28,9 @@ final class FlowNavigationStackV1: FlowNavigationStack {
                         return EmptyView()
                     }
                     return vc.toSwiftUI()
-#endif
+#else
                     return EmptyView()
+#endif
                 }
                 let routeString = route.routeString
                 return getView(route: routeString) ?? EmptyView()

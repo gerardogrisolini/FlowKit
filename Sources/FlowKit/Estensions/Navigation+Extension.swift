@@ -11,7 +11,7 @@ public extension NavigationProtocol {
     /// - Parameters:
     /// - route: the route
     /// - with: the closure of navigable view
-    func register(route: some Routable, with: @escaping @Sendable (any InOutProtocol) -> (any Sendable)) async {
+    func register(route: some Routable, with: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable)) {
         let routeString = route.routeString
         items.setValue(for: routeString, value: with)
 	}
@@ -20,7 +20,7 @@ public extension NavigationProtocol {
     /// - Parameters:
     /// - route: the route
     /// - with: the closure of navigable view
-    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, with: @escaping @Sendable (M) -> (any Sendable)) async {
+    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, with: @escaping @MainActor @Sendable (M) -> (any Sendable)) {
         let routeString = route.0.routeString
         items.setValue(for: routeString, value: { param in with(param as! M) })
     }
@@ -44,10 +44,10 @@ public extension NavigationProtocol {
     /// Navigate to a view
     /// - Parameters:
     /// - view: the navigable view
-	func navigate(view: any Sendable) async {
-		let routeString = String(describing: view)
-        await items.setValue(for: routeString, value: { _ in view })
-		await navigate(routeString: routeString)
+	func navigate(view: any Sendable) {
+		let routeString = String(describing: type(of: view))
+        items.setValue(for: routeString, value: { _ in view })
+		navigate(routeString: routeString)
 	}
 	
     /// Present a view

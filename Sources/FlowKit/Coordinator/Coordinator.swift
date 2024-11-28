@@ -56,7 +56,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     /// - Parameter navigate: A flag indicating whether navigation should occur. Defaults to `true`.
     /// - Throws: An error if the flow cannot be started.
     func start(navigate: Bool = true) async throws {
-        let model = await navigation.items.getParam(for: Flow.route.routeString) ?? InOutEmpty()
+        let model = navigation.items.getParam(for: Flow.route.routeString) ?? InOutEmpty()
         try await show(node: flow.node, model: model, navigate: navigate)
     }
 
@@ -83,14 +83,14 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     private func show(node: any CoordinatorNodeProtocol, model m: some InOutProtocol, navigate: Bool = true) async throws {
         let view = navigate ? try await node.view.factory(model: m) : parent!
         if navigate {
-            await navigation.navigate(view: view)
+            navigation.navigate(view: view)
         }
 
         for try await event in view.events {
             do {
                 switch event {
                 case .back:
-                    await navigation.pop()
+                    navigation.pop()
 
                 case .next(let next):
                     guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
@@ -124,13 +124,13 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     }
                     await parent?.onCommit(model: model)
                     guard toRoot else {
-                        await navigation.popToFlow()
+                        navigation.popToFlow()
                         continue
                     }
-                    await navigation.popToRoot()
+                    navigation.popToRoot()
 
                 case .navigate(let view):
-                    await navigation.navigate(view: view)
+                    navigation.navigate(view: view)
 
                 case .present(let mode):
                     navigation.present(mode)

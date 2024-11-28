@@ -50,9 +50,7 @@ extension View {
         }
 #endif
         Button("Navigate") {
-            Task {
-                await nav.navigate(view: Text("Navigate"))
-            }
+            nav.navigate(view: Text("Navigate"))
         }
     }
     .swiftUINavigation()

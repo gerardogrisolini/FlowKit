@@ -40,13 +40,13 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-    func register(route: some Routable, with: @escaping @Sendable (any InOutProtocol) -> (any Sendable)) async
+    func register(route: some Routable, with: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable))
 
     /// Register a route and parameter with a view
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, with: @escaping @Sendable (M) -> (any Sendable)) async
+    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, with: @escaping @MainActor @Sendable (M) -> (any Sendable))
 
     /// Get a flow with a route
     /// - Parameters:
@@ -57,17 +57,17 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// Navigate to a route string
     /// - Parameters:
     /// - routeString: the route string to navigate
-    func navigate(routeString: String) async
+    func navigate(routeString: String)
 
     /// Navigate to a view
     /// - Parameters:
     /// - view: the view to navigate
-    func navigate(view: any Sendable) async
+    func navigate(view: any Sendable)
 
     /// Navigate to a route
     /// - Parameters:
     /// - route: the route to navigate
-    func navigate(route: some Routable) async throws
+    func navigate(route: some Routable) throws
 
     /// Present a view
     /// - Parameters:
@@ -75,13 +75,13 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     func present(_ mode: PresentMode)
 
     /// Pop the current route
-	func pop() async
+	func pop()
 
     /// Pop to the beginning of the flow
-    func popToFlow() async
+    func popToFlow()
 
     /// Pop to the root of the navigation
-    func popToRoot() async
+    func popToRoot()
 
     /// Dismiss the presented view
 	func dismiss()
@@ -158,7 +158,7 @@ public extension UIViewController {
 
     /// The route string for the navigable
     var routeString: String {
-        String(describing: self)
+        String(describing: type(of: self))
     }
 }
 #endif
@@ -167,7 +167,7 @@ public extension Routable {
 
     /// The route string for the navigable
     var routeString: String {
-        let text = String(describing: self)
+        let text = String(describing: type(of: self))
         return text //"\(text.className)-\(text)"
     }
 

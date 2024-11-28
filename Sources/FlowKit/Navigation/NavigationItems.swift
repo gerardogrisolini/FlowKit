@@ -19,7 +19,7 @@ public class NavigationItems {
         var param: (any InOutProtocol)?
 
         /// A closure that provides a value asynchronously, taking an `InOutProtocol` as input and returning a `Sendable` result.
-        var value: @Sendable (any InOutProtocol) -> (any Sendable)
+        var value: @MainActor @Sendable (any InOutProtocol) -> (any Sendable)
     }
 
     /// An array holding all navigation items.
@@ -54,7 +54,7 @@ public class NavigationItems {
     ///   - key: The unique identifier for the new item.
     ///   - value: A closure providing the asynchronous value for the item.
     /// - Note: This function does nothing if an item with the same key already exists.
-    func setValue(for key: String, value: @escaping @Sendable (any InOutProtocol) -> (any Sendable)) {
+    func setValue(for key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable)) {
         guard !contains(key) else { return }
         items.append(.init(key: key, value: value))
     }
@@ -62,7 +62,7 @@ public class NavigationItems {
     /// Retrieves the value of a navigation item asynchronously.
     /// - Parameter key: The unique identifier for the navigation item.
     /// - Returns: The asynchronously computed value of the item, or `nil` if the item is not found.
-    func getValue(for key: String) -> (any Sendable)? {
+    @MainActor func getValue(for key: String) -> (any Sendable)? {
         guard let index = getIndex(for: key) else { return nil }
         let item = items[index]
         return item.value(item.param ?? InOutEmpty())
