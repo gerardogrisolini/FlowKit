@@ -17,8 +17,9 @@ public enum FlowError: Error {
 @objc public protocol FlowRouteProtocol { }
 
 /// FlowProtocol is the main protocol for the flow
-public protocol FlowProtocol: FlowRouteProtocol, Sendable {
+public protocol FlowProtocol: FlowRouteProtocol, Sendable where RouteModel == CoordinatorNode.View.In {
     associatedtype Route: Routable
+    associatedtype RouteModel: InOutProtocol
     associatedtype CoordinatorNode: CoordinatorNodeProtocol
     associatedtype Model: InOutProtocol
     associatedtype Behavior: FlowBehaviorProtocol
@@ -32,8 +33,6 @@ public protocol FlowProtocol: FlowRouteProtocol, Sendable {
 
     init()
 
-    /// Function performed before the flow starts
-    //func onStart(model: some InOutProtocol) async throws -> any InOutProtocol
     /// Function to start the flow with a model
     func start(parent: (any FlowViewProtocol)?) async throws
 }

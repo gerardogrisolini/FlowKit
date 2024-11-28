@@ -43,9 +43,9 @@ final class NavigationSwiftUITests {
 
     @Test func testPopToFlow() async throws {
         let sut = NavigationSwiftUI()
-        sut.navigate(view: EmptyFlowView())
+        sut.navigate(view: FlowViewTest())
         sut.register(route: Routes.home) { _ in
-            EmptyFlow()
+            FlowTest()
         }
         _ = try sut.flow(route: Routes.home)
         sut.navigate(view: EmptyView())
@@ -121,17 +121,17 @@ final class NavigationSwiftUITests {
     @Test func testRoutableWithParameter() throws {
         let sut = NavigationSwiftUI()
         sut.register(route: Routes.profile) { model in
-            EmptyFlowView(model: model)
+            FlowViewTest(model: model)
         }
         #expect(sut.items.contains(Routes.profile.out.routeString))
 
-        try sut.navigate(route: Routes.profile(InOutModel(text: "Ok")))
-        let item = sut.items.getValue(for: Routes.profile.out.routeString) as? EmptyFlowView
+        try sut.navigate(route: Routes.profile(InOutTest(text: "Ok")))
+        let item = sut.items.getValue(for: Routes.profile.out.routeString) as? FlowViewTest
         #expect(item?.model.text == "Ok")
     }
 }
 
-fileprivate struct InOutModel: InOutProtocol {
+final class InOutTest: InOutProtocol {
     let text: String
 
     init(text: String = "") {
@@ -142,17 +142,17 @@ fileprivate struct InOutModel: InOutProtocol {
 @FlowCases
 fileprivate enum Routes: Routable {
     case home
-    case profile(InOutModel)
+    case profile(InOutTest)
 }
 
-@FlowView(InOutModel.self)
-fileprivate struct EmptyFlowView: FlowViewProtocol, View {
+@FlowView(InOutTest.self)
+struct FlowViewTest: FlowViewProtocol, View {
     var body: some View {
         EmptyView()
     }
 }
 
-@Flow(InOutEmpty.self, route: Routes.profile(InOutModel()))
-fileprivate final class EmptyFlow: FlowProtocol {
-    let node = EmptyFlowView.node
+@Flow(InOutEmpty.self, route: Routes.profile(InOutTest()))
+fileprivate final class FlowTest: FlowProtocol {
+    let node = FlowViewTest.node
 }

@@ -24,5 +24,5 @@
 ///     }
 ///
 
-@attached(member, names: named(route), named(Model), named(init()))
+@attached(member, names: named(route), named(RouteModel), named(Model), named(init()))
 public macro Flow<Model, Route>(_ model: Model.Type, route: Route) = #externalMacro(module: "FlowMacro", type: "FlowMacro")

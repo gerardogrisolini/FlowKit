@@ -27,22 +27,24 @@ struct FlowKitMacroTests {
     @Test func flowMacroTest() {
 #if canImport(FlowMacro)
         assertMacroExpansion(#"""
-@Flow(InOutEmpty.self, route: Routes.home)
-final class TestFlow: FlowProtocol {
-    let node = TestFlowView.node {
-        $0.empty ~ EmptyFlowView.node
-        $0.behavior ~ NotEmptyFlowView.node
+@Flow(InOutEmpty.self, route: Routes.valid)
+final class ValidFlow: FlowProtocol {
+    let node = InOutEmptyView.node {
+        $0.empty2 ~ InOutEmpty2View.node
+        $0.empty3 ~ InOutEmpty3View.node
     }
 }
 """#,
             expandedSource: #"""
-@Flow(InOutEmpty.self, route: Routes.home)
-final class TestFlow: FlowProtocol {
-    let node = TestFlowView.node {
-        $0.empty ~ EmptyFlowView.node
-        $0.behavior ~ NotEmptyFlowView.node
+@Flow(InOutEmpty.self, route: Routes.valid)
+final class ValidFlow: FlowProtocol {
+    let node = InOutEmptyView.node {
+        $0.empty2 ~ InOutEmpty2View.node
+        $0.empty3 ~ InOutEmpty3View.node
     }
-    static let route = Routes.home
+    static let route = Routes.valid
+
+    typealias RouteModel = InOutEmpty
 
     typealias Model = InOutEmpty
 

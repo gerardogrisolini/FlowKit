@@ -19,7 +19,6 @@ public protocol CoordinatorNodeProtocol: Nodable {
 	associatedtype View: FlowViewProtocol
 
 	var view: View.Type { get }
-    var model: View.In.Type { get }
 	var joins: [any CoordinatorJoinProtocol] { get }
     var eventsCount: Int { get }
 }
