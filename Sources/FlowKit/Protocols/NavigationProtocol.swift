@@ -167,8 +167,7 @@ public extension Routable {
 
     /// The route string for the navigable
     var routeString: String {
-        let text = String(describing: type(of: self))
-        return text //"\(text.className)-\(text)"
+        "\(associated.label) - \(associated.value?.className ?? "InOutEmpty")"
     }
 
     /// Associated value of the route
