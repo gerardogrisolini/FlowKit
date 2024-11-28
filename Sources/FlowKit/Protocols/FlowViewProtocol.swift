@@ -11,9 +11,7 @@ import SwiftUI
 public protocol InOutProtocol: Identifiable, Sendable { }
 
 /// FlowEventProtocol is the protocol for the action events
-public protocol FlowEventProtocol: Identifiable, CaseIterable, Sendable {
-    func udpate(associatedValue: some InOutProtocol) -> Self
-}
+public protocol FlowEventProtocol: Nodable, CaseIterable { }
 
 /// FlowOutProtocol is the protocol for the navigation events
 public protocol FlowOutProtocol: FlowEventProtocol { }
@@ -157,11 +155,14 @@ public extension InOutProtocol {
     }
 }
 
-public extension FlowEventProtocol {
+public extension Nodable {
     /// The id of the event
     var id: String {
         String(describing: self).className
     }
+
+    /// Default model for view
+    var model: InOutEmpty.Type { InOutEmpty.self }
 
     /// Associated value of the event
     var associated: (label: String, value: (any InOutProtocol)?) {

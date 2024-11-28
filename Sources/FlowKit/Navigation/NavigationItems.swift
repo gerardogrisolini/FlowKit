@@ -8,7 +8,7 @@
 import Foundation
 
 /// A collection of navigation items designed to manage navigation state in an asynchronous and thread-safe manner.
-public actor NavigationItems {
+public class NavigationItems {
 
     /// Represents a single navigation item with an associated key, optional parameter, and a value provider.
     private struct NavigationItem {
@@ -19,7 +19,7 @@ public actor NavigationItems {
         var param: (any InOutProtocol)?
 
         /// A closure that provides a value asynchronously, taking an `InOutProtocol` as input and returning a `Sendable` result.
-        var value: @Sendable (any InOutProtocol) async -> (any Sendable)
+        var value: @Sendable (any InOutProtocol) -> (any Sendable)
     }
 
     /// An array holding all navigation items.
@@ -54,7 +54,7 @@ public actor NavigationItems {
     ///   - key: The unique identifier for the new item.
     ///   - value: A closure providing the asynchronous value for the item.
     /// - Note: This function does nothing if an item with the same key already exists.
-    func setValue(for key: String, value: @escaping @Sendable (any InOutProtocol) async -> (any Sendable)) {
+    func setValue(for key: String, value: @escaping @Sendable (any InOutProtocol) -> (any Sendable)) {
         guard !contains(key) else { return }
         items.append(.init(key: key, value: value))
     }
@@ -62,10 +62,10 @@ public actor NavigationItems {
     /// Retrieves the value of a navigation item asynchronously.
     /// - Parameter key: The unique identifier for the navigation item.
     /// - Returns: The asynchronously computed value of the item, or `nil` if the item is not found.
-    func getValue(for key: String) async -> (any Sendable)? {
+    func getValue(for key: String) -> (any Sendable)? {
         guard let index = getIndex(for: key) else { return nil }
         let item = items[index]
-        return await item.value(item.param ?? InOutEmpty())
+        return item.value(item.param ?? InOutEmpty())
     }
 
     /// Sets the parameter for a navigation item.

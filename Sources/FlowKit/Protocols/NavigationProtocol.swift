@@ -9,13 +9,16 @@ import SwiftUI
 import Combine
 
 /// Nodable is the protocol that must implement to be nodable
-public protocol Nodable: Sendable {
+public protocol Nodable: Identifiable, Sendable {
+
     associatedtype Model: InOutProtocol
     var model: Model.Type { get }
+
+    func udpate(associatedValue: some InOutProtocol) -> Self
 }
 
 /// Routable is the protocol that a view or flow must implement to be routable
-public protocol Routable: Nodable { }
+public protocol Routable: Nodable, CaseIterable { }
 
 /// NavigationProtocol is the protocol for manage the navigation
 @MainActor
@@ -37,19 +40,19 @@ public protocol NavigationProtocol: AnyObject, Sendable {
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-    func register(route: some Routable, with: @escaping @Sendable (any InOutProtocol) async -> (any Sendable)) async
+    func register(route: some Routable, with: @escaping @Sendable (any InOutProtocol) -> (any Sendable)) async
 
     /// Register a route and parameter with a view
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, with: @escaping @Sendable (M) async -> (any Sendable)) async
+    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, with: @escaping @Sendable (M) -> (any Sendable)) async
 
     /// Get a flow with a route
     /// - Parameters:
     /// - route: the route to register
     /// - Returns: the flow
-	func flow(route: some Routable) async throws -> (any FlowProtocol)
+	func flow(route: some Routable) throws -> (any FlowProtocol)
 
     /// Navigate to a route string
     /// - Parameters:
@@ -155,7 +158,7 @@ public extension UIViewController {
 
     /// The route string for the navigable
     var routeString: String {
-        String(describing: type(of: self))
+        String(describing: self)
     }
 }
 #endif
@@ -165,11 +168,8 @@ public extension Routable {
     /// The route string for the navigable
     var routeString: String {
         let text = String(describing: self)
-        return "\(text.className)-\(text.id)"
+        return text //"\(text.className)-\(text)"
     }
-
-    /// Default model for view
-    var model: InOutEmpty.Type { InOutEmpty.self }
 
     /// Associated value of the route
     var associated: (label: String, value: (any InOutProtocol)?) {

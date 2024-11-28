@@ -27,15 +27,10 @@ public struct SwiftUINavigationV1Modifier: ViewModifier {
                 .background(
                     NavigationLink(isActive: $stack.route.mappedToBool()) {
                         Group {
-                            if let view = stack.view {
+                            if let route = stack.route, let view = stack.getView(route: route) {
                                 AnyView(view).modifier(SwiftUINavigationV1Modifier())
                             } else {
                                 EmptyView()
-                            }
-                        }
-                        .onAppear {
-                            if let route = stack.route {
-                                Task { await stack.setView(route: route) }
                             }
                         }
                     } label: {

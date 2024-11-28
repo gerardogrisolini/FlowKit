@@ -17,14 +17,11 @@ public struct SwiftUINavigationV2Modifier: ViewModifier {
 			content
 				.navigationDestination(for: String.self) { route in
                     Group {
-                        if let view = stack.view {
+                        if let view = stack.getView(route: route) {
                             AnyView(view)
                         } else {
                             EmptyView()
                         }
-                    }
-                    .task {
-                        await stack.setView(route: route)
                     }
                     .navigationBarBackButtonHidden()
                     .toolbar {

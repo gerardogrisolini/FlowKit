@@ -66,7 +66,8 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     ///   - data: The data associated with the join operation.
     /// - Throws: An error if the join cannot be processed.
     private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: any InOutProtocol) async throws {
-        if let route = join.node as? any Routable {
+        if let r = join.node as? any Routable {
+            let route = r.udpate(associatedValue: data)
             try await navigation.flow(route: route).start(parent: parent)
         } else if let node = join.node as? any CoordinatorNodeProtocol {
             try await show(node: node, model: data)
@@ -92,11 +93,11 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     await navigation.pop()
 
                 case .next(let next):
-                    let data = next.associated.value ?? InOutEmpty()
                     guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
                         throw FlowError.eventNotFound
                     }
 
+                    let data = next.associated.value ?? InOutEmpty()
                     guard let out = getOut(next) else {
                         try await parseJoin(join, data)
                         continue

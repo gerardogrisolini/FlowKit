@@ -13,8 +13,6 @@ class FlowNavigationStack: ObservableObject {
 
     var navigation: NavigationProtocol
     @Published var presentMode: PresentMode? = nil
-    @Published var view: (any View)?
-    @Published var presentedView: any View = EmptyView()
     private var cancellables = Set<AnyCancellable>()
 
     var isAlert: Bool {
@@ -47,8 +45,11 @@ class FlowNavigationStack: ObservableObject {
         navigation.action
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] action in
-                self?.onChange(action: action)
+            .sink { action in
+                Task { [weak self] in
+                    guard let self else { return }
+                    onChange(action: action)
+                }
             }
             .store(in: &cancellables)
     }

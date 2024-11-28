@@ -17,44 +17,38 @@ final class FlowNavigationStackV1: FlowNavigationStack {
 
     @Published var route: String? = nil
 
-    @MainActor func setPresentedView() async {
+    @MainActor
+    var presentedView: any View {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
             guard let view = view as? any View else {
                 guard let route = view as? any Routable else {
 #if canImport(UIKit)
                     guard let vc = view as? UIViewController else {
-                        presentedView = EmptyView()
-                        return
+                        return EmptyView()
                     }
-                    presentedView = vc.toSwiftUI()
-#else
-                    presentedView = EmptyView()
+                    return vc.toSwiftUI()
 #endif
-                    return
+                    return EmptyView()
                 }
                 let routeString = route.routeString
-                presentedView = await getView(route: routeString) ?? EmptyView()
-                return
+                return getView(route: routeString) ?? EmptyView()
             }
-            presentedView = view
+            return view
         case .alert(title: _, message: let message):
-            presentedView = Text(message)
+            return Text(message)
         case .confirmationDialog(title: _, actions: let actions):
-            presentedView = ForEach(actions, id: \.title) { action in
+            return ForEach(actions, id: \.title) { action in
                 Button(action.title) { action.handler() }
             }
         default:
-            presentedView = EmptyView()
+            return EmptyView()
         }
     }
 
-    @MainActor func setView(route: String) async {
-        view = await getView(route: route)
-    }
 
-    @MainActor private func getView(route: String) async -> (any View)? {
-        guard let view = await navigation.items.getValue(for: route) else { return nil }
+    @MainActor func getView(route: String) -> (any View)? {
+        guard let view = navigation.items.getValue(for: route) else { return nil }
         guard let page = view as? any View else {
 #if canImport(UIKit)
             guard let vc = view as? UIViewController else {
