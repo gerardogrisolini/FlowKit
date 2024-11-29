@@ -120,13 +120,13 @@ final class NavigationSwiftUITests {
 
     @Test func testRoutableWithParameter() throws {
         let sut = NavigationSwiftUI()
-        sut.register(route: Routes.profile) { model in
+        sut.register(route: Routes.test) { model in
             FlowViewTest(model: model)
         }
-        #expect(sut.items.contains(Routes.profile.out.routeString))
+        #expect(sut.items.contains(Routes.test.out.routeString))
 
-        try sut.navigate(route: Routes.profile(InOutTest(text: "Ok")))
-        let item = sut.items.getValue(for: Routes.profile.out.routeString) as? FlowViewTest
+        try sut.navigate(route: Routes.test(InOutTest(text: "Ok")))
+        let item = sut.items.getValue(for: Routes.test.out.routeString) as? FlowViewTest
         #expect(item?.model.text == "Ok")
     }
 }
@@ -142,7 +142,7 @@ final class InOutTest: InOutProtocol {
 @FlowCases
 fileprivate enum Routes: Routable {
     case home
-    case profile(InOutTest)
+    case test(InOutTest)
 }
 
 @FlowView(InOutTest.self)
@@ -152,7 +152,7 @@ struct FlowViewTest: FlowViewProtocol, View {
     }
 }
 
-@Flow(InOutEmpty.self, route: Routes.profile(InOutTest()))
+@Flow(InOutEmpty.self, route: Routes.test(InOutTest()))
 fileprivate final class FlowTest: FlowProtocol {
     let node = FlowViewTest.node
 }
