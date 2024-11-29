@@ -19,7 +19,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
             navigationController?.navigationBar.prefersLargeTitles = true
         }
     }
-	public var action = PassthroughSubject<NavigationAction, Never>()
+	public let action = PassthroughSubject<NavigationAction, Never>()
     public var routes: [String] = []
 	public var items = NavigationItems()
     public var presentMode: PresentMode? = nil

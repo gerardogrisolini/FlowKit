@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 public final class NavigationSwiftUI: NavigationProtocol {
-    public var action = PassthroughSubject<NavigationAction, Never>()
+    public let action = PassthroughSubject<NavigationAction, Never>()
 	public var routes: [String] = []
     public var items = NavigationItems()
     public var presentMode: PresentMode? = nil

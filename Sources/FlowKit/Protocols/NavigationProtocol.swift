@@ -21,8 +21,7 @@ public protocol Nodable: Identifiable, Sendable {
 public protocol Routable: Nodable, CaseIterable { }
 
 /// NavigationProtocol is the protocol for manage the navigation
-@MainActor
-public protocol NavigationProtocol: AnyObject, Sendable {
+@MainActor public protocol NavigationProtocol: AnyObject, Sendable {
 
     /// The subscriber of actions for the navigation
     var action: PassthroughSubject<NavigationAction, Never> { get }
