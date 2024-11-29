@@ -18,12 +18,12 @@ navigation.navigate(view: Page1View())
 #### If the page is not visible from the module
 ```swift
 /// You must first register it by associating it with a route
-navigation.register(route: Routes.example) {
-    Page1View()
+sut.register(route: Routes.example) { model in
+    Page1View(model: model)
 }
 
 /// And then you can navigate to it by passing the route
-try navigation.navigate(route: Routes.example)
+try navigation.navigate(route: Routes.example(InOutModel(text: "Test"))
 ```
 
 ### Navigation to a flow
