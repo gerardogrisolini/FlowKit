@@ -7,7 +7,7 @@ final class NavigationSwiftUITests {
 
     @Test func testRegisterAndNavigateToRoute() async throws {
         let sut = NavigationSwiftUI()
-        sut.register(route: Routes.home) { _ in
+        sut.register(route: Routes.home) {
             EmptyView()
         }
         #expect(sut.items.getValue(for: Routes.home.routeString) is EmptyView)
@@ -44,7 +44,7 @@ final class NavigationSwiftUITests {
     @Test func testPopToFlow() async throws {
         let sut = NavigationSwiftUI()
         sut.navigate(view: FlowViewTest())
-        sut.register(route: Routes.home) { _ in
+        sut.register(route: Routes.home) {
             FlowTest()
         }
         _ = try sut.flow(route: Routes.home)
@@ -65,7 +65,7 @@ final class NavigationSwiftUITests {
 
     @Test func testPresentViewWithRoute() async throws {
         let sut = NavigationSwiftUI()
-        sut.register(route: Routes.home) { _ in
+        sut.register(route: Routes.home) {
             EmptyView()
         }
         let mode: PresentMode = .fullScreenCover(Routes.home)

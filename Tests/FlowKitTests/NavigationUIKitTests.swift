@@ -18,8 +18,8 @@ final class NavigationUIKitTests {
     }
 
     @Test func testRegisterAndNavigateToRoute() async throws {
-        sut.register(route: Routes.home, with: { _ in UIViewController() })
-        sut.register(route: Routes.settings, with: { _ in EmptyFlow() })
+        sut.register(route: Routes.home, with: UIViewController.init)
+        sut.register(route: Routes.settings, with: EmptyFlow.init)
         #expect(sut.items.getValue(for: Routes.home.routeString) is UIViewController)
 
         try sut.navigate(route: Routes.home)
@@ -50,7 +50,7 @@ final class NavigationUIKitTests {
 
     @Test func testPopToFlow() async throws {
         sut.navigate(view: EmptyFlowView())
-        sut.register(route: Routes.settings, with: { _ in EmptyFlow() })
+        sut.register(route: Routes.settings, with: EmptyFlow.init)
         _ = try sut.flow(route: Routes.settings)
         sut.navigate(view: UIViewController())
         sut.popToFlow()

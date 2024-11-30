@@ -11,9 +11,9 @@ public extension NavigationProtocol {
     /// - Parameters:
     /// - route: the route
     /// - with: the closure of navigable view
-    func register(route: some Routable, with: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable)) {
+    func register(route: some Routable, with: @escaping @MainActor @Sendable () -> (any Sendable)) {
         let routeString = route.routeString
-        items.setValue(for: routeString, value: with)
+        items.setValue(for: routeString, value: { _ in with() })
 	}
 
     /// Register a route with param for a view

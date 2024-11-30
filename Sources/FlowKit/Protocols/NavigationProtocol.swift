@@ -39,7 +39,7 @@ public protocol Routable: Nodable, CaseIterable { }
     /// - Parameters:
     ///  - route: the route to register
     ///  - with: the closure to create the view
-    func register(route: some Routable, with: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable))
+    func register(route: some Routable, with: @escaping @MainActor @Sendable () -> (any Sendable))
 
     /// Register a route and parameter with a view
     /// - Parameters:
