@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Resolver
 
 /// FlowError is the error type for the flow
 public enum FlowError: Error {
@@ -46,11 +45,9 @@ public extension FlowProtocol {
     /// - parent: the parent page
     /// - Returns: the output model
     func start(parent: (any FlowViewProtocol)? = nil) async throws {
-        Resolver
-            .register { self.behavior }
-            .implements(FlowBehaviorProtocol.self)
-            .scope(.shared)
-
+        await MainActor.run {
+            InjectedValues[\.flowBehavior] = behavior
+        }
         try await Coordinator(flow: self, parent: parent).start()
     }
 

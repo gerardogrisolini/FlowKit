@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import Resolver
 
 class FlowNavigationStack: ObservableObject {
 
@@ -31,20 +30,20 @@ class FlowNavigationStack: ObservableObject {
         set { presentMode = nil }
     }
 
-    var isSheet: Bool {
+    @MainActor var isSheet: Bool {
         get {
             guard let mode = presentMode, case .sheet(_, _) = mode else { return false }
             return true
         }
-        set { presentMode = nil }
+        set { navigation.dismiss() }
     }
 
-    var isFullScreenCover: Bool {
+    @MainActor var isFullScreenCover: Bool {
         get {
             guard let mode = presentMode, case .fullScreenCover(_) = mode else { return false }
             return true
         }
-        set { presentMode = nil }
+        set { navigation.dismiss() }
     }
 
     var title: String {
@@ -56,7 +55,7 @@ class FlowNavigationStack: ObservableObject {
     }
 
     @MainActor init(navigation nav: NavigationProtocol? = nil) {
-        navigation = nav ?? Resolver.resolve()
+        navigation = nav ?? InjectedValues[\.navigation]
         navigation.action
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)

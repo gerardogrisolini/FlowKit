@@ -4,11 +4,11 @@
 //  Framework for building modular applications with composable flows.
 //
 
-@_exported import Resolver
 @_exported import FlowCases
 @_exported import FlowView
 @_exported import Flow
 
+import Foundation
 import SwiftUI
 
 public struct FlowKit {
@@ -22,16 +22,16 @@ public struct FlowKit {
 
     @MainActor
     public static func initialize(navigationType: NavigationType = .swiftUI, withFlowRouting: Bool = true) {
-       switch navigationType {
+        switch navigationType {
         case .swiftUI:
-           registerNavigationSwiftUI(withFlowRouting: withFlowRouting)
+            registerNavigationSwiftUI(withFlowRouting: withFlowRouting)
 #if canImport(UIKit)
-       case .uiKit(navigationController: let navigationController):
-           registerNavigationUIKit(navigationController: navigationController, withFlowRouting: withFlowRouting)
+        case .uiKit(navigationController: let navigationController):
+            registerNavigationUIKit(navigationController: navigationController, withFlowRouting: withFlowRouting)
 #endif
         }
     }
-    
+
     /// Get all classes of the app
     private static func allClasses() -> [AnyClass] {
         let numberOfClasses = Int(objc_getClassList(nil, 0))
@@ -60,27 +60,23 @@ public struct FlowKit {
     /// - navigation: the navigation to use
     /// - withFlowRouting: if true, it also registers the routing of the flows
     /// - Returns: the navigation
+    @MainActor
     @discardableResult
     private static func register(navigation: NavigationProtocol, withFlowRouting: Bool) -> any NavigationProtocol {
-        Resolver
-            .register { navigation as NavigationProtocol }
-            .scope(.application)
+        InjectedValues[\.navigation] = navigation
 
         guard withFlowRouting else { return navigation }
 
-        Task { @MainActor in
-            print("Registering flows...")
-            let classes = Self.classes(conformTo: FlowRouteProtocol.self)
-            for item in classes {
-                guard let flow = item as? (any FlowProtocol.Type) else { continue }
-                print(flow.route.routeString)
-                navigation.register(route: flow.route, with: flow.init)
-            }
+        print("Registering flows...")
+        let classes = Self.classes(conformTo: FlowRouteProtocol.self)
+        for item in classes {
+            guard let flow = item as? (any FlowProtocol.Type) else { continue }
+            print(flow.route.routeString)
+            navigation.register(route: flow.route, with: flow.init)
         }
 
         return navigation
     }
-
 
     /// Register the SwiftUI navigation and the routing of flows
     /// - Parameters:
@@ -105,14 +101,64 @@ public struct FlowKit {
         return register(navigation: navigation, withFlowRouting: withFlowRouting)
     }
 #endif
+}
 
-    /// Register the services
-    /// - Parameters:
-    /// - scope: scope of the service
-    /// - factory: factory function
-    public static func register<Service>(_ type: Service.Type = Service.self,
-                           scope: ResolverScope,
-                           factory: @escaping ResolverFactory<Service>) {
-        Resolver.register { factory() }.scope(scope)
+// MARK: - Dependency injection
+
+public protocol InjectionKey {
+
+    /// The associated type representing the type of the dependency injection key's value.
+    associatedtype Value
+
+    /// The default value for the dependency injection key.
+    static var currentValue: Self.Value { get set }
+}
+
+/// Provides access to injected dependencies.
+public struct InjectedValues {
+
+    /// This is only used as an accessor to the computed properties within extensions of `InjectedValues`.
+    nonisolated(unsafe) private static var current = InjectedValues()
+
+    /// A static subscript for updating the `currentValue` of `InjectionKey` instances.
+    public static subscript<K>(key: K.Type) -> K.Value where K : InjectionKey {
+        get { key.currentValue }
+        set { key.currentValue = newValue }
+    }
+
+    /// A static subscript accessor for updating and references dependencies directly.
+    public static subscript<T>(_ keyPath: WritableKeyPath<InjectedValues, T>) -> T {
+        get { current[keyPath: keyPath] }
+        set { current[keyPath: keyPath] = newValue }
+    }
+}
+
+/// This allows us to reference dependencies using the key path accessor as shown
+@propertyWrapper
+@MainActor public struct Injected<T> {
+    private let keyPath: WritableKeyPath<InjectedValues, T>
+    public var wrappedValue: T {
+        get { InjectedValues[keyPath] }
+        set { InjectedValues[keyPath] = newValue }
+    }
+
+    public init(_ keyPath: WritableKeyPath<InjectedValues, T>) {
+        self.keyPath = keyPath
+    }
+}
+
+@propertyWrapper
+@MainActor public struct OptionalInjected<T> {
+    private let keyPath: WritableKeyPath<InjectedValues, T>
+    public var wrappedValue: T? {
+        get { InjectedValues[keyPath] }
+        set {
+            guard let newValue else { return }
+            InjectedValues[keyPath] = newValue
+        }
+    }
+
+    public init(_ keyPath: WritableKeyPath<InjectedValues, T>) {
+        self.keyPath = keyPath
     }
 }

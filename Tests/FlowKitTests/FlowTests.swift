@@ -14,15 +14,13 @@ import UIKit
 
 final class FlowTests {
 
-    @Test @MainActor func testRegistrationWithFlowRouting() async throws {
+    @Test @MainActor func testRegistrationWithFlowRouting() {
 #if canImport(UIKit)
         let navigation2 = FlowKit.registerNavigationUIKit(navigationController: UINavigationController(), withFlowRouting: false)
-        try await Task.sleep(nanoseconds: 150000000)
         #expect(navigation2.items.isEmpty)
 #endif
 
         let navigation1 = FlowKit.registerNavigationSwiftUI()
-        try await Task.sleep(nanoseconds: 150000000)
         #expect(navigation1.items.contains(Routes.valid.routeString))
         #expect(navigation1.items.contains(Routes.invalid.routeString))
         #expect(navigation1.items.contains(Routes.partial.routeString))

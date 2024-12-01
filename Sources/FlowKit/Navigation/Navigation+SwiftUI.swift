@@ -66,12 +66,12 @@ public final class NavigationSwiftUI: NavigationProtocol {
         }
         action.send(.popToRoot)
     }
-
-	public func dismiss() {
+    
+    public func dismiss() {
         if let mode = presentMode {
             action.send(.dismiss)
 
-            if let routeString = mode.routeString {
+            if let routeString = presentMode?.routeString {
                 routes.removeAll(where: { $0 == routeString })
             }
             presentMode = nil

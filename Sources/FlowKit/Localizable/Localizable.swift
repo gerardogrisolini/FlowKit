@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Resolver
 
 public protocol Localizable: Hashable, RawRepresentable where RawValue: StringProtocol {
 	var localized: String { get }
@@ -15,9 +14,9 @@ public protocol Localizable: Hashable, RawRepresentable where RawValue: StringPr
 
 extension Localizable {
     public var injectedLocalized: String.LocalizationValue {
-        @OptionalInjected var behavior: FlowBehaviorProtocol?
+        let behavior = InjectedValues[\.flowBehavior]
 
-        guard let injectedValue = behavior?.localizables.first(where: { $0.from as? Self == self }) else {
+        guard let injectedValue = behavior.localizables.first(where: { $0.from as? Self == self }) else {
 			return String.LocalizationValue(rawValue.description)
 		}
 

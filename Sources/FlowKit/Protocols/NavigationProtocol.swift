@@ -51,7 +51,7 @@ public protocol Routable: Nodable, CaseIterable { }
     /// - Parameters:
     /// - route: the route to register
     /// - Returns: the flow
-	func flow(route: some Routable) throws -> (any FlowProtocol)
+    func flow(route: some Routable) throws -> (any FlowProtocol)
 
     /// Navigate to a route string
     /// - Parameters:
@@ -74,7 +74,7 @@ public protocol Routable: Nodable, CaseIterable { }
     func present(_ mode: PresentMode)
 
     /// Pop the current route
-	func pop()
+    func pop()
 
     /// Pop to the beginning of the flow
     func popToFlow()
@@ -83,7 +83,7 @@ public protocol Routable: Nodable, CaseIterable { }
     func popToRoot()
 
     /// Dismiss the presented view
-	func dismiss()
+    func dismiss()
 }
 
 /// Alert action for confirmation dialog
@@ -151,9 +151,9 @@ public extension View {
     }
 
     /// Dismiss presented view
-    var dismiss: () -> () {
-        Resolver.resolve(NavigationProtocol.self).dismiss
-    }
+//    var dismiss: () -> () {
+//        InjectedValues[\.navigation].dismiss
+//    }
 }
 
 #if canImport(UIKit)
@@ -182,5 +182,28 @@ public extension Routable {
             return ("\(self)", nil)
         }
         return (associated.label!, associated.value as? any InOutProtocol)
+    }
+}
+
+
+/// Dependency injection
+
+private struct NavigationProviderKey: @preconcurrency InjectionKey {
+    @MainActor static var currentValue: NavigationProtocol = NavigationSwiftUI()
+}
+
+private struct FlowBehaviorProviderKey: @preconcurrency InjectionKey {
+    @MainActor static var currentValue: FlowBehaviorProtocol = FlowBehavior()
+}
+
+public extension InjectedValues {
+    var navigation: NavigationProtocol {
+        get { Self[NavigationProviderKey.self] }
+        set { Self[NavigationProviderKey.self] = newValue }
+    }
+
+    var flowBehavior: FlowBehaviorProtocol {
+        get { Self[FlowBehaviorProviderKey.self] }
+        set { Self[FlowBehaviorProviderKey.self] = newValue }
     }
 }

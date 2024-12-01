@@ -5,7 +5,7 @@ Management of navigation within a module or between modules.
 ### Inject the navigation
 
 ```swift
-@Injected var navigation: NavigationProtocol
+@Injected(\.navigation) var navigation
 ```
 
 ### Navigation to a page without going through a flow, involves two cases

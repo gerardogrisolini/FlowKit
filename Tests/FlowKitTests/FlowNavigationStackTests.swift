@@ -92,7 +92,7 @@ struct FlowNavigationStackV2Tests {
     @Test func testPop() async throws {
         let stack = FlowNavigationStackV2(navigation: NavigationMock())
         stack.navigation.navigate(view: EmptyView())
-        try await Task.sleep(nanoseconds: 15000000)
+        try await Task.sleep(nanoseconds: 150000000)
         stack.navigation.pop()
         try await Task.sleep(nanoseconds: 15000000)
         #expect(stack.routes.isEmpty)

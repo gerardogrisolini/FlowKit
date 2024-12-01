@@ -30,7 +30,7 @@ public extension View where Self: FlowViewProtocol {
             .task {
                 do {
                     //let nav = NavigationSwiftUI()
-                    let nav: NavigationProtocol = Resolver.resolve()
+                    let nav: NavigationProtocol = InjectedValues[\.navigation]
                     for try await event in events {
                         print(event)
                         switch event {

@@ -57,6 +57,8 @@ extension View {
 }
 
 fileprivate struct PresentableView: View {
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         VStack(spacing: 30) {
             Text("PresentableView")

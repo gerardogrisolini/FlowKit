@@ -33,7 +33,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     init(flow: Flow, parent: (any FlowViewProtocol)? = nil, navigation: NavigationProtocol? = nil) {
         self.flow = flow
         self.parent = parent
-        self.navigation = navigation ?? Resolver.resolve()
+        self.navigation = navigation ?? InjectedValues[\.navigation]
     }
 
     /// Retrieves the destination for a specific outgoing event within the flow.

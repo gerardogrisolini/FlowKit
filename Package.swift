@@ -27,7 +27,6 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/hmlongco/Resolver.git", from: "1.5.1"),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0-latest"),
 //        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     ],
@@ -79,9 +78,9 @@ let package = Package(
         ),
         .target(
             name: "FlowKit",
-            dependencies: ["Resolver", "FlowCases", "FlowView", "Flow"],
+            dependencies: ["FlowCases", "FlowView", "Flow"],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency=complete", .when(platforms: [.macOS, .iOS]))
+                .enableExperimentalFeature("StrictConcurrency=complete")
             ]
         ),
         .testTarget(
