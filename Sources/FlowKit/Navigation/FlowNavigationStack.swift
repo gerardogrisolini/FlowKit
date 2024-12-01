@@ -16,20 +16,35 @@ class FlowNavigationStack: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     var isAlert: Bool {
-        guard let mode = presentMode, case .alert(title: _, message: _) = mode else { return false }
-        return true
+        get {
+            guard let mode = presentMode, case .alert(title: _, message: _) = mode else { return false }
+            return true
+        }
+        set { presentMode = nil }
     }
+
     var isConfirmationDialog: Bool {
-        guard let mode = presentMode, case .confirmationDialog(title: _, actions: _) = mode else { return false }
-        return true
+        get {
+            guard let mode = presentMode, case .confirmationDialog(title: _, actions: _) = mode else { return false }
+            return true
+        }
+        set { presentMode = nil }
     }
+
     var isSheet: Bool {
-        guard let mode = presentMode, case .sheet(_, _) = mode else { return false }
-        return true
+        get {
+            guard let mode = presentMode, case .sheet(_, _) = mode else { return false }
+            return true
+        }
+        set { presentMode = nil }
     }
+
     var isFullScreenCover: Bool {
-        guard let mode = presentMode, case .fullScreenCover(_) = mode else { return false }
-        return true
+        get {
+            guard let mode = presentMode, case .fullScreenCover(_) = mode else { return false }
+            return true
+        }
+        set { presentMode = nil }
     }
 
     var title: String {

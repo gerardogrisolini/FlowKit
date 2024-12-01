@@ -35,24 +35,24 @@ public struct SwiftUINavigationV2Modifier: ViewModifier {
 		}
         .alert(
             stack.title,
-            isPresented: .constant(stack.isAlert)
+            isPresented: $stack.isAlert
         ) {
         } message: {
             AnyView(stack.presentedView)
         }
         .confirmationDialog(
             stack.title,
-            isPresented: .constant(stack.isConfirmationDialog),
+            isPresented: $stack.isConfirmationDialog,
             titleVisibility: stack.title.isEmpty ? .hidden : .visible
         ) {
             AnyView(stack.presentedView)
         }
-        .sheet(isPresented: .constant(stack.isSheet), onDismiss: stack.navigation.dismiss) {
+        .sheet(isPresented: $stack.isSheet, onDismiss: stack.navigation.dismiss) {
             AnyView(stack.presentedView)
                 .presentationDetents(stack.presentationDetents)
         }
 #if os(iOS)
-        .fullScreenCover(isPresented: .constant(stack.isFullScreenCover), onDismiss: stack.navigation.dismiss) {
+        .fullScreenCover(isPresented: $stack.isFullScreenCover, onDismiss: stack.navigation.dismiss) {
             AnyView(stack.presentedView)
         }
 #endif

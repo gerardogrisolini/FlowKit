@@ -41,23 +41,23 @@ public struct SwiftUINavigationV1Modifier: ViewModifier {
 //        .navigationBarHidden(true)
         .alert(
             stack.title,
-            isPresented: .constant(stack.isAlert)
+            isPresented: $stack.isAlert
         ) {
         } message: {
             AnyView(stack.presentedView)
         }
         .confirmationDialog(
             stack.title,
-            isPresented: .constant(stack.isConfirmationDialog),
+            isPresented: $stack.isConfirmationDialog,
             titleVisibility: stack.title.isEmpty ? .hidden : .visible
         ) {
             AnyView(stack.presentedView)
         }
-        .sheet(isPresented: .constant(stack.isSheet)) {
+        .sheet(isPresented: $stack.isSheet) {
             AnyView(stack.presentedView)
         }
 #if os(iOS)
-        .fullScreenCover(isPresented: .constant(stack.isFullScreenCover)) {
+        .fullScreenCover(isPresented: $stack.isFullScreenCover) {
             AnyView(stack.presentedView)
         }
 #endif

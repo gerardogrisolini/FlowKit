@@ -98,6 +98,12 @@ public struct AlertAction: Sendable {
     public let title: String
     public let style: Style
     public let handler: @Sendable () -> Void
+
+    public init(title: String, style: Style, handler: @escaping @Sendable () -> Void) {
+        self.title = title
+        self.style = style
+        self.handler = handler
+    }
 }
 
 public enum PresentationDetents: Sendable {
