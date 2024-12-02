@@ -21,7 +21,7 @@ public protocol Nodable: Identifiable, Sendable {
 public protocol Routable: Nodable, CaseIterable { }
 
 /// NavigationProtocol is the protocol for manage the navigation
-@MainActor public protocol NavigationProtocol: AnyObject, Sendable {
+@MainActor @preconcurrency public protocol NavigationProtocol: AnyObject, Sendable {
 
     /// The subscriber of actions for the navigation
     var action: PassthroughSubject<NavigationAction, Never> { get }
@@ -149,11 +149,6 @@ public extension View {
     var routeString: String {
         String(describing: type(of: self))
     }
-
-    /// Dismiss presented view
-//    var dismiss: () -> () {
-//        InjectedValues[\.navigation].dismiss
-//    }
 }
 
 #if canImport(UIKit)

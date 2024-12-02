@@ -29,7 +29,6 @@ public extension View where Self: FlowViewProtocol {
         self
             .task {
                 do {
-                    //let nav = NavigationSwiftUI()
                     let nav: NavigationProtocol = InjectedValues[\.navigation]
                     for try await event in events {
                         print(event)

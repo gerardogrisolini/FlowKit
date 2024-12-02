@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 
 public final class NavigationSwiftUI: NavigationProtocol {
+
     public let action = PassthroughSubject<NavigationAction, Never>()
 	public var routes: [String] = []
     public var items = NavigationItems()
@@ -68,7 +69,7 @@ public final class NavigationSwiftUI: NavigationProtocol {
     }
     
     public func dismiss() {
-        if let mode = presentMode {
+        if let _ = presentMode {
             action.send(.dismiss)
 
             if let routeString = presentMode?.routeString {

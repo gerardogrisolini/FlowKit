@@ -11,7 +11,7 @@ import Combine
 #if canImport(UIKit)
 import UIKit
 
-public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationControllerDelegate {
+public final class NavigationUIKit: NSObject, NavigationProtocol {
 
     public var navigationController: UINavigationController? {
         didSet {
@@ -179,13 +179,20 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
         }
     }
     
-    //MARK: - UINavigationControllerDelegate
+}
+#endif
+
+
+//MARK: - UINavigationControllerDelegate
+
+extension NavigationUIKit: UINavigationControllerDelegate {
+
     public func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         guard let dismissedViewController = navigationController.transitionCoordinator?.viewController(forKey: .from),
                 !navigationController.viewControllers.contains(dismissedViewController) else {
             return
         }
-        
+
         guard let route = routes.last else { return }
 
 //        Task { @MainActor in
@@ -199,4 +206,3 @@ public final class NavigationUIKit: NSObject, NavigationProtocol, UINavigationCo
 //        }
     }
 }
-#endif

@@ -56,7 +56,7 @@ public struct FlowMacro: MemberMacro {
 //        }
 //        items.append(.init(initializer))
 
-        guard let inizializerDecl = declaration.memberBlock.members.compactMap { $0.decl.as(InitializerDeclSyntax.self) }.first else {
+        guard let _ = declaration.memberBlock.members.compactMap({ $0.decl.as(InitializerDeclSyntax.self) }).first else {
             items.append(.init(stringLiteral: "\(modifier)init() { }"))
             return items
         }

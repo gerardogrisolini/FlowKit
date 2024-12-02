@@ -27,7 +27,7 @@ public extension EnvironmentValues {
     }
 }
 
-@MainActor public extension FlowWidgetProtocol {
+public extension FlowWidgetProtocol {
     /// Navigate back
     func back() {
         parent.back()
