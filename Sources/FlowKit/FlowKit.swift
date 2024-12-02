@@ -146,19 +146,3 @@ public struct InjectedValues {
         self.keyPath = keyPath
     }
 }
-
-@propertyWrapper
-@MainActor public struct OptionalInjected<T> {
-    private let keyPath: WritableKeyPath<InjectedValues, T>
-    public var wrappedValue: T? {
-        get { InjectedValues[keyPath] }
-        set {
-            guard let newValue else { return }
-            InjectedValues[keyPath] = newValue
-        }
-    }
-
-    public init(_ keyPath: WritableKeyPath<InjectedValues, T>) {
-        self.keyPath = keyPath
-    }
-}

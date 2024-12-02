@@ -193,7 +193,7 @@ private struct NavigationProviderKey: @preconcurrency InjectionKey {
 }
 
 private struct FlowBehaviorProviderKey: @preconcurrency InjectionKey {
-    @MainActor static var currentValue: FlowBehaviorProtocol = FlowBehavior()
+    @MainActor static var currentValue: FlowBehaviorProtocol? = nil
 }
 
 public extension InjectedValues {
@@ -202,7 +202,7 @@ public extension InjectedValues {
         set { Self[NavigationProviderKey.self] = newValue }
     }
 
-    var flowBehavior: FlowBehaviorProtocol {
+    var flowBehavior: FlowBehaviorProtocol? {
         get { Self[FlowBehaviorProviderKey.self] }
         set { Self[FlowBehaviorProviderKey.self] = newValue }
     }
