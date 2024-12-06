@@ -5,6 +5,14 @@
 //  Created by Gerardo Grisolini on 02/02/23.
 //
 
+/// CoordinatorProtocol is the protocol for the coordinator
+@MainActor public protocol CoordinatorProtocol {
+    associatedtype Flow: FlowProtocol
+    var flow: Flow { get }
+    var parent: (any FlowViewProtocol)? { get }
+    func start(navigate: Bool) async throws
+}
+
 /// CoordinatorJoinProtocol is the protocol for the coordinator join
 public protocol CoordinatorJoinProtocol: Sendable {
     associatedtype Event: FlowOutProtocol
@@ -21,14 +29,6 @@ public protocol CoordinatorNodeProtocol: Nodable {
 	var view: View.Type { get }
 	var joins: [any CoordinatorJoinProtocol] { get }
     var eventsCount: Int { get }
-}
-
-/// CoordinatorProtocol is the protocol for the coordinator
-public protocol CoordinatorProtocol {
-    associatedtype Flow: FlowProtocol
-    var flow: Flow { get }
-    var parent: (any FlowViewProtocol)? { get }
-    func start(navigate: Bool) async throws
 }
 
 extension CoordinatorNodeProtocol {

@@ -10,7 +10,6 @@ import Foundation
 /// The `Coordinator` class is responsible for managing the flow of a specific feature or module in an application.
 /// It orchestrates navigation, event handling, and data passing between views and flow nodes.
 /// This class operates in the main actor context for UI-related safety and synchronization.
-@MainActor
 final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 
     /// The flow associated with the coordinator, defining the behavior and structure of the feature.
