@@ -5,6 +5,7 @@
 //  Created by Gerardo Grisolini on 30/11/24.
 //
 
+#if canImport(UIKit)
 import SwiftUI
 import UIKit
 
@@ -37,3 +38,4 @@ fileprivate struct UIKitHelper: UIViewRepresentable {
 
     }
 }
+#endif

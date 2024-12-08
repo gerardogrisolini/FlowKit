@@ -180,7 +180,6 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
     }
     
 }
-#endif
 
 
 //MARK: - UINavigationControllerDelegate
@@ -195,14 +194,13 @@ extension NavigationUIKit: UINavigationControllerDelegate {
 
         guard let route = routes.last else { return }
 
-//        Task { @MainActor in
-            removeRoute(route)
+        removeRoute(route)
 
-            guard let route = routes.last else { return }
+        guard let route = routes.last else { return }
 
-            if items.getValue(for: route) is any FlowProtocol {
-                routes.removeLast()
-            }
-//        }
+        if items.getValue(for: route) is any FlowProtocol {
+            routes.removeLast()
+        }
     }
 }
+#endif

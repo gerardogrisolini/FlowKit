@@ -136,7 +136,7 @@ public struct InjectedValues {
 
 /// This allows us to reference dependencies using the key path accessor as shown
 @propertyWrapper
-@MainActor public struct Injected<T> {
+public struct Injected<T> {
     private let keyPath: WritableKeyPath<InjectedValues, T>
     public var wrappedValue: T {
         get { InjectedValues[keyPath] }
