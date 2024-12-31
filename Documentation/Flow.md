@@ -40,19 +40,32 @@ public enum Routes: Routable  {
 }
 ```
 
-### Implementation of onStart in a flow
+### Implementation of behavior in a flow.
 ```swift
 extension ExampleFlow {
 
-    /// The onStart function is optional and is called when the flow starts.
-    /// You can use it to carry out checks before the flow starts, to manage settings or more.
-    public func onStart(model: some InOutProtocol) async throws -> any InOutProtocol {
-        let networkService = await NetworkService()
-        let user = try await networkService.getUserInfo()
-        guard user.isAdmin else {
-            throw FlowError.generic
+    /// Out type function that is executed between the navigation of one node and another.
+    private func runOut(_ out: any InOutProtocol) async throws -> Results {
+        do {
+            let num = Int.random(in: 0..<5)
+            switch num {
+            case 0: throw FlowError.generic
+            case 1:
+            throw FlowError.invalidModel(String(describing: out))
+            default: break
+            }
+        } catch FlowError.generic {
+            return .node(Page5View.node, out)
+        } catch {
+            throw error
         }
-        return model
+
+        return .model(out)
+    }
+
+    /// Event type function that is executed in the flow instead of on the page.
+    private func runEvent(_ event: any FlowEventProtocol) async throws -> any InOutProtocol {
+        Date()
     }
 }
 ```

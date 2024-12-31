@@ -97,9 +97,9 @@ public struct AlertAction: Sendable {
 
     public let title: String
     public let style: Style
-    public let handler: @Sendable () -> Void
+    public let handler: @MainActor @Sendable () -> Void
 
-    public init(title: String, style: Style, handler: @escaping @Sendable () -> Void) {
+    public init(title: String, style: Style, handler: @escaping @MainActor @Sendable () -> Void) {
         self.title = title
         self.style = style
         self.handler = handler
@@ -181,24 +181,14 @@ public extension Routable {
 }
 
 
-/// Dependency injection
-
+/// Dependency injection for navigation
 private struct NavigationProviderKey: @preconcurrency InjectionKey {
     @MainActor static var currentValue: NavigationProtocol = NavigationSwiftUI()
-}
-
-private struct FlowBehaviorProviderKey: @preconcurrency InjectionKey {
-    @MainActor static var currentValue: FlowBehaviorProtocol? = nil
 }
 
 public extension InjectedValues {
     var navigation: NavigationProtocol {
         get { Self[NavigationProviderKey.self] }
         set { Self[NavigationProviderKey.self] = newValue }
-    }
-
-    var flowBehavior: FlowBehaviorProtocol? {
-        get { Self[FlowBehaviorProviderKey.self] }
-        set { Self[FlowBehaviorProviderKey.self] = newValue }
     }
 }

@@ -146,18 +146,11 @@ fileprivate final class TestFlow: FlowProtocol {
         $0.behavior ~ NotEmptyFlowView.node
     }
 
-    var behavior: FlowBehavior {
-        .init {
-            Outs { TestFlowView.Out.behavior(InOutModel()) ~ runOut }
-            Events { TestFlowView.Event.behavior ~ runEvent }
-        }
-    }
-
-    private func runOut(_ out: any InOutProtocol) async throws -> Results {
+    fileprivate func runOut(_ out: any InOutProtocol) async throws -> Results {
         .node(EmptyFlowView.node, InOutEmpty())
     }
 
-    private func runEvent(_ event: any FlowEventProtocol) async throws -> any InOutProtocol {
+    fileprivate func runEvent(_ event: any FlowEventProtocol) async throws -> any InOutProtocol {
         InOutModel()
     }
 }

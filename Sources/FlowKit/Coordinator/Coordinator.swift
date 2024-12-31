@@ -35,22 +35,6 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
         self.navigation = navigation ?? InjectedValues[\.navigation]
     }
 
-    /// Retrieves the destination for a specific outgoing event within the flow.
-    /// - Parameter event: The event conforming to `FlowOutProtocol`.
-    /// - Returns: The destination `Out` object, if found; otherwise, `nil`.
-    private func getOut(_ event: some FlowOutProtocol) -> Out? {
-        guard let out = flow.behavior.outs.first(where: { $0.from.id == event.id }) else { return nil }
-        return out.to
-    }
-
-    /// Retrieves the corresponding event definition from the flow for a given event instance.
-    /// - Parameter event: The event conforming to `FlowEventProtocol`.
-    /// - Returns: The mapped `Event` object, if found; otherwise, `nil`.
-    private func getEvent(_ event: some FlowEventProtocol) -> Event? {
-        guard let event = flow.behavior.events.first(where: { $0.from.id == event.id }) else { return nil }
-        return event.to
-    }
-
     /// Starts the coordinator by initializing and displaying the flow's root node.
     /// - Parameter navigate: A flag indicating whether navigation should occur. Defaults to `true`.
     /// - Throws: An error if the flow cannot be started.
@@ -95,14 +79,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
                         throw FlowError.eventNotFound
                     }
-
-                    let data = next.associated.value ?? InOutEmpty()
-                    guard let out = getOut(next) else {
-                        try await parseJoin(join, data)
-                        continue
-                    }
-
-                    switch try await out(data) {
+                    switch try await flow.runOut(next) {
                     case .model(let m):
                         try await parseJoin(join, m)
                     case .node(let n, let m):
@@ -110,11 +87,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     }
 
                 case .event(let event):
-                    guard let flowEvent = getEvent(event) else {
-                        await view.onEventChange(event: event, model: view.model)
-                        continue
-                    }
-                    let model = try await flowEvent(event)
+                    let model = try await flow.runEvent(event)
                     await view.onEventChange(event: event, model: model)
 
                 case .commit(let m, let toRoot):
