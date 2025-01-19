@@ -197,6 +197,12 @@ public extension String {
     }
 }
 
+extension String: InOutProtocol { }
+extension Int: InOutProtocol { }
+extension Float: InOutProtocol { }
+extension Double: InOutProtocol { }
+extension Bool: InOutProtocol { }
+
 /// FlowViewEmpty is the empty flow view
 @FlowView(InOutEmpty.self)
 public struct FlowViewEmpty: View, FlowViewProtocol {

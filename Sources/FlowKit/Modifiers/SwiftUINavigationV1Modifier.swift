@@ -38,7 +38,13 @@ public struct SwiftUINavigationV1Modifier: ViewModifier {
                     }
                 )
         }
-//        .navigationBarHidden(true)
+        .overlay(alignment: .top) {
+            if stack.isToast {
+                AnyView(stack.presentedView)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.linear(duration: 0.5), value: stack.isToast)
         .alert(
             stack.title,
             isPresented: $stack.isAlert

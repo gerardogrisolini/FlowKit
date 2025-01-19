@@ -103,7 +103,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
                 sheet.preferredCornerRadius = 48
             }
         }
-        navigationController?.present(controller, animated: true, completion: dismiss)
+        navigationController?.present(controller, animated: true, completion: { [dismiss] in dismiss() })
     }
 
     public func present(_ mode: PresentMode) {
@@ -114,6 +114,11 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
         }
 
         switch mode {
+        case .toast(message: let message, style: let style):
+            let view = ToastView(style: style, message: message, onCancelTapped: { [dismiss] in dismiss() })
+            let controller = UIHostingController(rootView: view)
+            navigationController?.present(controller, animated: true)
+
         case .alert(title: let title, message: let message):
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
@@ -147,7 +152,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
         case .fullScreenCover(let view):
             guard let controller = view as? UIViewController else { return }
             controller.modalPresentationStyle = .fullScreen
-            navigationController?.present(controller, animated: true, completion: dismiss)
+            navigationController?.present(controller, animated: true, completion: { [dismiss] in dismiss() })
         }
     }
 
@@ -204,3 +209,4 @@ extension NavigationUIKit: UINavigationControllerDelegate {
     }
 }
 #endif
+

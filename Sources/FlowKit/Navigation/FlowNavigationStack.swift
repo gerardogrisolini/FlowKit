@@ -46,6 +46,11 @@ class FlowNavigationStack: ObservableObject {
         set { navigation.dismiss() }
     }
 
+    var isToast: Bool {
+        guard let mode = presentMode, case .toast(message: _, style: _) = mode else { return false }
+        return true
+    }
+
     var title: String {
         switch presentMode {
         case .alert(title: let title, _), .confirmationDialog(title: let title, _):
@@ -57,13 +62,8 @@ class FlowNavigationStack: ObservableObject {
     @MainActor init(navigation nav: NavigationProtocol? = nil) {
         navigation = nav ?? InjectedValues[\.navigation]
         navigation.action
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { action in
-                Task { [weak self] in
-                    guard let self else { return }
-                    onChange(action: action)
-                }
+            .sink { [onChange] action in
+                onChange(action)
             }
             .store(in: &cancellables)
     }

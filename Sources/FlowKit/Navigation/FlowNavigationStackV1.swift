@@ -42,6 +42,10 @@ final class FlowNavigationStackV1: FlowNavigationStack {
             return ForEach(actions, id: \.title) { action in
                 Button(action.title) { action.handler() }
             }
+        case .toast(message: let message, style: let style):
+            return ToastView(style: style, message: message) { [onChange] in
+                onChange(.dismiss)
+            }
         default:
             return EmptyView()
         }

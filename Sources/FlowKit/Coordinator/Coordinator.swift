@@ -110,7 +110,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 
             } catch {
                 print(error)
-                navigation.present(.alert(title: "Exception", message: "\(error)"))
+                navigation.present(.toast(message: "\(error)", style: .error))
                 continue
             }
         }

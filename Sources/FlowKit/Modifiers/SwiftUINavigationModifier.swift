@@ -30,6 +30,9 @@ extension View {
 #Preview {
     @Previewable let nav = FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
     VStack(spacing: 20) {
+        Button("Toast") {
+            nav.present(.toast(message: "Message", style: .success))
+        }
         Button("Alert") {
             nav.present(.alert(title: "Warning", message: "Message"))
         }

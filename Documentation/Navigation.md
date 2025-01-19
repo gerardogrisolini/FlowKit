@@ -57,10 +57,18 @@ navigation.register(route: Routes.example) {
 try navigation.present(.fullScreenCover(Routes.example))
 ```
 
-### Alerts and condirmation dialogs
+### Toast
+```swift
+navigation.present(.toast(message: "Exception", style: .error)
+```
+
+### Alert
 ```swift
 navigation.present(.alert(title: "Exception", message: "Parameter cannot be null"))
+```
 
+### Condirmation dialog
+```swift
 let actions: [AlertAction] = [
     .init(title: "Hide", style: .default, handler: {}),
     .init(title: "Delete logical", style: .cancel, handler: {}),
