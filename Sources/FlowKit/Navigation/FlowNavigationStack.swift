@@ -47,7 +47,7 @@ class FlowNavigationStack: ObservableObject {
     }
 
     var isToast: Bool {
-        guard let mode = presentMode, case .toast(message: _, style: _) = mode else { return false }
+        guard let mode = presentMode, case .toast(message: _, style: _, dismissDelay: _) = mode else { return false }
         return true
     }
 

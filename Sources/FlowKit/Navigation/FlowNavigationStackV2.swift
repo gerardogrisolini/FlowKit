@@ -46,8 +46,8 @@ final class FlowNavigationStackV2: FlowNavigationStack {
                     action.handler()
                 }
             }
-        case .toast(message: let message, style: let style):
-            return ToastView(style: style, message: message) { [onChange] in
+        case .toast(message: let message, style: let style, let delay):
+            return ToastView(style: style, message: message, dismissDelay: delay) { [onChange] in
                 onChange(.dismiss)
             }
         case .none:

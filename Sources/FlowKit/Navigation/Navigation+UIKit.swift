@@ -114,8 +114,8 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
         }
 
         switch mode {
-        case .toast(message: let message, style: let style):
-            let view = ToastView(style: style, message: message, onCancelTapped: { [dismiss] in dismiss() })
+        case .toast(message: let message, style: let style, dismissDelay: let delay):
+            let view = ToastView(style: style, message: message, dismissDelay: delay, onCancelTapped: { [dismiss] in dismiss() })
             let controller = UIHostingController(rootView: view)
             navigationController?.present(controller, animated: true)
 

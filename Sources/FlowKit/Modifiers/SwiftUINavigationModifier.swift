@@ -28,10 +28,10 @@ extension View {
 @available(iOS 17.0, *)
 @available(macOS 14.0, *)
 #Preview {
-    @Previewable let nav = FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
+    let nav = FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
     VStack(spacing: 20) {
         Button("Toast") {
-            nav.present(.toast(message: "Message", style: .success))
+            nav.present(.toast(message: "Message \(Date())", style: .success))
         }
         Button("Alert") {
             nav.present(.alert(title: "Warning", message: "Message"))
