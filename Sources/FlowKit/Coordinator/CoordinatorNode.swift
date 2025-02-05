@@ -5,6 +5,8 @@
 //  Created by Gerardo Grisolini on 07/02/23.
 //
 
+import NavigationKit
+
 /// Join is the struct that links the event with the node
 public struct Join<Out: FlowOutProtocol, Node: Nodable>: CoordinatorJoinProtocol {
     public let event: Out

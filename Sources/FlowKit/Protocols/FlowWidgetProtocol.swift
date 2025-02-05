@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import NavigationKit
 
 /// FlowWidgetProtocol is the protocol for the widget of flow view
 @MainActor public protocol FlowWidgetProtocol {

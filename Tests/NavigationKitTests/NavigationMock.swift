@@ -7,7 +7,7 @@
 
 import Combine
 import SwiftUI
-@testable import FlowKit
+@testable import NavigationKit
 
 final class NavigationMock: NavigationProtocol {
     let action = PassthroughSubject<NavigationAction, Never>()
@@ -19,10 +19,10 @@ final class NavigationMock: NavigationProtocol {
     var navigationController: UINavigationController? = nil
 #endif
 
-    var currentView: (any FlowViewProtocol)? = nil
+    var currentView: (any Sendable)? = nil
 
     func setView() async {
-        guard let routeString = routes.last, let view = items.getValue(for: routeString) as? any FlowViewProtocol else {
+        guard let routeString = routes.last, let view = items.getValue(for: routeString) else {
             currentView = nil
             return
         }
@@ -32,7 +32,7 @@ final class NavigationMock: NavigationProtocol {
     func navigate(route: some Routable) throws {
         let routeString = route.routeString
         guard items.setParam(for: routeString, param: route.associated.value) else {
-            throw FlowError.routeNotFound
+            throw NavigationError.routeNotFound
         }
         navigate(routeString: routeString)
     }

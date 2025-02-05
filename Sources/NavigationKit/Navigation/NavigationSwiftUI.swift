@@ -8,13 +8,14 @@
 import SwiftUI
 import Combine
 
-public final class NavigationSwiftUI: NavigationProtocol {
+open class NavigationSwiftUI: NavigationProtocol {
 
     public let action = PassthroughSubject<NavigationAction, Never>()
 	public var routes: [String] = []
     public var items = NavigationItems()
     public var presentMode: PresentMode? = nil
 
+    public init() { }
 
     public func navigate(routeString: String) {
         routes.append(routeString)
@@ -24,22 +25,13 @@ public final class NavigationSwiftUI: NavigationProtocol {
 	public func navigate(route: some Routable) throws {
         let routeString = route.routeString
         guard items.setParam(for: routeString, param: route.associated.value) else {
-			throw FlowError.routeNotFound
+			throw NavigationError.routeNotFound
 		}
 		navigate(routeString: routeString)
 	}
 
-	private func removeRoute(_ route: String) {
-        let view = items.getValue(for: route)
-
-        if let view = view as? any FlowViewProtocol {
-            view.events.finish()
-        }
-
-        guard view is any FlowProtocol else {
-            items.remove(route)
-            return
-        }
+	open func removeRoute(_ route: String) {
+        items.remove(route)
     }
 
 	public func pop() {
@@ -49,14 +41,9 @@ public final class NavigationSwiftUI: NavigationProtocol {
 		}
 	}
 
-    public func popToFlow() {
+    open func popToFlow() {
         while let route = routes.popLast() {
             removeRoute(route)
-
-            if items.getValue(for: route) is any FlowProtocol {
-                break
-            }
-
             action.send(.pop(route))
 		}
 	}

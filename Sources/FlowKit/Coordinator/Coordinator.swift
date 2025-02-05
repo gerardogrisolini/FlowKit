@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NavigationKit
 
 /// The `Coordinator` class is responsible for managing the flow of a specific feature or module in an application.
 /// It orchestrates navigation, event handling, and data passing between views and flow nodes.
@@ -127,12 +128,6 @@ public enum CoordinatorEvent: Sendable {
 
     case present(_ mode: PresentMode)
     case navigate(any Sendable)
-}
-
-/// `InOutEmpty` serves as a placeholder for cases where no input or output data is required.
-/// It conforms to the `InOutProtocol` for compatibility.
-public final class InOutEmpty: InOutProtocol {
-    public init() { }
 }
 
 /// `EventBase` defines a basic flow event with a predefined set of actions.

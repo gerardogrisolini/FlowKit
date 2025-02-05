@@ -1,5 +1,5 @@
 //
-//  FlowNavigationswift
+//  NavigationSwiftUIStack
 //  FlowKit
 //
 //  Created by Gerardo Grisolini on 21/11/24.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-class FlowNavigationStack: ObservableObject {
+class NavigationSwiftUIStack: ObservableObject {
 
     var navigation: NavigationProtocol
     @Published var presentMode: PresentMode? = nil

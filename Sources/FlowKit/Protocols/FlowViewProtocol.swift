@@ -6,9 +6,7 @@
 //
 
 import SwiftUI
-
-/// InOutProtocol is the protocol for the input/output model
-public protocol InOutProtocol: Identifiable, Sendable { }
+import NavigationKit
 
 /// FlowEventProtocol is the protocol for the action events
 public protocol FlowEventProtocol: Nodable, CaseIterable { }
@@ -144,64 +142,6 @@ public extension FlowViewProtocol {
         events.send(.navigate(view))
     }
 }
-
-public extension InOutProtocol {
-    /// The id of the model
-    var id: String { className }
-
-    /// The className of the model
-    var className: String {
-        String(describing: self).className
-    }
-}
-
-public extension Nodable {
-    /// The id of the event
-    var id: String {
-        String(describing: self).className
-    }
-
-    /// Default model for view
-    var model: InOutEmpty.Type { InOutEmpty.self }
-
-    /// Associated value of the event
-    var associated: (label: String, value: (any InOutProtocol)?) {
-        let mirror = Mirror(reflecting: self)
-        guard let associated = mirror.children.first else {
-            return ("\(self)", nil)
-        }
-        return (associated.label!, associated.value as? any InOutProtocol)
-    }
-
-    func udpate(associatedValue: some InOutProtocol) -> Self {
-        self
-    }
-}
-
-public extension String {
-    var id: String {
-        var data = self
-        if let start = self.lastIndex(of: ".") {
-            let index = data.index(start, offsetBy: 1)
-            data = String(data.suffix(from: index))
-        }
-        return data.className
-    }
-
-    var className: String {
-        guard let index = firstIndex(of: "(") else {
-            return self
-        }
-        let end = self.index(index, offsetBy: -1)
-        return String(prefix(through: end))
-    }
-}
-
-extension String: InOutProtocol { }
-extension Int: InOutProtocol { }
-extension Float: InOutProtocol { }
-extension Double: InOutProtocol { }
-extension Bool: InOutProtocol { }
 
 /// FlowViewEmpty is the empty flow view
 @FlowView(InOutEmpty.self)

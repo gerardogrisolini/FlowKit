@@ -11,7 +11,7 @@ import SwiftUI
 @available(iOS, deprecated: 16.0)
 @available(macOS, deprecated: 13.0)
 public struct SwiftUINavigationV1Modifier: ViewModifier {
-    @StateObject var stack = FlowNavigationStackV1()
+    @StateObject var stack = NavigationSwiftUIStackV1()
 
     public func body(content: Content) -> some View {
         NavigationView {

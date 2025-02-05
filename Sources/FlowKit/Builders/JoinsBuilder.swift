@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import NavigationKit
 
 @resultBuilder
 public enum JoinsBuilder {
@@ -64,7 +65,6 @@ public func ~<Out: FlowOutProtocol, Node: Nodable>(out: Out, node: Node) -> any 
 }
 
 public typealias JoinView<E: FlowEventProtocol, M: InOutProtocol> = (E, M)
-public typealias JoinRoute<R: Routable, M: InOutProtocol> = (R, M)
 
 public func ~<E: FlowOutProtocol, M: InOutProtocol, Node: Nodable>(out: JoinView<E, M>, node: Node) -> any CoordinatorJoinProtocol where M == Node.Model {
     Join(out.0, node)

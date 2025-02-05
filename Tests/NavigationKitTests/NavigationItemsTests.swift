@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Testing
-@testable import FlowKit
+@testable import NavigationKit
 
 struct NavigationItemsTests {
     

@@ -10,6 +10,11 @@ import SwiftUI
 import UIKit
 
 extension UIViewController {
+    /// The route string for the navigable
+    var routeString: String {
+        String(describing: type(of: self))
+    }
+
     struct UIViewControllerWrapper<T: UIViewController>: UIViewControllerRepresentable {
         let view: T
         public init(_ view: T) {

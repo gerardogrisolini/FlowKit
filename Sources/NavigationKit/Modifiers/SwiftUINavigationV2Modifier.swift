@@ -10,7 +10,7 @@ import SwiftUI
 @available(iOS 16.0, *)
 @available(macOS 13.0, *)
 public struct SwiftUINavigationV2Modifier: ViewModifier {
-	@StateObject private var stack = FlowNavigationStackV2()
+	@StateObject private var stack = NavigationSwiftUIStackV2()
 
     public func body(content: Content) -> some View {
 		NavigationStack(path: $stack.routes) {

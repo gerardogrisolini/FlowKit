@@ -1,5 +1,5 @@
 //
-//  FlowNavigationStackV1.swift
+//  NavigationSwiftUIStackV1.swift
 //
 //
 //  Created by Gerardo Grisolini on 15/10/22.
@@ -13,7 +13,7 @@ import UIKit
 @available(iOS 14.0, *)
 @available(iOS, deprecated: 16.0)
 @available(macOS, deprecated: 13.0)
-final class FlowNavigationStackV1: FlowNavigationStack {
+final class NavigationSwiftUIStackV1: NavigationSwiftUIStack {
 
     @Published var route: String? = nil
 

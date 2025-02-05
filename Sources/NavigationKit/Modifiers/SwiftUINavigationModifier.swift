@@ -28,7 +28,7 @@ extension View {
 @available(iOS 17.0, *)
 @available(macOS 14.0, *)
 #Preview {
-    let nav = FlowKit.registerNavigationSwiftUI(withFlowRouting: false)
+    let nav = NavigationKit.initialize()
     VStack(spacing: 20) {
         Button("Toast") {
             nav.present(.toast(message: "Message \(Date())", style: .success))

@@ -6,11 +6,7 @@
 //
 
 import SwiftUI
-
-/// FlowError is the error type for the flow
-public enum FlowError: Error {
-    case generic, routeNotFound, flowNotFound, eventNotFound, invalidModel(String), partialMapping(String)
-}
+import NavigationKit
 
 /// Results is the enum that contains the Out function result
 public enum Results: Sendable {

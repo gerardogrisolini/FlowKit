@@ -10,8 +10,12 @@ let package = Package(
     products: [
         .library(
             name: "FlowKit",
-            type: .static,
+//            type: .static,
             targets: ["FlowKit"]
+        ),
+        .library(
+            name: "NavigationKit",
+            targets: ["NavigationKit"]
         ),
         .library(
             name: "FlowCases",
@@ -77,10 +81,23 @@ let package = Package(
             sources: ["Flow.swift"]
         ),
         .target(
-            name: "FlowKit",
-            dependencies: ["FlowCases", "FlowView", "Flow"],
+            name: "NavigationKit",
+            dependencies: ["FlowCases"],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency=complete")
+            ]
+        ),
+        .target(
+            name: "FlowKit",
+            dependencies: ["NavigationKit", "FlowView", "Flow"],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency=complete")
+            ]
+        ),
+        .testTarget(
+            name: "NavigationKitTests",
+            dependencies:  [
+                "NavigationKit"
             ]
         ),
         .testTarget(

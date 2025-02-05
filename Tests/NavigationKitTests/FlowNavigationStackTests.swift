@@ -7,27 +7,27 @@
 
 import Testing
 import SwiftUI
-@testable import FlowKit
+@testable import NavigationKit
 
 @MainActor
 struct FlowNavigationStackV1Tests {
 
     @Test func testInitialization() {
-        let stack = FlowNavigationStackV1(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV1(navigation: NavigationMock())
         #expect(stack.route == nil)
         #expect(stack.presentMode == nil)
     }
 
     @Test func testNavigate() async throws {
         let view = EmptyView()
-        let stack = FlowNavigationStackV1(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV1(navigation: NavigationMock())
         stack.navigation.navigate(view: view)
         try await Task.sleep(nanoseconds: 150000000)
         #expect(stack.route == view.routeString)
     }
 
     @Test func testPop() async throws {
-        let stack = FlowNavigationStackV1(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV1(navigation: NavigationMock())
         stack.navigation.navigate(view: EmptyView())
         try await Task.sleep(nanoseconds: 150000000)
         stack.navigation.pop()
@@ -36,7 +36,7 @@ struct FlowNavigationStackV1Tests {
     }
 
     @Test func testPopToRoot() async throws {
-        let stack = FlowNavigationStackV1(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV1(navigation: NavigationMock())
         stack.navigation.navigate(view: Text(""))
         try await Task.sleep(nanoseconds: 150000000)
         stack.navigation.navigate(view: EmptyView())
@@ -48,7 +48,7 @@ struct FlowNavigationStackV1Tests {
 
     @Test func testPresentModal() async throws {
         let presentMode: PresentMode = .sheet(EmptyView())
-        let stack = FlowNavigationStackV1(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV1(navigation: NavigationMock())
         stack.navigation.present(presentMode)
         try await Task.sleep(nanoseconds: 150000000)
         #expect(stack.presentMode == presentMode)
@@ -58,7 +58,7 @@ struct FlowNavigationStackV1Tests {
 
     @Test func testDismissModal() async throws {
         let presentMode: PresentMode = .fullScreenCover(EmptyView())
-        let stack = FlowNavigationStackV1(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV1(navigation: NavigationMock())
         stack.navigation.present(presentMode)
         try await Task.sleep(nanoseconds: 150000000)
         #expect(stack.isFullScreenCover)
@@ -73,7 +73,7 @@ struct FlowNavigationStackV2Tests {
 
     @available(iOS 16.0, *)
     @Test func testInitialization() {
-        let stack = FlowNavigationStackV2(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV2(navigation: NavigationMock())
         #expect(stack.routes.isEmpty)
         #expect(stack.presentMode == nil)
     }
@@ -81,7 +81,7 @@ struct FlowNavigationStackV2Tests {
     @available(iOS 16.0, *)
     @Test func testNavigate() async throws {
         let view = EmptyView()
-        let stack = FlowNavigationStackV2(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV2(navigation: NavigationMock())
         stack.navigation.navigate(view: view)
         try await Task.sleep(nanoseconds: 150000000)
         #expect(stack.routes.count == 1)
@@ -90,7 +90,7 @@ struct FlowNavigationStackV2Tests {
 
     @available(iOS 16.0, *)
     @Test func testPop() async throws {
-        let stack = FlowNavigationStackV2(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV2(navigation: NavigationMock())
         stack.navigation.navigate(view: EmptyView())
         try await Task.sleep(nanoseconds: 150000000)
         stack.navigation.pop()
@@ -100,7 +100,7 @@ struct FlowNavigationStackV2Tests {
 
     @available(iOS 16.0, *)
     @Test func testPopToRoot() async throws {
-        let stack = FlowNavigationStackV2(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV2(navigation: NavigationMock())
         stack.navigation.navigate(view: Text(""))
         try await Task.sleep(nanoseconds: 15000000)
         stack.navigation.navigate(view: EmptyView())
@@ -113,7 +113,7 @@ struct FlowNavigationStackV2Tests {
     @available(iOS 16.0, *)
     @Test func testPresentModal() async throws {
         let presentMode: PresentMode = .sheet(EmptyView())
-        let stack = FlowNavigationStackV2(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV2(navigation: NavigationMock())
         stack.navigation.present(presentMode)
         try await Task.sleep(nanoseconds: 150000000)
         #expect(stack.presentMode == presentMode)
@@ -124,7 +124,7 @@ struct FlowNavigationStackV2Tests {
     @available(iOS 16.0, *)
     @Test func testDismissModal() async throws {
         let presentMode: PresentMode = .fullScreenCover(EmptyView())
-        let stack = FlowNavigationStackV2(navigation: NavigationMock())
+        let stack = NavigationSwiftUIStackV2(navigation: NavigationMock())
         stack.navigation.present(presentMode)
         try await Task.sleep(nanoseconds: 150000000)
         #expect(stack.isFullScreenCover)

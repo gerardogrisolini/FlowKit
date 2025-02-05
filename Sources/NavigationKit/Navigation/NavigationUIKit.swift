@@ -5,13 +5,12 @@
 //  Created by Gerardo Grisolini on 11/10/22.
 //
 
+#if canImport(UIKit)
+import UIKit
 import SwiftUI
 import Combine
 
-#if canImport(UIKit)
-import UIKit
-
-public final class NavigationUIKit: NSObject, NavigationProtocol {
+open class NavigationUIKit: NSObject, NavigationProtocol {
 
     public var navigationController: UINavigationController? {
         didSet {
@@ -30,7 +29,11 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
     }
 
     public func navigate(route: some Routable) throws {
-        try push(route: route.routeString)
+        let routeString = route.routeString
+        guard items.setParam(for: routeString, param: route.associated.value) else {
+            throw NavigationError.routeNotFound
+        }
+        try push(route: routeString)
     }
 
     public func push(route: String) throws {
@@ -39,7 +42,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
 
         guard let view = items.getValue(for: route) as? any View else {
             guard let vc = items.getValue(for: route) as? UIViewController else {
-                throw FlowError.routeNotFound
+                throw NavigationError.routeNotFound
             }
             navigationController?.pushViewController(vc, animated: true)
             return
@@ -54,14 +57,10 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
         navigationController?.popViewController(animated: true)
 	}
 	
-    public func popToFlow() {
+    open func popToFlow() {
         var count = routes.count - 1
         while count >= 0 {
             let route = routes[count]
-            if items.getValue(for: route) is any FlowProtocol {
-                routes.removeLast()
-                break
-            }
             removeRoute(route)
             count -= 1
         }
@@ -168,22 +167,12 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
 	}
     
     private func removeRoute(_ route: String) {
-        let view = items.getValue(for: route)
 
         if let index = routes.firstIndex(of: route) {
             routes.remove(at: index)
         }
-
-        if let view = view as? any FlowViewProtocol {
-            view.events.finish()
-        }
-
-        guard view is any FlowProtocol else {
-            items.remove(route)
-            return
-        }
+        items.remove(route)
     }
-    
 }
 
 
@@ -191,7 +180,7 @@ public final class NavigationUIKit: NSObject, NavigationProtocol {
 
 extension NavigationUIKit: UINavigationControllerDelegate {
 
-    public func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+    open func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         guard let dismissedViewController = navigationController.transitionCoordinator?.viewController(forKey: .from),
                 !navigationController.viewControllers.contains(dismissedViewController) else {
             return
@@ -200,12 +189,6 @@ extension NavigationUIKit: UINavigationControllerDelegate {
         guard let route = routes.last else { return }
 
         removeRoute(route)
-
-        guard let route = routes.last else { return }
-
-        if items.getValue(for: route) is any FlowProtocol {
-            routes.removeLast()
-        }
     }
 }
 #endif
