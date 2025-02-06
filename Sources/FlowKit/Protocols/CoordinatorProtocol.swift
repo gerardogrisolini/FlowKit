@@ -14,7 +14,7 @@
 }
 
 /// CoordinatorJoinProtocol is the protocol for the coordinator join
-protocol CoordinatorJoinProtocol: Sendable {
+public protocol CoordinatorJoinProtocol: Sendable {
     associatedtype Event: FlowOutProtocol
     associatedtype Node: Nodable
 
@@ -23,7 +23,7 @@ protocol CoordinatorJoinProtocol: Sendable {
 }
 
 /// CoordinatorNodeProtocol is the protocol for the coordinator node
-protocol CoordinatorNodeProtocol: Nodable {
+public protocol CoordinatorNodeProtocol: Nodable {
 	associatedtype View: FlowViewProtocol
 
 	var view: View.Type { get }

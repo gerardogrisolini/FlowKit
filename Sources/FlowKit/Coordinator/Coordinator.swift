@@ -120,7 +120,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 
 /// `CoordinatorEvent` defines the possible events that the `Coordinator` can handle.
 /// These events are triggered by the flow or user interaction.
-enum CoordinatorEvent: Sendable {
+public enum CoordinatorEvent: Sendable {
     case back
     case next(any FlowOutProtocol)
     case commit(any InOutProtocol, toRoot: Bool)
