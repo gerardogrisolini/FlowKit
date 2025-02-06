@@ -4,6 +4,8 @@ Register the navigation and services your app requires.
 
 #### SwiftUI
 ```swift
+import FlowKit
+
 @main
 struct FlowApp: App {
     init() {
@@ -23,6 +25,8 @@ struct FlowApp: App {
 
 #### UIKit
 ```swift
+import FlowKit
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -44,4 +48,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 ### Speaking of Annotations, to resolving services in your modules using the property wrapper.
 ```swift
 @Injected(\.navigation) var navigation
+```
+
+### If you want to use only navigation without flows.
+```swift
+import NavigationKit
+
+@main
+struct FlowApp: App {
+    init() {
+        /// Inizialize and register the navigation
+        NavigationKit.initialize()
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                /// Join page to the navigation
+                .navigationKit()
+        }
+    }
+}
 ```

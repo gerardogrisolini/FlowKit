@@ -11,7 +11,7 @@ import Foundation
 public class NavigationItems {
 
     /// Represents a single navigation item with an associated key, optional parameter, and a value provider.
-    private struct NavigationItem {
+    private class NavigationItem {
         /// A unique identifier for the navigation item.
         let key: String
 
@@ -20,6 +20,15 @@ public class NavigationItems {
 
         /// A closure that provides a value asynchronously, taking an `InOutProtocol` as input and returning a `Sendable` result.
         var value: @MainActor @Sendable (any InOutProtocol) -> (any Sendable)
+
+        /// Indicating whether the value is registered
+        let registered: Bool
+
+        init(key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> any Sendable, registered: Bool) {
+            self.key = key
+            self.value = value
+            self.registered = registered
+        }
     }
 
     /// An array holding all navigation items.
@@ -55,10 +64,11 @@ public class NavigationItems {
     /// - Parameters:
     ///   - key: The unique identifier for the new item.
     ///   - value: A closure providing the asynchronous value for the item.
+    ///   - registered: Indicating if the value is registered and should not be removed.
     /// - Note: This function does nothing if an item with the same key already exists.
-    public func setValue(for key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable)) {
+    public func setValue(for key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable), registered: Bool = false) {
         guard !contains(key) else { return }
-        items.append(.init(key: key, value: value))
+        items.append(.init(key: key, value: value, registered: registered))
     }
 
     /// Retrieves the value of a navigation item asynchronously.
@@ -92,7 +102,7 @@ public class NavigationItems {
     /// Removes a navigation item from the collection.
     /// - Parameter key: The unique identifier for the navigation item to be removed.
     public func remove(_ key: String) {
-        guard let index = getIndex(for: key) else { return }
+        guard let index = getIndex(for: key), !items[index].registered else { return }
         items.remove(at: index)
     }
 }

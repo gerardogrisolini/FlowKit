@@ -18,10 +18,7 @@ final class FlowNavigationSwiftUI: NavigationSwiftUI {
             view.events.finish()
         }
 
-        guard view is any FlowProtocol else {
-            items.remove(route)
-            return
-        }
+        items.remove(route)
     }
 
     override public func popToFlow() {

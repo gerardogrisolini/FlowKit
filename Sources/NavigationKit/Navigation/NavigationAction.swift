@@ -173,5 +173,5 @@ public enum ToastStyle: Sendable {
             nav.present(.toast(message: "Message \(Date())", style: .error, dismissDelay: 0))
         }
     }
-    .swiftUINavigation()
+    .navigationKit()
 }

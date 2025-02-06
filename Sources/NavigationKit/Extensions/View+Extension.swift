@@ -13,4 +13,9 @@ public extension View {
     var routeString: String {
         String(describing: type(of: self))
     }
+
+    /// SwiftUI navigation
+    func navigationKit() -> some View {
+        modifier(SwiftUINavigationModifier())
+    }
 }

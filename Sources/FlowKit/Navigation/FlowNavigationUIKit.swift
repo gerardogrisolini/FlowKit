@@ -56,10 +56,7 @@ final class FlowNavigationUIKit: NavigationUIKit {
             view.events.finish()
         }
 
-        guard view is any FlowProtocol else {
-            items.remove(route)
-            return
-        }
+        items.remove(route)
     }
     
     //MARK: - UINavigationControllerDelegate

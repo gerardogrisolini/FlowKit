@@ -19,12 +19,6 @@ public struct SwiftUINavigationModifier: ViewModifier {
     }
 }
 
-extension View {
-    public func swiftUINavigation() -> some View {
-        modifier(SwiftUINavigationModifier())
-    }
-}
-
 @available(iOS 17.0, *)
 @available(macOS 14.0, *)
 #Preview {
@@ -56,7 +50,7 @@ extension View {
             nav.navigate(view: Text("Navigate"))
         }
     }
-    .swiftUINavigation()
+    .navigationKit()
 }
 
 fileprivate struct PresentableView: View {

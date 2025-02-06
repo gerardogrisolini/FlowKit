@@ -8,12 +8,13 @@
 import SwiftUI
 
 public extension View where Self: FlowViewProtocol {
+
     /// Join a view with the flow
     /// - Parameters:
     /// - flow: the flow to join
     /// - Returns: the view
     func join<F: FlowProtocol>(flow: F) -> some View {
-        swiftUINavigation()
+        navigationKit()
             .task {
                 do {
                     try await Coordinator(flow: flow, parent: self)
