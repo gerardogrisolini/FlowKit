@@ -71,7 +71,7 @@ public class NavigationItems {
         items.append(.init(key: key, value: value, registered: registered))
     }
 
-    /// Retrieves the value of a navigation item asynchronously.
+    /// Retrieves the value of a navigation item.
     /// - Parameter key: The unique identifier for the navigation item.
     /// - Returns: The asynchronously computed value of the item, or `nil` if the item is not found.
     @MainActor public func getValue(for key: String) -> (any Sendable)? {

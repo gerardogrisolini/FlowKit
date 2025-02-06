@@ -6,7 +6,7 @@
 //
 
 /// CoordinatorProtocol is the protocol for the coordinator
-@MainActor public protocol CoordinatorProtocol {
+@MainActor protocol CoordinatorProtocol {
     associatedtype Flow: FlowProtocol
     var flow: Flow { get }
     var parent: (any FlowViewProtocol)? { get }
@@ -14,7 +14,7 @@
 }
 
 /// CoordinatorJoinProtocol is the protocol for the coordinator join
-public protocol CoordinatorJoinProtocol: Sendable {
+protocol CoordinatorJoinProtocol: Sendable {
     associatedtype Event: FlowOutProtocol
     associatedtype Node: Nodable
 
@@ -23,7 +23,7 @@ public protocol CoordinatorJoinProtocol: Sendable {
 }
 
 /// CoordinatorNodeProtocol is the protocol for the coordinator node
-public protocol CoordinatorNodeProtocol: Nodable {
+protocol CoordinatorNodeProtocol: Nodable {
 	associatedtype View: FlowViewProtocol
 
 	var view: View.Type { get }
