@@ -10,7 +10,6 @@ let package = Package(
     products: [
         .library(
             name: "FlowKit",
-//            type: .static,
             targets: ["FlowKit"]
         ),
         .library(

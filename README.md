@@ -34,9 +34,8 @@ Using FlowKit is a simple process:
 2. [Registration](./Documentation/Registration.md)
 3. [Page](./Documentation/Page.md)
 4. [Flow](./Documentation/Flow.md)
-5. [Behavior](./Documentation/Behavior.md)
-6. [Navigation](./Documentation/Navigation.md)
-7. [Test](./Documentation/Test.md)
+5. [Navigation](./Documentation/Navigation.md)
+6. [Test](./Documentation/Test.md)
 
 
 ## Additional Resouces
