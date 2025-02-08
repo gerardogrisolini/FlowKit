@@ -74,47 +74,18 @@ final class NavigationSwiftUIStackV2: NavigationSwiftUIStack {
         }
     }
 
-    @MainActor
-    func getView(route: String) -> (any View)? {
-        guard let view = navigation.items.getValue(for: route) else { return nil }
-		guard let page = view as? any View else {
-#if canImport(UIKit)
-			guard let vc = view as? UIViewController else {
-				return nil
-			}
-            let swiftUI = vc.toSwiftUI()
-            return swiftUI.navigationTitle(vc.title ?? "").ignoresSafeArea(.all)
-#else
-            return nil
-#endif
-		}
-		return page
-	}
-
-	private func navigate(route: String) {
-		guard routes.last != route else { return }
-		routes.append(route)
-	}
-	
-	private func pop(route: String) {
-		guard routes.last == route else { return }
-		routes.removeLast()
-	}
-
-    private func popToRoot() {
-		routes = []
-	}
-
     override func onChange(action: NavigationAction) {
 		switch action {
 		case .navigate(route: let route):
-            navigate(route: route)
+            guard routes.last != route else { return }
+            routes.append(route)
 
 		case .pop(route: let route):
-			pop(route: route)
+            guard routes.last == route else { return }
+            routes.removeLast()
 
 		case .popToRoot:
-			popToRoot()
+            routes = []
 
 		case .present(let mode):
             presentMode = mode

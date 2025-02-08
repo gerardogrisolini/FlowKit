@@ -12,6 +12,7 @@ import SwiftUI
 @available(macOS, deprecated: 13.0)
 public struct SwiftUINavigationV1Modifier: ViewModifier {
     @StateObject var stack = NavigationSwiftUIStackV1()
+    @Namespace private var nameSpace
 
     public func body(content: Content) -> some View {
         NavigationView {
@@ -29,8 +30,6 @@ public struct SwiftUINavigationV1Modifier: ViewModifier {
                         Group {
                             if let route = stack.route, let view = stack.getView(route: route) {
                                 AnyView(view).modifier(SwiftUINavigationV1Modifier())
-                            } else {
-                                EmptyView()
                             }
                         }
                     } label: {

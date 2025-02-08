@@ -1,6 +1,6 @@
 //
 //  View+Extension.swift
-//  FlowKit
+//  NavigationKit
 //
 //  Created by Gerardo Grisolini on 05/02/25.
 //
@@ -18,4 +18,11 @@ public extension View {
     func navigationKit() -> some View {
         modifier(SwiftUINavigationModifier())
     }
+
+    #if !os(macOS)
+    /// View to UIHostingController
+    @MainActor func toUIKit() -> UIHostingController<AnyView> {
+        UIHostingController(rootView: AnyView(self))
+    }
+    #endif
 }

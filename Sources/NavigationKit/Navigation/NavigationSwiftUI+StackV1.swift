@@ -51,22 +51,6 @@ final class NavigationSwiftUIStackV1: NavigationSwiftUIStack {
         }
     }
 
-
-    @MainActor func getView(route: String) -> (any View)? {
-        guard let view = navigation.items.getValue(for: route) else { return nil }
-        guard let page = view as? any View else {
-#if canImport(UIKit)
-            guard let vc = view as? UIViewController else {
-                return nil
-            }
-            return vc.toSwiftUI().navigationTitle(vc.title ?? "")
-#else
-            return nil
-#endif
-        }
-        return page
-    }
-
     override func onChange(action: NavigationAction) {
         switch action {
         case .navigate(route: let route):

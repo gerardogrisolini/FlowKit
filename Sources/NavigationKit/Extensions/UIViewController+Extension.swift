@@ -10,11 +10,13 @@ import SwiftUI
 import UIKit
 
 extension UIViewController {
+
     /// The route string for the navigable
     var routeString: String {
         String(describing: type(of: self))
     }
 
+    /// UIViewController wrapper
     struct UIViewControllerWrapper<T: UIViewController>: UIViewControllerRepresentable {
         let view: T
         public init(_ view: T) {
@@ -24,12 +26,15 @@ extension UIViewController {
         public func updateUIViewController(_ uiViewController: T, context: Context) { }
     }
 
+    /// UIViewController to UIViewControllerRepresentable
     public func toSwiftUI() -> some UIViewControllerRepresentable {
         UIViewControllerWrapper(self)
     }
 }
 
 extension UIView {
+
+    /// UIView wrapper
     struct UIViewWrapper<T: UIView>: UIViewRepresentable {
         let view: T
         public init(_ view: T) {
@@ -39,6 +44,7 @@ extension UIView {
         public func updateUIView(_ uiView: T, context: Context) { }
     }
 
+    /// UIView to UIViewRepresentable
     public func toSwiftUI() -> some UIViewRepresentable {
         UIViewWrapper(self)
     }

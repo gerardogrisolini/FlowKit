@@ -1,6 +1,6 @@
 //
 //  NavigationSwiftUIStack
-//  FlowKit
+//  NavigationKit
 //
 //  Created by Gerardo Grisolini on 21/11/24.
 //
@@ -66,6 +66,23 @@ class NavigationSwiftUIStack: ObservableObject {
                 onChange(action)
             }
             .store(in: &cancellables)
+    }
+
+    @MainActor
+    func getView(route: String) -> (any View)? {
+        guard let view = navigation.items.getValue(for: route) else { return nil }
+        guard let page = view as? any View else {
+#if canImport(UIKit)
+            guard let vc = view as? UIViewController else {
+                return nil
+            }
+            let swiftUI = vc.toSwiftUI()
+            return swiftUI.navigationTitle(vc.title ?? "").ignoresSafeArea(.all)
+#else
+            return nil
+#endif
+        }
+        return page
     }
 
     open func onChange(action: NavigationAction) { }

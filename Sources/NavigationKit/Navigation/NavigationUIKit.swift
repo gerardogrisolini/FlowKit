@@ -10,53 +10,91 @@ import UIKit
 import SwiftUI
 import Combine
 
+//
+//  NavigationUIKit.swift
+//
+//  Created by Gerardo Grisolini on 11/10/22.
+//
+
+#if canImport(UIKit)
+import UIKit
+import SwiftUI
+import Combine
+
+/// A navigation handler class that integrates `UINavigationController`
+/// with SwiftUI and provides a flexible navigation system.
 open class NavigationUIKit: NSObject, NavigationProtocol {
 
+    /// The main navigation controller used to manage the navigation stack.
     public var navigationController: UINavigationController? {
         didSet {
+            // Set the navigation controller delegate to self to handle navigation events
             navigationController?.delegate = self
+            // Enable large titles in the navigation bar for better UI/UX
             navigationController?.navigationBar.prefersLargeTitles = true
         }
     }
-	public let action = PassthroughSubject<NavigationAction, Never>()
+
+    /// A publisher that allows for reactive handling of navigation actions.
+    public let action = PassthroughSubject<NavigationAction, Never>()
+
+    /// Stores the list of active routes in the navigation stack.
     public var routes: [String] = []
-	public var items = NavigationItems()
+
+    /// Stores navigation items mapped to their respective routes.
+    public var items = NavigationItems()
+
+    /// Stores the current presentation mode (modal, sheet, etc.), if any.
     public var presentMode: PresentMode? = nil
 
-
+    /// Navigates to a given route string by pushing it onto the navigation stack.
+    /// - Parameter routeString: The string identifier for the navigation route.
     public func navigate(routeString: String) {
-        try? push(route: routeString)
+        push(route: routeString)
     }
 
+    /// Navigates using a `Routable` object, ensuring the route exists.
+    /// - Parameter route: The route conforming to `Routable`.
+    /// - Throws: `NavigationError.routeNotFound` if the route is not found in items.
     public func navigate(route: some Routable) throws {
         let routeString = route.routeString
         guard items.setParam(for: routeString, param: route.associated.value) else {
             throw NavigationError.routeNotFound
         }
-        try push(route: routeString)
+        push(route: routeString)
     }
 
-    public func push(route: String) throws {
+    /// Pushes a view controller or SwiftUI view onto the navigation stack.
+    /// - Parameter route: The string identifier of the route to navigate to.
+    public func push(route: String) {
+        // Avoid duplicate routes in the stack
         guard !routes.contains(route) else { return }
         routes.append(route)
 
-        guard let view = items.getValue(for: route) as? any View else {
-            guard let vc = items.getValue(for: route) as? UIViewController else {
-                throw NavigationError.routeNotFound
+        // Attempt to retrieve a UIViewController from stored navigation items
+        guard let vc = items.getValue(for: route) as? UIViewController else {
+
+            // If it's not a UIViewController, check if it's a SwiftUI view
+            guard let view = items.getValue(for: route) as? any View else {
+                return
             }
-            navigationController?.pushViewController(vc, animated: true)
+
+            // Convert the SwiftUI view to UIKit and push it onto the stack
+            navigationController?.pushViewController(view.toUIKit(), animated: true)
             return
-		}
-        let controller = UIHostingController(rootView: AnyView(view))//.modifier(SwiftUIKitNavigationModifier()))
-        navigationController?.pushViewController(controller, animated: true)
-	}
-	
-	public func pop() {
+        }
+
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    /// Pops the top view controller off the navigation stack.
+    public func pop() {
         guard let route = routes.last else { return }
         removeRoute(route)
         navigationController?.popViewController(animated: true)
-	}
-	
+    }
+
+    /// Pops view controllers until it reaches the flow's starting point.
     open func popToFlow() {
         var count = routes.count - 1
         while count >= 0 {
@@ -65,33 +103,41 @@ open class NavigationUIKit: NSObject, NavigationProtocol {
             count -= 1
         }
 
+        // Ensure at least one valid route exists
         guard let route = routes.last else {
             popToRoot()
             return
         }
 
+        // Retrieve the last route's view
         let view = items.getValue(for: route)
 
+        // If the last item is not a SwiftUI View, return
         guard view is any View else {
             return
         }
 
+        // Find the corresponding view controller in the stack and pop to it
         guard let vc = navigationController?.viewControllers[routes.count - 1] else {
             popToRoot()
             return
         }
 
         navigationController?.popToViewController(vc, animated: true)
-        return
     }
 
+    /// Pops all view controllers and returns to the root.
     public func popToRoot() {
         for route in routes {
             removeRoute(route)
         }
         navigationController?.popToRootViewController(animated: true)
-	}
+    }
 
+    /// Presents a view controller as a modal sheet with specified detents.
+    /// - Parameters:
+    ///   - controller: The view controller to be presented.
+    ///   - detents: The height options for the modal sheet.
     private func presentView(_ controller: UIViewController, detents: [UISheetPresentationController.Detent]) {
         controller.modalPresentationStyle = .pageSheet
 
@@ -105,6 +151,8 @@ open class NavigationUIKit: NSObject, NavigationProtocol {
         navigationController?.present(controller, animated: true, completion: { [dismiss] in dismiss() })
     }
 
+    /// Presents a modal view based on the given `PresentMode`.
+    /// - Parameter mode: The mode defining the type of presentation.
     public func present(_ mode: PresentMode) {
         presentMode = mode
 
@@ -115,8 +163,7 @@ open class NavigationUIKit: NSObject, NavigationProtocol {
         switch mode {
         case .toast(message: let message, style: let style, dismissDelay: let delay):
             let view = ToastView(style: style, message: message, dismissDelay: delay, onCancelTapped: { [dismiss] in dismiss() })
-            let controller = UIHostingController(rootView: view)
-            navigationController?.present(controller, animated: true)
+            navigationController?.present(view.toUIKit(), animated: true)
 
         case .alert(title: let title, message: let message):
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -155,7 +202,8 @@ open class NavigationUIKit: NSObject, NavigationProtocol {
         }
     }
 
-	public func dismiss() {
+    /// Dismisses the currently presented modal view.
+    public func dismiss() {
         if let mode = presentMode {
             navigationController?.dismiss(animated: true)
 
@@ -164,10 +212,11 @@ open class NavigationUIKit: NSObject, NavigationProtocol {
             }
             presentMode = nil
         }
-	}
-    
-    private func removeRoute(_ route: String) {
+    }
 
+    /// Removes a route from the navigation stack and its associated view.
+    /// - Parameter route: The route string to be removed.
+    private func removeRoute(_ route: String) {
         if let index = routes.firstIndex(of: route) {
             routes.remove(at: index)
         }
@@ -175,11 +224,11 @@ open class NavigationUIKit: NSObject, NavigationProtocol {
     }
 }
 
-
-//MARK: - UINavigationControllerDelegate
+// MARK: - UINavigationControllerDelegate
 
 extension NavigationUIKit: UINavigationControllerDelegate {
 
+    /// Called when a view controller is about to be shown.
     open func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         guard let dismissedViewController = navigationController.transitionCoordinator?.viewController(forKey: .from),
                 !navigationController.viewControllers.contains(dismissedViewController) else {
@@ -192,4 +241,3 @@ extension NavigationUIKit: UINavigationControllerDelegate {
     }
 }
 #endif
-

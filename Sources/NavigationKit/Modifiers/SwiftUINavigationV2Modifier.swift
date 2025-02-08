@@ -19,8 +19,6 @@ public struct SwiftUINavigationV2Modifier: ViewModifier {
                     Group {
                         if let view = stack.getView(route: route) {
                             AnyView(view)
-                        } else {
-                            EmptyView()
                         }
                     }
                     .navigationBarBackButtonHidden()
