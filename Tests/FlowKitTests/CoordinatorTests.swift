@@ -1,6 +1,6 @@
 //
 //  CoordinatorTests.swift
-//  
+//  FlowKitTests
 //
 //  Created by Gerardo Grisolini on 04/03/24.
 //
@@ -12,80 +12,80 @@ import SwiftUI
 @MainActor
 final class CoordinatorTests {
 
-    private func startCoordinator(_ navigation: NavigationMock) async throws {
-        try await Coordinator(flow: TestFlow(), navigation: navigation).start()
+    private func startCoordinator(_ router: RouterMock) async throws {
+        try await Coordinator(flow: TestFlow(), router: router).start()
     }
     
     @Test func testViewCommit() async throws {
-        let navigation = NavigationMock()
-        Task { [navigation] in
+        let router = RouterMock()
+        Task { [router] in
             try await Task.sleep(nanoseconds: 150000000)
-            let view = navigation.currentView
+            let view = router.currentView
             view?.commit(InOutEmpty(), toRoot: true)
             view?.events.finish()
         }
-        try await startCoordinator(navigation)
-        #expect(navigation.navigationAction == NavigationAction.popToRoot)
+        try await startCoordinator(router)
+        #expect(router.routerAction == RouterAction.popToRoot)
     }
 
     @Test func testViewOut() async throws {
-        let navigation = NavigationMock()
-        Task { [navigation] in
+        let router = RouterMock()
+        Task { [router] in
             try await Task.sleep(nanoseconds: 150000000)
-            navigation.currentView?.events.send(.next(TestFlowView.Out.empty))
+            router.currentView?.events.send(.next(TestFlowView.Out.empty))
             try await Task.sleep(nanoseconds: 150000000)
-            navigation.currentView?.events.finish()
-            navigation.routes.removeLast()
-            await navigation.setView()
-            navigation.currentView?.events.finish()
+            router.currentView?.events.finish()
+            router.routes.removeLast()
+            await router.setView()
+            router.currentView?.events.finish()
         }
-        try await startCoordinator(navigation)
-        #expect(navigation.navigationAction == .navigate("EmptyFlowView"))
+        try await startCoordinator(router)
+        #expect(router.routerAction == .navigate("EmptyFlowView"))
     }
 
     @Test func testViewEvent() async throws {
-        let navigation = NavigationMock()
-        Task { [navigation] in
+        let router = RouterMock()
+        Task { [router] in
             try await Task.sleep(nanoseconds: 150000000)
-            navigation.currentView?.events.send(.event(TestFlowView.Event.empty))
+            router.currentView?.events.send(.event(TestFlowView.Event.empty))
         }
-        try await startCoordinator(navigation)
+        try await startCoordinator(router)
     }
 
     @Test func testViewOutInBehavior() async throws {
-        let navigation = NavigationMock()
-        Task { [navigation] in
+        let router = RouterMock()
+        Task { [router] in
             try await Task.sleep(nanoseconds: 150000000)
-            navigation.currentView?.events.send(.next(TestFlowView.Out.behavior(InOutModel())))
+            router.currentView?.events.send(.next(TestFlowView.Out.behavior(InOutModel())))
             try await Task.sleep(nanoseconds: 150000000)
-            navigation.currentView?.events.finish()
-            navigation.routes.removeLast()
-            await navigation.setView()
-            navigation.currentView?.events.finish()
+            router.currentView?.events.finish()
+            router.routes.removeLast()
+            await router.setView()
+            router.currentView?.events.finish()
         }
-        try await startCoordinator(navigation)
-        #expect(navigation.navigationAction == .navigate("EmptyFlowView"))
+        try await startCoordinator(router)
+        #expect(router.routerAction == .navigate("EmptyFlowView"))
     }
 
     @Test func testViewEventInBehavior() async throws {
-        let navigation = NavigationMock()
-        Task { [navigation] in
+        let router = RouterMock()
+        Task { [router] in
             try await Task.sleep(nanoseconds: 150000000)
-            navigation.currentView?.events.send(.event(TestFlowView.Event.behavior))
+            router.currentView?.events.send(.event(TestFlowView.Event.behavior))
         }
-        try await startCoordinator(navigation)
+        try await startCoordinator(router)
     }
 
     @Test func testViewBack() async throws {
-        let navigation = NavigationMock()
-        Task { [navigation] in
+        let router = RouterMock()
+        Task { [router] in
             try await Task.sleep(nanoseconds: 150000000)
-            let view = navigation.currentView
+            let view = router.currentView
             view?.back()
             view?.events.finish()
         }
-        try await startCoordinator(navigation)
-        #expect(navigation.navigationAction == .pop("TestFlowView"))
+        try await startCoordinator(router)
+        #expect(router.routerAction == .pop("TestFlowView"))
     }
 }
 

@@ -1,6 +1,6 @@
 //
 //  FlowKitMacroTests.swift
-//  FlowViewMacro
+//  FlowKitMacroTests
 //
 //  Created by Gerardo Grisolini on 04/11/24.
 //

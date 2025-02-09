@@ -1,5 +1,6 @@
 //
 //  FlowKit.swift
+//  FlowKit
 //
 //  Framework for building modular applications with composable flows.
 //
@@ -15,7 +16,7 @@ public struct FlowKit {
 
     /// Registering routing of flows
     @MainActor
-    private static func inizializeFlowRouting(_ navigation: any NavigationProtocol) {
+    private static func inizializeFlowRouting(_ navigation: any RouterProtocol) {
         print("Registering flows...")
         let classes = Self.classes(conformTo: FlowRouteProtocol.self)
         for item in classes {
@@ -28,38 +29,37 @@ public struct FlowKit {
     /// Inizialize the navigation from type
     /// - Parameters:
     /// - navigationType: the navigation type to use
-    /// - Returns: the navigation
+    /// - Returns: the ruoter
     @MainActor
     @discardableResult
-    public static func initialize(navigationType: NavigationType = .swiftUI, withFlowRouting: Bool = true) -> any NavigationProtocol {
-        let navigation: NavigationProtocol
+    public static func initialize(navigationType: NavigationType = .swiftUI, withFlowRouting: Bool = true) -> any RouterProtocol {
+        let ruoter: RouterProtocol
         switch navigationType {
         case .swiftUI:
-            navigation = FlowNavigationSwiftUI()
-            initialize(navigation: navigation)
+            ruoter = FlowRouterSwiftUI()
+            initialize(ruoter: ruoter)
 #if canImport(UIKit)
         case .uiKit(navigationController: let navigationController):
-            let nav = FlowNavigationUIKit()
+            let nav = FlowRouterUIKit()
             nav.navigationController = navigationController
-            navigation = nav
+            ruoter = nav
 #endif
         }
-        initialize(navigation: navigation)
+        initialize(ruoter: ruoter)
 
-        guard withFlowRouting else { return navigation }
+        guard withFlowRouting else { return ruoter }
 
-        inizializeFlowRouting(navigation)
+        inizializeFlowRouting(ruoter)
 
-        return navigation
+        return ruoter
     }
 
     /// Inizialize the navigation
     /// - Parameters:
-    /// - navigation: the navigation to use
-    /// - Returns: the navigation
+    /// - ruoter: the ruoter to use
     @MainActor
-    static func initialize(navigation: NavigationProtocol) {
-        InjectedValues[\.navigation] = navigation
+    static func initialize(ruoter: RouterProtocol) {
+        InjectedValues[\.router] = ruoter
     }
 
     /// Get all classes of the app

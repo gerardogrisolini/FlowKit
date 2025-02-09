@@ -6,4 +6,8 @@
 //
 
 /// Routable is the protocol that a view or flow must implement to be routable
-public protocol Routable: Nodable, CaseIterable { }
+public protocol Routable: Nodable, CaseIterable {
+
+    /// Associated view of the route
+    @MainActor var view: (any Sendable)? { get }
+}

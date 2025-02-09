@@ -7,7 +7,7 @@ FlowKit primarily uses SwiftPM as its build tool, so we recommend using that as 
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/gerardogrisolini/FlowKit.git", from: "2.4.0")
+    .package(url: "https://github.com/gerardogrisolini/FlowKit.git", from: "2.5.0")
 ]
 ```
 

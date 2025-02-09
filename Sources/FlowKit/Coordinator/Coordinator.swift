@@ -1,6 +1,6 @@
 //
 //  Coordinator.swift
-//
+//  FlowKit
 //
 //  Created by Gerardo Grisolini on 07/02/23.
 //
@@ -19,8 +19,8 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     /// The parent view that adheres to the `FlowViewProtocol`. It acts as the context for the current coordinator.
     let parent: (any FlowViewProtocol)?
 
-    /// The navigation handler used to manage transitions and route handling.
-    private var navigation: NavigationProtocol
+    /// The router handler used to manage transitions and route handling.
+    private var router: RouterProtocol
 
     /// The model associated with the current flow. This may hold shared or contextual data.
     private var model: Flow.Model?
@@ -30,17 +30,17 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     ///   - flow: The flow to be managed by the coordinator.
     ///   - parent: The parent view, if applicable.
     ///   - navigation: An optional custom navigation handler. Defaults to a resolved instance.
-    init(flow: Flow, parent: (any FlowViewProtocol)? = nil, navigation: NavigationProtocol? = nil) {
+    init(flow: Flow, parent: (any FlowViewProtocol)? = nil, router: RouterProtocol? = nil) {
         self.flow = flow
         self.parent = parent
-        self.navigation = navigation ?? InjectedValues[\.navigation]
+        self.router = router ?? InjectedValues[\.router]
     }
 
     /// Starts the coordinator by initializing and displaying the flow's root node.
     /// - Parameter navigate: A flag indicating whether navigation should occur. Defaults to `true`.
     /// - Throws: An error if the flow cannot be started.
     func start(navigate: Bool = true) async throws {
-        let model = navigation.items.getParam(for: Flow.route.routeString) ?? InOutEmpty()
+        let model = router.items.getParam(for: Flow.route.routeString) ?? InOutEmpty()
         try await show(node: flow.node, model: model, navigate: navigate)
     }
 
@@ -52,7 +52,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: any InOutProtocol) async throws {
         if let r = join.node as? any Routable {
             let route = r.udpate(associatedValue: data)
-            try await navigation.flow(route: route).start(parent: parent)
+            try await router.flow(route: route).start(parent: parent)
         } else if let node = join.node as? any CoordinatorNodeProtocol {
             try await show(node: node, model: data)
         }
@@ -67,14 +67,14 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     private func show(node: any CoordinatorNodeProtocol, model m: some InOutProtocol, navigate: Bool = true) async throws {
         let view = navigate ? try await node.view.factory(model: m) : parent!
         if navigate {
-            navigation.navigate(view: view)
+            router.navigate(view: view)
         }
 
         for try await event in view.events {
             do {
                 switch event {
                 case .back:
-                    navigation.pop()
+                    router.pop()
 
                 case .next(let next):
                     guard let join = node.joins.first(where: { next.id == $0.event.id }) else {
@@ -97,21 +97,21 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
                     }
                     await parent?.onCommit(model: model)
                     guard toRoot else {
-                        navigation.popToFlow()
+                        router.popToFlow()
                         continue
                     }
-                    navigation.popToRoot()
+                    router.popToRoot()
 
                 case .navigate(let view):
-                    navigation.navigate(view: view)
+                    router.navigate(view: view)
 
                 case .present(let mode):
-                    navigation.present(mode)
+                    router.present(mode)
                 }
 
             } catch {
                 print(error)
-                navigation.present(.toast(message: "\(error)", style: .error))
+                router.present(.toast(message: "\(error)", style: .error))
                 continue
             }
         }

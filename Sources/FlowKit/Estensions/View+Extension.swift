@@ -1,11 +1,12 @@
 //
 //  View+Extension.swift
-//  
+//  FlowKit
 //
 //  Created by Gerardo Grisolini on 27/02/24.
 //
 
 import SwiftUI
+import NavigationKit
 
 public extension View where Self: FlowViewProtocol {
 
@@ -30,7 +31,7 @@ public extension View where Self: FlowViewProtocol {
         self
             .task {
                 do {
-                    let nav: NavigationProtocol = InjectedValues[\.navigation]
+                    let router: RouterProtocol = InjectedValues[\.router]
                     for try await event in events {
                         print(event)
                         switch event {
@@ -38,9 +39,9 @@ public extension View where Self: FlowViewProtocol {
                             guard let e = e as? Event else { continue }
                             await onEventChanged(event: e, model: model)
                         case .navigate(let view):
-                            nav.navigate(view: view)
+                            router.navigate(view: view)
                         case .present(let mode):
-                            nav.present(mode)
+                            router.present(mode)
                         default:
                             continue
                         }
@@ -69,11 +70,3 @@ public extension View where Self: FlowWidgetProtocol {
         }
     }
 }
-
-#if canImport(UIKit)
-public extension View {
-    func toUIKit() -> UIView {
-        UIHostingController(rootView: self).view!
-    }
-}
-#endif

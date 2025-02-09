@@ -16,7 +16,7 @@ public extension View {
 
     /// SwiftUI navigation
     func navigationKit() -> some View {
-        modifier(SwiftUINavigationModifier())
+        modifier(NavigationModifier())
     }
 
     #if !os(macOS)

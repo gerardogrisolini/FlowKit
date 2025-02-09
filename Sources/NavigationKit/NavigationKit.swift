@@ -1,5 +1,6 @@
 //
 //  NavigationKit.swift
+//  NavigationKit
 //
 //  Framework for navigating on modular application.
 //
@@ -22,45 +23,44 @@ public struct NavigationKit {
     /// Inizialize the navigation from type
     /// - Parameters:
     /// - navigationType: the navigation type to use
-    /// - Returns: the navigation
+    /// - Returns: the router
     @MainActor
     @discardableResult
-    public static func initialize(navigationType: NavigationType = .swiftUI) -> any NavigationProtocol {
-        let navigation: NavigationProtocol
+    public static func initialize(navigationType: NavigationType = .swiftUI) -> any RouterProtocol {
+        let router: RouterProtocol
         switch navigationType {
         case .swiftUI:
-            navigation = NavigationSwiftUI()
-            initialize(navigation: navigation)
+            router = RouterSwiftUI()
+            initialize(router: router)
 #if canImport(UIKit)
         case .uiKit(navigationController: let navigationController):
-            let nav = NavigationUIKit()
-            nav.navigationController = navigationController
-            navigation = nav
+            let r = RouterUIKit()
+            r.navigationController = navigationController
+            router = r
 #endif
         }
-        initialize(navigation: navigation)
-        return navigation
+        initialize(router: router)
+        return router
     }
 
     /// Inizialize the navigation
     /// - Parameters:
-    /// - navigation: the navigation to use
-    /// - Returns: the navigation
+    /// - router: the router to use
     @MainActor
-    static func initialize(navigation: NavigationProtocol) {
-        InjectedValues[\.navigation] = navigation
+    static func initialize(router: RouterProtocol) {
+        InjectedValues[\.router] = router
     }
 }
 
 /// Dependency injection for navigation
-private struct NavigationProvider: @preconcurrency InjectionProvider {
-    @MainActor static var currentValue: NavigationProtocol = NavigationSwiftUI()
+private struct RouterProvider: @preconcurrency InjectionProvider {
+    @MainActor static var currentValue: RouterProtocol = RouterSwiftUI()
 }
 
 public extension InjectedValues {
-    var navigation: NavigationProtocol {
-        get { Self[NavigationProvider.self] }
-        set { Self[NavigationProvider.self] = newValue }
+    var router: RouterProtocol {
+        get { Self[RouterProvider.self] }
+        set { Self[RouterProvider.self] = newValue }
     }
 }
 

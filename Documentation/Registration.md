@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 ### Speaking of Annotations, to resolving services in your modules using the property wrapper.
 ```swift
-@Injected(\.navigation) var navigation
+@Injected(\.router) var router
 ```
 
 ### If you want to use only navigation without flows.
@@ -56,11 +56,6 @@ import NavigationKit
 
 @main
 struct FlowApp: App {
-    init() {
-        /// Inizialize and register the navigation
-        NavigationKit.initialize()
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView()

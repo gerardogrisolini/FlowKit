@@ -20,4 +20,7 @@ public extension Routable {
         }
         return (associated.label!, associated.value as? any InOutProtocol)
     }
+
+    /// Associated view of the route
+    @MainActor var view: (any Sendable)? { nil }
 }
