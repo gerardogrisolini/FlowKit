@@ -22,7 +22,7 @@ public struct FlowKit {
         for item in classes {
             guard let flow = item as? (any FlowProtocol.Type) else { continue }
             print(flow.route.routeString)
-            navigation.register(route: flow.route, with: flow.init)
+            navigation.register(route: flow.route, for: flow.init)
         }
     }
     
