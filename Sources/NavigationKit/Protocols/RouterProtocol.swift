@@ -25,8 +25,8 @@ import Combine
     /// Register a route with a view
     /// - Parameters:
     ///  - route: the route to register
-    ///  - with: the closure to create the view
-    func register(route: some Routable, with: @escaping @MainActor @Sendable () -> (any Sendable))
+    ///  - for: the closure to create the view
+    func register(route: some Routable, for page: @escaping @MainActor @Sendable () -> (any Sendable))
 
     /// Navigate to a route string
     /// - Parameters:

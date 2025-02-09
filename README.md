@@ -45,7 +45,7 @@ Using FlowKit is a simple process:
 
 ## Demo Application
 
-I've made my [Example](https://github.com/gerardogrisolini/FlowKit-Example) repository public. It's a simple flow application that contains examples of...
+I've made my [Example](https://github.com/gerardogrisolini/FlowKit-Example) repository public.
 
 
 ## Author
