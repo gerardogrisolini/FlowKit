@@ -27,12 +27,12 @@ final class FlowTests {
     }
 
     @Test func testValidFlow() async throws {
-        try await ValidFlow().test(route: .valid)
+        try await ValidFlow().test()
     }
 
     @Test func testPartialMappingFlow() async {
         do {
-            try await PartialMappingFlow().test(route: .partial)
+            try await PartialMappingFlow().test()
         } catch {
             print(error)
             #expect(error is FlowError)
@@ -41,7 +41,7 @@ final class FlowTests {
 
     @Test func testInvalidFlow() async {
         do {
-            try await InvalidFlow().test(route: .invalid)
+            try await InvalidFlow().test()
         } catch {
             print(error)
             #expect(error is FlowError)
@@ -50,7 +50,7 @@ final class FlowTests {
 
     @Test func testInvalidParameterOfFlow() async {
         do {
-            try await ValidFlow().test(route: .custom(InOutEmpty3()))
+            try await ValidFlow().test()
         } catch {
             print(error)
             #expect(error is FlowError)

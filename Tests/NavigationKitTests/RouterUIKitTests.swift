@@ -25,7 +25,7 @@ final class RouterUIKitTests {
     }
 
     @Test func testRegisterAndNavigateToRoute() async throws {
-        sut.register(route: Routes.home, with: UIViewController.init)
+        sut.register(route: Routes.home, for: UIViewController.init)
         #expect(sut.items.getValue(for: Routes.home.routeString) is UIViewController)
 
         try sut.navigate(route: Routes.home)

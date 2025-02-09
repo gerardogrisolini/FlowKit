@@ -69,13 +69,12 @@ public extension FlowProtocol {
     }
 
     /// Tests the specified route to ensure its associated value and the node's model match.
-    /// - Parameter route: An instance conforming to `Route`, representing the route to be tested.
     /// - Throws: A `FlowError.invalidModel` error if the class name of the route's associated value
     /// does not match the class name of the flow's node model.
     /// Additionally, propagates any error thrown by the `testNode(node:)` method.
-    func test(route: Route) async throws {
+    func test() async throws {
         // Extract the class name from the associated value of the route, defaulting to "InOutEmpty" if nil.
-        var m = route.associated.value?.className ?? "InOutEmpty"
+        var m = Self.route.associated.value?.className ?? "InOutEmpty"
 
         // Remove any namespace or module prefix from the class name, leaving only the base class name.
         if let index = m.lastIndex(of: ".") {

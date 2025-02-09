@@ -17,7 +17,7 @@ final class FlowRouterUIKitTests {
         let sut = FlowRouterUIKit()
         sut.navigationController = UINavigationController()
         sut.navigate(view: EmptyFlowView())
-        sut.register(route: Routes.home, with: EmptyFlow.init)
+        sut.register(route: Routes.home, for: EmptyFlow.init)
         _ = try sut.flow(route: Routes.home)
         sut.navigate(view: UIViewController())
         sut.popToFlow()
