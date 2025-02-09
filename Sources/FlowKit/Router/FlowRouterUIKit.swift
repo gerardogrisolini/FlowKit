@@ -13,7 +13,9 @@ import Combine
 
 final class FlowRouterUIKit: RouterUIKit {
 
-    override public func popToFlow() {
+    /// Pops all view controllers until it reaches the starting point of a navigation flow.
+    /// This iterates through the stack, removing routes and sending `.pop` actions.
+     public func popToFlow() {
         var count = routes.count - 1
         while count >= 0 {
             let route = routes[count]

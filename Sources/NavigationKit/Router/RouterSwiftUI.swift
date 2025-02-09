@@ -62,15 +62,6 @@ open class RouterSwiftUI: RouterProtocol {
         }
     }
 
-    /// Pops all view controllers until it reaches the starting point of a navigation flow.
-    /// This iterates through the stack, removing routes and sending `.pop` actions.
-    open func popToFlow() {
-        while let route = routes.popLast() {
-            removeRoute(route)
-            action.send(.pop(route))
-        }
-    }
-
     /// Pops all view controllers and returns to the root view.
     /// This clears the entire navigation stack and sends a `.popToRoot` action.
     public func popToRoot() {

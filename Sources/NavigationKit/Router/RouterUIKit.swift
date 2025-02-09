@@ -85,38 +85,6 @@ open class RouterUIKit: NSObject, RouterProtocol {
         navigationController?.popViewController(animated: true)
     }
 
-    /// Pops view controllers until it reaches the flow's starting point.
-    open func popToFlow() {
-        var count = routes.count - 1
-        while count >= 0 {
-            let route = routes[count]
-            removeRoute(route)
-            count -= 1
-        }
-
-        // Ensure at least one valid route exists
-        guard let route = routes.last else {
-            popToRoot()
-            return
-        }
-
-        // Retrieve the last route's view
-        let view = items.getValue(for: route)
-
-        // If the last item is not a SwiftUI View, return
-        guard view is any View else {
-            return
-        }
-
-        // Find the corresponding view controller in the stack and pop to it
-        guard let vc = navigationController?.viewControllers[routes.count - 1] else {
-            popToRoot()
-            return
-        }
-
-        navigationController?.popToViewController(vc, animated: true)
-    }
-
     /// Pops all view controllers and returns to the root.
     public func popToRoot() {
         for route in routes {

@@ -51,9 +51,6 @@ import Combine
     /// Pop the current route
     func pop()
 
-    /// Pop to the beginning of the flow
-    func popToFlow()
-
     /// Pop to the root of the navigation
     func popToRoot()
 
