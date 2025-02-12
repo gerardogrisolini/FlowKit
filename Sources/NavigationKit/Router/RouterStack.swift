@@ -1,5 +1,5 @@
 //
-//  RouterStack
+//  RouterStack.swift
 //  NavigationKit
 //
 //  Created by Gerardo Grisolini on 21/11/24.
@@ -10,82 +10,143 @@ import Combine
 
 class RouterStack: ObservableObject {
 
-    var router: RouterProtocol
-    @Published var presentMode: PresentMode? = nil
+    @Published
+    var presentMode: PresentMode? = nil
     private var cancellables = Set<AnyCancellable>()
 
-    var isAlert: Bool {
-        get {
-            guard let mode = presentMode, case .alert(title: _, message: _) = mode else { return false }
-            return true
-        }
-        set { presentMode = nil }
-    }
+    let router: RouterProtocol
 
-    var isConfirmationDialog: Bool {
-        get {
-            guard let mode = presentMode, case .confirmationDialog(title: _, actions: _) = mode else { return false }
-            return true
-        }
-        set { presentMode = nil }
-    }
-
-    @MainActor var isSheet: Bool {
-        get {
-            guard let mode = presentMode, case .sheet(_, _) = mode else { return false }
-            return true
-        }
-        set { router.dismiss() }
-    }
-
-    @MainActor var isFullScreenCover: Bool {
-        get {
-            guard let mode = presentMode, case .fullScreenCover(_) = mode else { return false }
-            return true
-        }
-        set { router.dismiss() }
-    }
-
-    var isToast: Bool {
-        guard let mode = presentMode, case .toast(message: _, style: _, dismissDelay: _) = mode else { return false }
-        return true
-    }
-
-    var title: String {
-        switch presentMode {
-        case .alert(title: let title, _), .confirmationDialog(title: let title, _):
-            return title
-        default: return ""
-        }
-    }
-
-    @MainActor init(router r: RouterProtocol? = nil) {
-        router = r ?? InjectedValues[\.router]
-        router.action
-            .sink { [onChange] action in
-                onChange(action)
+    @MainActor
+    init(router: RouterProtocol? = nil) {
+        self.router = router ?? InjectedValues[\.router]
+        self.router.action
+            .sink { [weak self] action in
+                self?.onChange(action: action)
             }
             .store(in: &cancellables)
     }
 
+    // MARK: - Presentation State Helpers
+
+    var isAlert: Bool {
+        get { presentMode?.isAlert ?? false }
+        set { presentMode = nil }
+    }
+
+    var isConfirmationDialog: Bool {
+        get { presentMode?.isConfirmationDialog ?? false }
+        set { presentMode = nil }
+    }
+
+    @MainActor
+    var isSheet: Bool {
+        get { presentMode?.isSheet ?? false }
+        set { router.dismiss() }
+    }
+
+    @MainActor
+    var isFullScreenCover: Bool {
+        get { presentMode?.isFullScreenCover ?? false }
+        set { router.dismiss() }
+    }
+
+    var isToast: Bool {
+        presentMode?.isToast ?? false
+    }
+
+    var title: String {
+        presentMode?.title ?? ""
+    }
+
+    // MARK: - View Handling
+
     @MainActor
     func getView(route: String) -> (any View)? {
         guard let view = router.items.getValue(for: route) else { return nil }
-        guard let page = view as? any View else {
+        return convertViewToSwiftUI(view)
+    }
+
+    // MARK: - Action Handling
+
+    open func onChange(action: RouterAction) { }
+
+}
+
+// MARK: - Helpers for PresentMode Parsing
+
+private extension PresentMode {
+
+    var isAlert: Bool {
+        if case .alert(_, _) = self { return true }
+        return false
+    }
+
+    var isConfirmationDialog: Bool {
+        if case .confirmationDialog(_, _) = self { return true }
+        return false
+    }
+
+    var isSheet: Bool {
+        if case .sheet(_, _) = self { return true }
+        return false
+    }
+
+    var isFullScreenCover: Bool {
+        if case .fullScreenCover(_) = self { return true }
+        return false
+    }
+
+    var isToast: Bool {
+        if case .toast(_, _, _) = self { return true }
+        return false
+    }
+
+    var title: String? {
+        switch self {
+        case .alert(let title, _), .confirmationDialog(let title, _):
+            return title
+        default:
+            return nil
+        }
+    }
+}
+
+// MARK: - View Conversion Helper
+
+extension RouterStack {
+
+    @MainActor
+    func convertViewToSwiftUI(_ view: Any) -> (any View)? {
+        guard let view = view as? any View else {
 #if canImport(UIKit)
             guard let vc = view as? UIViewController else {
                 return nil
             }
-            let swiftUI = vc.toSwiftUI()
-            return swiftUI
+            return vc.toSwiftUI()
                 .navigationTitle(vc.title ?? "")
                 .edgesIgnoringSafeArea(.all)
-#else
-            return nil
 #endif
+            return nil
         }
-        return page
+        return view
     }
 
-    open func onChange(action: RouterAction) { }
+    @MainActor
+    func convertPresentViewToSwiftUI(_ view: Any) -> any View {
+        guard let view = view as? any View else {
+            guard let route = view as? any Routable else {
+#if canImport(UIKit)
+                guard let vc = view as? UIViewController else {
+                    return EmptyView()
+                }
+                return vc.toSwiftUI()
+#else
+                return EmptyView()
+#endif
+            }
+            let routeString = route.routeString
+            return getView(route: routeString) ?? EmptyView()
+        }
+        return view
+    }
 }

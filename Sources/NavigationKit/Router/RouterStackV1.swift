@@ -17,25 +17,13 @@ final class RouterStackV1: RouterStack {
 
     @Published var route: String? = nil
 
+    // MARK: - Presentation State Helpers
+
     @MainActor
     var presentedView: any View {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
-            guard let view = view as? any View else {
-                guard let route = view as? any Routable else {
-#if canImport(UIKit)
-                    guard let vc = view as? UIViewController else {
-                        return EmptyView()
-                    }
-                    return vc.toSwiftUI()
-#else
-                    return EmptyView()
-#endif
-                }
-                let routeString = route.routeString
-                return getView(route: routeString) ?? EmptyView()
-            }
-            return view
+            return convertPresentViewToSwiftUI(view)
         case .alert(title: _, message: let message):
             return Text(message)
         case .confirmationDialog(title: _, actions: let actions):
@@ -50,6 +38,8 @@ final class RouterStackV1: RouterStack {
             return EmptyView()
         }
     }
+
+    // MARK: - Action Handling
 
     override func onChange(action: RouterAction) {
         switch action {

@@ -14,27 +14,15 @@ import UIKit
 @available(macOS 13.0, *)
 final class RouterStackV2: RouterStack {
 
-	@Published public var routes: [String] = []
+    @Published public var routes: [String] = []
+
+    // MARK: - Presentation View
 
     @MainActor
     var presentedView: any View {
         switch presentMode {
         case .sheet(let view, _), .fullScreenCover(let view):
-            guard let view = view as? any View else {
-                guard let route = view as? any Routable else {
-#if canImport(UIKit)
-                    guard let vc = view as? UIViewController else {
-                        return EmptyView()
-                    }
-                    return vc.toSwiftUI()
-#else
-                    return EmptyView()
-#endif
-                }
-                let routeString = route.routeString
-                return getView(route: routeString) ?? EmptyView()
-            }
-            return view
+            return convertPresentViewToSwiftUI(view)
         case .alert(title: _, message: let message):
             return Text(message)
         case .confirmationDialog(title: _, actions: let actions):
@@ -74,24 +62,26 @@ final class RouterStackV2: RouterStack {
         }
     }
 
+    // MARK: - Action Handling
+
     override func onChange(action: RouterAction) {
-		switch action {
-		case .navigate(route: let route):
+        switch action {
+        case .navigate(route: let route):
             guard routes.last != route else { return }
             routes.append(route)
 
-		case .pop(route: let route):
+        case .pop(route: let route):
             guard routes.last == route else { return }
             routes.removeLast()
 
-		case .popToRoot:
+        case .popToRoot:
             routes = []
 
-		case .present(let mode):
+        case .present(let mode):
             presentMode = mode
 
-		case .dismiss:
+        case .dismiss:
             presentMode = nil
-		}
-	}
+        }
+    }
 }
