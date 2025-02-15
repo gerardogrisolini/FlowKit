@@ -52,7 +52,7 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
     private func parseJoin(_ join: any CoordinatorJoinProtocol, _ data: any InOutProtocol) async throws {
         if let r = join.node as? any Routable {
             let route = r.udpate(associatedValue: data)
-            try await router.flow(route: route).start(parent: parent)
+            try await router.flow(route: route).start(parent: parent, navigate: true)
         } else if let node = join.node as? any CoordinatorNodeProtocol {
             try await show(node: node, model: data)
         }

@@ -27,5 +27,12 @@ extension RouterProtocol {
 
     /// Pops all view controllers until it reaches the starting point of a navigation flow.
     /// This iterates through the stack, removing routes and sending `.pop` actions.
-    public func popToFlow() { }
+    public func popToFlow() {
+        guard let view = self as? FlowRouterSwiftUI else {
+            guard let view = self as? FlowRouterUIKit else { return }
+            view.popToFlow()
+            return
+        }
+        view.popToFlow()
+    }
 }

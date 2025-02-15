@@ -16,14 +16,14 @@ public extension View where Self: FlowViewProtocol {
     /// - Returns: the view
     func join<F: FlowProtocol>(flow: F) -> some View {
         navigationKit()
-            .task {
-                do {
-                    try await Coordinator(flow: flow, parent: self)
-                        .start(navigate: false)
-                } catch {
-                    print("Error on joining flow: \(error)")
-                }
+        .task {
+            do {
+                try await Coordinator(flow: flow, parent: self)
+                    .start(navigate: false)
+            } catch {
+                print("Error on joining flow: \(error)")
             }
+        }
     }
 
     /// To enable events and navigation management in preview

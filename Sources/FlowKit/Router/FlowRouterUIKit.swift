@@ -47,6 +47,7 @@ final class FlowRouterUIKit: RouterUIKit {
         return
     }
 
+    /// Remove route from the stack and terminates the sequence of events.
     private func removeRoute(_ route: String) {
         let view = items.getValue(for: route)
 

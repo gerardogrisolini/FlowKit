@@ -4,8 +4,6 @@ Register the navigation and services your app requires.
 
 #### SwiftUI
 ```swift
-import FlowKit
-
 @main
 struct FlowApp: App {
     init() {
@@ -25,22 +23,40 @@ struct FlowApp: App {
 
 #### UIKit
 ```swift
-import FlowKit
-
-@UIApplicationMain
+@main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        return true
+    }
+}
+
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
-        let navigationController = UINavigationController()
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+
+        let rootView = ContentView()
+        let viewController = UIHostingController(rootView: rootView)
+        let navigationController = UINavigationController(rootViewController: viewController)
         FlowKit.initialize(navigationType: .uiKit(navigationController: navigationController))
-
-        navigationController.setViewControllers([ViewController()], animated: false)
-        window = UIWindow(frame: UIScreen.main.bounds)
+        
+        window = UIWindow(windowScene: windowScene)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-
-        return true
+    
+        Task {
+            do {
+                try await ContentFlow().start(parent: rootView, navigate: false)
+            } catch {
+                print(error)
+            }
+        }
     }
 }
 ```

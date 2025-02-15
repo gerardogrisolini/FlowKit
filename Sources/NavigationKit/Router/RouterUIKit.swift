@@ -63,18 +63,7 @@ open class RouterUIKit: NSObject, RouterProtocol {
         routes.append(route)
 
         // Attempt to retrieve a UIViewController from stored navigation items
-        guard let vc = items.getValue(for: route) as? UIViewController else {
-
-            // If it's not a UIViewController, check if it's a SwiftUI view
-            guard let view = items.getValue(for: route) as? any View else {
-                return
-            }
-
-            // Convert the SwiftUI view to UIKit and push it onto the stack
-            navigationController?.pushViewController(view.toUIKit(), animated: true)
-            return
-        }
-
+        guard let view = items.getValue(for: route), let vc = convertViewToUIKit(view) else { return }
         navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -107,7 +96,7 @@ open class RouterUIKit: NSObject, RouterProtocol {
                 sheet.preferredCornerRadius = 48
             }
         }
-        navigationController?.present(controller, animated: true, completion: { [dismiss] in dismiss() })
+        navigationController?.present(controller, animated: true, completion: nil)//{ [dismiss] in dismiss() })
     }
 
     /// Presents a modal view based on the given `PresentMode`.
@@ -143,7 +132,7 @@ open class RouterUIKit: NSObject, RouterProtocol {
             navigationController?.present(alert, animated: true, completion: nil)
 
         case .sheet(let view, let detents):
-            guard let controller = view as? UIViewController else { return }
+            let controller = convertPresentedViewToUIKit(view)
             let detentsMapped: [UISheetPresentationController.Detent] = detents.map {
                 switch $0 {
                 case .large:
@@ -155,7 +144,7 @@ open class RouterUIKit: NSObject, RouterProtocol {
             presentView(controller, detents: detentsMapped)
 
         case .fullScreenCover(let view):
-            guard let controller = view as? UIViewController else { return }
+            let controller = convertPresentedViewToUIKit(view)
             controller.modalPresentationStyle = .fullScreen
             navigationController?.present(controller, animated: true, completion: { [dismiss] in dismiss() })
         }
@@ -184,7 +173,6 @@ open class RouterUIKit: NSObject, RouterProtocol {
 }
 
 // MARK: - UINavigationControllerDelegate
-
 extension RouterUIKit: UINavigationControllerDelegate {
 
     /// Called when a view controller is about to be shown.
@@ -197,6 +185,35 @@ extension RouterUIKit: UINavigationControllerDelegate {
         guard let route = routes.last else { return }
 
         removeRoute(route)
+    }
+}
+
+// MARK: - View Conversion Helper
+extension RouterUIKit {
+
+    func convertViewToUIKit(_ view: Any) -> UIViewController? {
+        guard let view = view as? any View else {
+            guard let vc = view as? UIViewController else {
+                return nil
+            }
+            return vc
+        }
+        return view.toUIKit()
+    }
+
+    func convertPresentedViewToUIKit(_ view: Any) -> UIViewController {
+        guard let view = view as? any View else {
+            guard let vc = view as? UIViewController else {
+                guard let route = view as? any Routable else {
+                    return UIViewController()
+                }
+                let routeString = route.routeString
+                let v = items.getValue(for: routeString)
+                return convertViewToUIKit(v) ?? UIViewController()
+            }
+            return vc
+        }
+        return view.toUIKit()
     }
 }
 #endif
