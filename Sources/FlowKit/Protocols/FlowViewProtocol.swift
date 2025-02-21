@@ -138,7 +138,7 @@ public extension FlowViewProtocol {
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
-    func navigate(_ view: any Sendable) {
+    func navigate(_ view: RouteView) {
         events.send(.navigate(view))
     }
 }

@@ -117,36 +117,34 @@ extension RouterStack {
 
     @MainActor
     func convertViewToSwiftUI(_ view: Any) -> (any View)? {
-        guard let view = view as? any View else {
+        switch view {
+        case let view as (any View):
+            return view
 #if canImport(UIKit)
-            guard let vc = view as? UIViewController else {
-                return nil
-            }
+        case let vc as UIViewController:
             return vc.toSwiftUI()
                 .navigationTitle(vc.title ?? "")
                 .edgesIgnoringSafeArea(.all)
 #endif
+        default:
             return nil
         }
-        return view
     }
 
     @MainActor
     func convertPresentViewToSwiftUI(_ view: Any) -> any View {
-        guard let view = view as? any View else {
-            guard let route = view as? any Routable else {
-#if canImport(UIKit)
-                guard let vc = view as? UIViewController else {
-                    return EmptyView()
-                }
-                return vc.toSwiftUI()
-#else
-                return EmptyView()
-#endif
-            }
+        switch view {
+        case let view as any View:
+            return view
+        case let route as any Routable:
             let routeString = route.routeString
             return getView(route: routeString) ?? EmptyView()
+#if canImport(UIKit)
+        case let vc as UIViewController:
+            return vc.toSwiftUI()
+#endif
+        default:
+            return EmptyView()
         }
-        return view
     }
 }

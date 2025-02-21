@@ -76,7 +76,7 @@ public extension FlowWidgetProtocol {
     /// Navigate to view
     /// - Parameters:
     /// - view: the view to navigate
-    func navigate(_ view: any Sendable) {
+    func navigate(_ view: RouteView) {
         parent.events.send(.navigate(view))
     }
 }

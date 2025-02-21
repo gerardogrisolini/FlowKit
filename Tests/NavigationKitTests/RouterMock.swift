@@ -19,7 +19,7 @@ final class RouterMock: RouterProtocol {
     var navigationController: UINavigationController? = nil
 #endif
 
-    var currentView: (any Sendable)? = nil
+    var currentView: RouteView? = nil
 
     func setView() async {
         guard let routeString = routes.last, let view = items.getValue(for: routeString) else {

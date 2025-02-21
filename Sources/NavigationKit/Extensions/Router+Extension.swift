@@ -21,7 +21,7 @@ public extension RouterProtocol {
     /// - The function extracts the `routeString` from the `Routable` instance.
     /// - It registers a closure that takes a parameter (`param`) and passes it to the page function.
     /// - The parameter is force-cast to `M`, assuming type safety is guaranteed.
-    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, for page: @escaping @MainActor @Sendable (M) -> (any Sendable)) {
+    func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, for page: @escaping @MainActor @Sendable (M) -> (RouteView)) {
         let routeString = route.0.routeString
         items.setValue(for: routeString, value: { param in page(param as! M) }, registered: true)
     }
@@ -34,7 +34,7 @@ public extension RouterProtocol {
     ///
     /// - Extracts `routeString` from the `Routable` instance.
     /// - Registers a closure that simply returns the view when invoked.
-    func register(route: some Routable, for page: @escaping @MainActor @Sendable () -> (any Sendable)) {
+    func register(route: some Routable, for page: @escaping @MainActor @Sendable () -> (RouteView)) {
         let routeString = route.routeString
         items.setValue(for: routeString, value: { _ in page() }, registered: true)
     }
@@ -47,7 +47,7 @@ public extension RouterProtocol {
     /// - The function derives a `routeString` based on the view's type.
     /// - Registers the view under this route string in `items`.
     /// - Calls `navigate(routeString:)` to push the route into the navigation stack.
-    func navigate(view: any Sendable) {
+    func navigate(view: RouteView) {
         let routeString = String(describing: type(of: view))
         items.setValue(for: routeString, value: { _ in view })
         navigate(routeString: routeString)

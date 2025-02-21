@@ -19,12 +19,12 @@ public class RouterItems {
         var param: (any InOutProtocol)?
 
         /// A closure that provides a value asynchronously, taking an `InOutProtocol` as input and returning a `Sendable` result.
-        var value: @MainActor @Sendable (any InOutProtocol) -> (any Sendable)
+        var value: @MainActor @Sendable (any InOutProtocol) -> (RouteView)
 
         /// Indicating whether the value is registered
         let registered: Bool
 
-        init(key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> any Sendable, registered: Bool) {
+        init(key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> RouteView, registered: Bool) {
             self.key = key
             self.value = value
             self.registered = registered
@@ -66,7 +66,7 @@ public class RouterItems {
     ///   - value: A closure providing the asynchronous value for the item.
     ///   - registered: Indicating if the value is registered and should not be removed.
     /// - Note: This function does nothing if an item with the same key already exists.
-    public func setValue(for key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> (any Sendable), registered: Bool = false) {
+    public func setValue(for key: String, value: @escaping @MainActor @Sendable (any InOutProtocol) -> (RouteView), registered: Bool = false) {
         guard !contains(key) else { return }
         items.append(.init(key: key, value: value, registered: registered))
     }
@@ -74,7 +74,7 @@ public class RouterItems {
     /// Retrieves the value of a navigation item.
     /// - Parameter key: The unique identifier for the navigation item.
     /// - Returns: The asynchronously computed value of the item, or `nil` if the item is not found.
-    @MainActor public func getValue(for key: String) -> (any Sendable)? {
+    @MainActor public func getValue(for key: String) -> (RouteView)? {
         guard let index = getIndex(for: key) else { return nil }
         let item = items[index]
         return item.value(item.param ?? InOutEmpty())

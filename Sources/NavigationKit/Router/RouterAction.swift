@@ -29,8 +29,8 @@ public enum RouterAction: Identifiable, Equatable, Sendable {
 public enum PresentMode: Identifiable, Sendable, Equatable {
     case alert(title: String = "", message: String = "")
     case confirmationDialog(title: String = "", actions: [AlertAction])
-    case sheet(any Sendable, detents: [PresentationDetents] = [.medium, .large])
-    case fullScreenCover(any Sendable)
+    case sheet(RouteView, detents: [PresentationDetents] = [.medium, .large])
+    case fullScreenCover(RouteView)
     case toast(message: String, style: ToastStyle, dismissDelay: Double = 3.0)
 
     public var id: String { "\(self)" }

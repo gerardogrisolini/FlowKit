@@ -9,8 +9,7 @@
 ///
 /// - Represents a **SwiftUI view** that conforms to `Sendable`.
 /// - The `any Sendable` constraint ensures **thread safety** for concurrent environments.
-/// - The optional `?` allows flexibility where a route **may not have an associated view**.
-public typealias RouteView = (any Sendable)?
+public typealias RouteView = any Sendable
 
 /// **Routable Protocol: Defines a Navigable Route**
 ///
@@ -44,5 +43,5 @@ public protocol Routable: Nodable, CaseIterable {
     /// - Specifies the **SwiftUI view** associated with the route.
     /// - Must be accessed from the **main thread** (`@MainActor`).
     /// - Can return `nil` if the route **does not have a corresponding view**.
-    @MainActor var view: RouteView { get }
+    @MainActor var view: RouteView? { get }
 }

@@ -96,7 +96,7 @@ open class RouterUIKit: NSObject, RouterProtocol {
                 sheet.preferredCornerRadius = 48
             }
         }
-        navigationController?.present(controller, animated: true, completion: nil)//{ [dismiss] in dismiss() })
+        navigationController?.present(controller, animated: true)
     }
 
     /// Presents a modal view based on the given `PresentMode`.
@@ -115,8 +115,8 @@ open class RouterUIKit: NSObject, RouterProtocol {
 
         case .alert(title: let title, message: let message):
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            navigationController?.present(alert, animated: true, completion: nil)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            navigationController?.present(alert, animated: true)
 
         case .confirmationDialog(title: let title, actions: let actions):
             let alert = UIAlertController(title: title, message: nil, preferredStyle: .actionSheet)
@@ -129,7 +129,7 @@ open class RouterUIKit: NSObject, RouterProtocol {
                     }
                 ))
             }
-            navigationController?.present(alert, animated: true, completion: nil)
+            navigationController?.present(alert, animated: true)
 
         case .sheet(let view, let detents):
             let controller = convertPresentedViewToUIKit(view)
@@ -191,29 +191,37 @@ extension RouterUIKit: UINavigationControllerDelegate {
 // MARK: - View Conversion Helper
 extension RouterUIKit {
 
+    @MainActor
     func convertViewToUIKit(_ view: Any) -> UIViewController? {
-        guard let view = view as? any View else {
-            guard let vc = view as? UIViewController else {
-                return nil
-            }
+        switch view {
+        case let vc as UIViewController:
             return vc
+        case let ui as any View:
+            return ui.toUIKit()
+        default:
+            return nil
         }
-        return view.toUIKit()
     }
 
+    @MainActor
     func convertPresentedViewToUIKit(_ view: Any) -> UIViewController {
-        guard let view = view as? any View else {
-            guard let vc = view as? UIViewController else {
-                guard let route = view as? any Routable else {
-                    return UIViewController()
-                }
-                let routeString = route.routeString
-                let v = items.getValue(for: routeString)
-                return convertViewToUIKit(v) ?? UIViewController()
-            }
+        switch view {
+        case let vc as UIViewController:
             return vc
+
+        case let route as any Routable:
+            if let v = items.getValue(for: route.routeString), let vc = convertViewToUIKit(v) {
+                return vc
+            }
+
+        case let ui as any View:
+            return ui.toUIKit()
+
+        default:
+            break
         }
-        return view.toUIKit()
+
+        return UIViewController()
     }
 }
 #endif

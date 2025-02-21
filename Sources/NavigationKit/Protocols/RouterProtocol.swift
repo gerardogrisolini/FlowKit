@@ -61,7 +61,7 @@ import Combine
     ///     HomeView()
     /// }
     /// ```
-    func register(route: some Routable, for page: @escaping @MainActor @Sendable () -> (any Sendable))
+    func register(route: some Routable, for page: @escaping @MainActor @Sendable () -> (RouteView))
 
     /// **Navigate to a Route String**
     ///
@@ -85,7 +85,7 @@ import Combine
     /// ```swift
     /// router.navigate(view: ProfileView())
     /// ```
-    func navigate(view: any Sendable)
+    func navigate(view: RouteView)
 
     /// **Navigate to a `Routable` Route**
     ///

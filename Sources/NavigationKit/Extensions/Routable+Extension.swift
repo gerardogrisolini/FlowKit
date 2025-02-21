@@ -37,5 +37,5 @@ public extension Routable {
     ///
     /// - This property is meant to be overridden by conforming types to return an appropriate `RouteView`.
     /// - The default implementation returns `nil`, indicating no associated view by default.
-    @MainActor var view: RouteView { nil }
+    @MainActor var view: RouteView? { nil }
 }
