@@ -29,8 +29,10 @@ extension RouterProtocol {
     /// This iterates through the stack, removing routes and sending `.pop` actions.
     public func popToFlow() {
         guard let view = self as? FlowRouterSwiftUI else {
+#if canImport(UIKit)
             guard let view = self as? FlowRouterUIKit else { return }
             view.popToFlow()
+#endif
             return
         }
         view.popToFlow()
