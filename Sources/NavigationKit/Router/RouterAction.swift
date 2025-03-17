@@ -6,43 +6,73 @@
 //
 
 import SwiftUI
-import Combine
 
-/// RouterAction is the enum that contains the navigation actions
+/// This enumeration defines various actions that a router can perform in a navigation system.
 public enum RouterAction: Identifiable, Equatable, Sendable {
+
+    /// Navigate to a different view or screen, specified by a string identifier.
     case navigate(String)
+
+    /// Present a new view in a specific mode, described by the PresentMode type.
     case present(PresentMode)
+
+    /// Pop back to a previous view, identified by a string.
     case pop(String)
+
+    /// Pop back to the root of the navigation stack.
     case popToRoot
+
+    /// Dismiss the current view.
     case dismiss
 
+    /// Property that uniquely identifies each RouterAction instance.
     public var id: String {
         String(describing: type(of: self))
     }
 
+    /// Checks if two RouterAction instances are equal, based on their ids.
     public static func == (lhs: RouterAction, rhs: RouterAction) -> Bool {
         lhs.id == rhs.id
     }
 }
 
-/// Presentation modes
+/// This enumeration defines various presentations that a router can display in a navigation system.
 public enum PresentMode: Identifiable, Sendable, Equatable {
+
+    /// Represents a simple alert with a title and a message.
     case alert(title: String = "", message: String = "")
+
+    /// Represents a confirmation dialog with a title and a list of action buttons.
     case confirmationDialog(title: String = "", actions: [AlertAction])
+
+    /// Represents a sheet presentation that displays a view. It allows specifying detents for presentation size.
     case sheet(RouteView, detents: [PresentationDetents] = [.medium, .large])
+
+    /// Represents a full-screen cover that displays a view over the entire screen.
     case fullScreenCover(RouteView)
+
+    /// Represents a temporary toast notification with a message, style, and dismiss delay.
     case toast(message: String, style: ToastStyle, dismissDelay: Double = 3.0)
 
+    /// Represents a loading indicator with a specific style.
+    case loader(style: LoaderStyle = .default)
+
+    /// Provides a unique string identifier for each case of the enum.
     public var id: String { "\(self)" }
 
+    /// Returns a string representation of the route for certain cases. Returns nil for unrouteable cases.
     public var routeString: String? {
         switch self {
-        case .toast, .alert, .confirmationDialog: return nil
-        case .sheet(let view, let detents): return "sheet-\(view)-\(String(describing: detents))"
-        case .fullScreenCover(let view): return "fullScreenCover-\(view)"
+        case .toast, .alert, .confirmationDialog, .loader:
+            return nil
+        case .sheet(let view, let detents):
+            return "sheet-\(view)-\(String(describing: detents))"
+        case .fullScreenCover(let view):
+            return "fullScreenCover-\(view)"
         }
     }
 
+    /// Compares two PresentMode instances based on their unique identifiers.
     public static func == (lhs: PresentMode, rhs: PresentMode) -> Bool {
         lhs.id == rhs.id
     }
@@ -83,79 +113,6 @@ public struct AlertAction: Sendable {
     }
 }
 
-/// Toast view
-struct ToastView: View {
-    private var cancellables: Set<AnyCancellable> = []
-
-    let style: ToastStyle
-    let message: String
-    let onCancelTapped: (() -> Void)
-
-    init(style: ToastStyle, message: String, dismissDelay: Double = 3.0, onCancelTapped: @escaping () -> Void) {
-        self.style = style
-        self.message = message
-        self.onCancelTapped = onCancelTapped
-
-        guard dismissDelay > 0 else { return }
-
-        Task {
-            try await Task.sleep(nanoseconds: UInt64(dismissDelay * 1_000_000_000))
-            onCancelTapped()
-        }
-        .eraseToAnyCancellable()
-        .store(in: &cancellables)
-    }
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Image(systemName: style.iconFileName)
-                .foregroundColor(style.themeColor)
-
-            Text(message)
-                .font(.headline)
-                .foregroundColor(.secondary)
-
-            Spacer(minLength: 10)
-
-            Button {
-                onCancelTapped()
-            } label: {
-                Image(systemName: "xmark")
-                    .foregroundColor(style.themeColor)
-            }
-        }
-        .padding()
-        .frame(minWidth: 0, maxWidth: .infinity)
-        .background(style.themeColor.opacity(0.3))
-        .cornerRadius(8)
-        .padding(.horizontal, 16)
-    }
-}
-
-public enum ToastStyle: Sendable {
-    case error
-    case warning
-    case success
-    case info
-
-    var themeColor: Color {
-        switch self {
-            case .error: return Color.red
-            case .warning: return Color.orange
-            case .info: return Color.blue
-            case .success: return Color.green
-        }
-    }
-
-    var iconFileName: String {
-        switch self {
-            case .info: return "info.circle.fill"
-            case .warning: return "exclamationmark.triangle.fill"
-            case .success: return "checkmark.circle.fill"
-            case .error: return "xmark.circle.fill"
-        }
-    }
-}
 
 #Preview {
     let router = NavigationKit.initialize()
@@ -172,6 +129,14 @@ public enum ToastStyle: Sendable {
         Button("error") {
             router.present(.toast(message: "Message \(Date())", style: .error, dismissDelay: 0))
         }
+        Button("loader") {
+            router.present(.loader(style: .circle))
+            Task {
+                try await Task.sleep(nanoseconds: 3_000_000_000)
+                router.dismiss()
+            }
+        }
     }
+    .padding()
     .navigationKit()
 }

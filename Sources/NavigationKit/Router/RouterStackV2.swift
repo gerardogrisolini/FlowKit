@@ -38,6 +38,8 @@ final class RouterStackV2: RouterStack {
             return ToastView(style: style, message: message, dismissDelay: delay) { [onChange] in
                 onChange(.dismiss)
             }
+        case .loader(style: let style):
+            return LoaderView(style: style)
         case .none:
             return EmptyView()
         }

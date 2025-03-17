@@ -57,16 +57,11 @@ router.register(route: Routes.example) {
 try router.present(.fullScreenCover(Routes.example))
 ```
 
-### Toast
-```swift
-router.present(.toast(message: "Exception", style: .error)
-```
-
 ### Alert
 ```swift
 router.present(.alert(title: "Exception", message: "Parameter cannot be null"))
 ```
-
+        
 ### Condirmation dialog
 ```swift
 let actions: [AlertAction] = [
@@ -75,6 +70,16 @@ let actions: [AlertAction] = [
     .init(title: "Delete physical", style: .destructive, handler: {})
 ]
 router.present(.confirmationDialog(title: "Confirmation", actions: actions))
+```
+
+### Toast
+```swift
+router.present(.toast(message: "Exception", style: .error)
+```
+
+### Loader
+```swift
+router.present(.loader(style: .circle))
 ```
 
 ### Pop and dismiss

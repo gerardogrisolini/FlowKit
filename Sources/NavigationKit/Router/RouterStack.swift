@@ -54,6 +54,10 @@ class RouterStack: ObservableObject {
         presentMode?.isToast ?? false
     }
 
+    var isLoader: Bool {
+        presentMode?.isLoader ?? false
+    }
+
     var title: String {
         presentMode?.title ?? ""
     }
@@ -98,6 +102,11 @@ private extension PresentMode {
 
     var isToast: Bool {
         if case .toast(_, _, _) = self { return true }
+        return false
+    }
+
+    var isLoader: Bool {
+        if case .loader(_) = self { return true }
         return false
     }
 

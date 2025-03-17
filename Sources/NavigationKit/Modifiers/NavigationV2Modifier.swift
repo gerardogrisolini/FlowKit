@@ -32,7 +32,10 @@ public struct NavigationV2Modifier: ViewModifier {
 				}
 		}
         .overlay(alignment: .top) {
-            if stack.isToast {
+            if stack.isLoader {
+                AnyView(stack.presentedView)
+            }
+            else if stack.isToast {
                 AnyView(stack.presentedView)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }

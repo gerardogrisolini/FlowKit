@@ -109,10 +109,6 @@ open class RouterUIKit: NSObject, RouterProtocol {
         }
 
         switch mode {
-        case .toast(message: let message, style: let style, dismissDelay: let delay):
-            let view = ToastView(style: style, message: message, dismissDelay: delay, onCancelTapped: { [dismiss] in dismiss() })
-            navigationController?.present(view.toUIKit(), animated: true)
-
         case .alert(title: let title, message: let message):
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -147,6 +143,13 @@ open class RouterUIKit: NSObject, RouterProtocol {
             let controller = convertPresentedViewToUIKit(view)
             controller.modalPresentationStyle = .fullScreen
             navigationController?.present(controller, animated: true, completion: { [dismiss] in dismiss() })
+
+        case .toast(message: let message, style: let style, dismissDelay: let delay):
+            let view = ToastView(style: style, message: message, dismissDelay: delay, onCancelTapped: { [dismiss] in dismiss() })
+            navigationController?.present(view.toUIKit(), animated: true)
+
+        case .loader(style: let style):
+            addLoader(style: style)
         }
     }
 
@@ -158,6 +161,10 @@ open class RouterUIKit: NSObject, RouterProtocol {
             if let routeString = mode.routeString {
                 routes.removeAll(where: { $0 == routeString })
             }
+            else if let loader = navigationController?.view.subviews.first(where: { $0.tag == -999 }) {
+                loader.removeFromSuperview()
+            }
+
             presentMode = nil
         }
     }
@@ -169,6 +176,28 @@ open class RouterUIKit: NSObject, RouterProtocol {
             routes.remove(at: index)
         }
         items.remove(route)
+    }
+
+    /// Adds a loader view to the current navigation controller's view with specified style.
+    ///
+    /// This method creates a `LoaderView` instance with the given `LoaderStyle` and converts it
+    /// to a UIKit compatible view. The loader view is assigned a unique tag for identification
+    /// and its background color is set to clear. It is added as a subview to the navigation controller's view,
+    /// and its constraints are set to occupy the full bounds of the parent view.
+    ///
+    /// - Parameter style: The style for the loader view.
+    private func addLoader(style: LoaderStyle) {
+        guard let view = navigationController?.view else { return }
+
+        let loaderView = LoaderView(style: style).toUIKit().view!
+        loaderView.tag = -999
+        loaderView.backgroundColor = .clear
+        view.addSubview(loaderView)
+        loaderView.translatesAutoresizingMaskIntoConstraints = false
+        loaderView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        loaderView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        loaderView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        loaderView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
 }
 
