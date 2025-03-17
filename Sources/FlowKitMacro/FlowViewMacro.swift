@@ -9,7 +9,6 @@ import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
-import SwiftDiagnostics
 
 public struct FlowViewMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
