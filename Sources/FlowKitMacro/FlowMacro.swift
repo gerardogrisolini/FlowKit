@@ -14,6 +14,16 @@ public struct FlowMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
         of node: SwiftSyntax.AttributeSyntax,
         providingMembersOf declaration: Declaration,
+        conformingTo protocols: [SwiftSyntax.TypeSyntax],
+        in context: Context
+    ) throws -> [SwiftSyntax.DeclSyntax] where Declaration: SwiftSyntax.DeclGroupSyntax, Context: SwiftSyntaxMacros.MacroExpansionContext {
+        // Forward to the legacy overload to preserve existing behavior
+        try expansion(of: node, providingMembersOf: declaration, in: context)
+    }
+
+    public static func expansion<Declaration, Context>(
+        of node: SwiftSyntax.AttributeSyntax,
+        providingMembersOf declaration: Declaration,
         in context: Context) throws -> [SwiftSyntax.DeclSyntax] where Declaration : SwiftSyntax.DeclGroupSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
 
             guard case .argumentList(let args) = node.arguments,

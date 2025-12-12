@@ -14,6 +14,7 @@ public struct FlowViewMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
         of node: SwiftSyntax.AttributeSyntax,
         providingMembersOf declaration: Declaration,
+        conformingTo protocols: [SwiftSyntax.TypeSyntax],
         in context: Context
     ) throws -> [SwiftSyntax.DeclSyntax] where Declaration : SwiftSyntax.DeclGroupSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
         guard case .argumentList(let args) = node.arguments else {

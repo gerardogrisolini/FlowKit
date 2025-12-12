@@ -8,7 +8,9 @@ public struct FlowCasesMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
         of node: SwiftSyntax.AttributeSyntax,
         providingMembersOf declaration: Declaration,
-        in context: Context) throws -> [SwiftSyntax.DeclSyntax] where Declaration : SwiftSyntax.DeclGroupSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
+        conformingTo protocols: [SwiftSyntax.TypeSyntax],
+        in context: Context
+    ) throws -> [SwiftSyntax.DeclSyntax] where Declaration: SwiftSyntax.DeclGroupSyntax, Context: SwiftSyntaxMacros.MacroExpansionContext {
 
             let modifier = declaration.hasPublicModifier ? "public " : ""
 
@@ -31,8 +33,8 @@ public struct FlowCasesMacro: MemberMacro {
                 return []
             }
 
-            let caseIds: [String] = enumCases.map(\.description).map { $0.replacingOccurrences(of: ",", with: "") }
-            let allCases = "\(modifier)static var allCases: [\(declaration.name)] { [\(caseIds.map { ".\($0.hasSuffix(")") ? $0.replacingOccurrences(of: ")", with: "())") : $0 )" }.joined(separator: ","))] }"
+            let caseIds: [String] = enumCases.map(\.description).map { $0.replacing(",", with: "") }
+            let allCases = "\(modifier)static var allCases: [\(declaration.name)] { [\(caseIds.map { ".\($0.hasSuffix(")") ? $0.replacing(")", with: "())") : $0 )" }.joined(separator: ","))] }"
             var joinFuncs: [DeclSyntax] = []
             var updateFunc = """
 \(modifier)func udpate(associatedValue: some InOutProtocol) -> Self {
