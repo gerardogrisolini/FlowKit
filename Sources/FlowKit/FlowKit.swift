@@ -38,7 +38,7 @@ public struct FlowKit {
         case .swiftUI:
             ruoter = FlowRouterSwiftUI()
             initialize(ruoter: ruoter)
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
         case .uiKit(navigationController: let navigationController):
             let nav = FlowRouterUIKit()
             nav.navigationController = navigationController

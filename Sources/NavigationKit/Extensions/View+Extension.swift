@@ -29,7 +29,7 @@ public extension View {
         self.modifier(NavigationModifier())
     }
 
-    #if !os(macOS)
+    #if canImport(UIKit) && !os(visionOS)
     /// Converts the SwiftUI view into a `UIHostingController`.
     ///
     /// - Uses `UIHostingController` to embed SwiftUI views inside UIKit.

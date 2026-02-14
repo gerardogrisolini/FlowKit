@@ -15,7 +15,7 @@ final class RouterMock: RouterProtocol {
     var items = RouterItems()
     var presentMode: PresentMode?
     var routerAction: RouterAction? = nil
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
     var navigationController: UINavigationController? = nil
 #endif
 

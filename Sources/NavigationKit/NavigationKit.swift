@@ -6,13 +6,13 @@
 //
 
 import Foundation
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
 import UIKit
 #endif
 @_exported import FlowCases
 
 public enum NavigationType {
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
     case uiKit(navigationController: UINavigationController)
 #endif
     case swiftUI
@@ -32,7 +32,7 @@ public struct NavigationKit {
         case .swiftUI:
             router = RouterSwiftUI()
             initialize(router: router)
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
         case .uiKit(navigationController: let navigationController):
             let r = RouterUIKit()
             r.navigationController = navigationController

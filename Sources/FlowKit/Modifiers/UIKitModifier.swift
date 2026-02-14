@@ -5,7 +5,7 @@
 //  Created by Gerardo Grisolini on 30/11/24.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
 import SwiftUI
 import UIKit
 

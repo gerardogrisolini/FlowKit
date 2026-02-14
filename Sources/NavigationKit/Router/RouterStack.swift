@@ -196,7 +196,7 @@ extension RouterStack {
         switch view {
         case let view as (any View):
             return view
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
         case let vc as UIViewController:
             return vc.toSwiftUI()
                 .navigationTitle(vc.title ?? "")
@@ -215,7 +215,7 @@ extension RouterStack {
         case let route as any Routable:
             let routeString = route.routeString
             return getView(route: routeString) ?? EmptyView()
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
         case let vc as UIViewController:
             return vc.toSwiftUI()
 #endif

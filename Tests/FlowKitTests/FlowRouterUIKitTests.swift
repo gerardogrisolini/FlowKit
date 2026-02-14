@@ -5,7 +5,7 @@
 //  Created by Gerardo Grisolini on 26/11/24.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
 import Testing
 import UIKit
 @testable import FlowKit

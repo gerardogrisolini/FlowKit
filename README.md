@@ -7,8 +7,9 @@ Framework for building modular applications with composable flows.
 - Swift 6.2+
 - iOS 16+
 - tvOS 16+
+- visionOS 1+
 - macOS 14+
-- Mac Catalyst 13+
+- Mac Catalyst 14+
 
 
 ## Why FlowKit?

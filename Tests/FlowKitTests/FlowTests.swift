@@ -7,7 +7,7 @@
 
 import Testing
 import SwiftUI
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
 import UIKit
 #endif
 @testable import FlowKit
@@ -15,7 +15,7 @@ import UIKit
 final class FlowTests {
 
     @Test @MainActor func testRegistrationWithFlowRouting() {
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(visionOS)
         let navigation2 = FlowKit.initialize(navigationType: .uiKit(navigationController: UINavigationController()), withFlowRouting: false)
         #expect(navigation2.items.isEmpty)
 #endif
