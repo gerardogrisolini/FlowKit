@@ -23,7 +23,7 @@ router.register(route: Routes.example) { model in
 }
 
 /// And then you can navigate to it by passing the route
-try router.navigate(route: Routes.example(InOutModel(text: "Test"))
+try router.navigate(route: Routes.example(InOutModel(text: "Test")))
 ```
 
 ### Navigation to a flow
@@ -33,7 +33,7 @@ try router.navigate(route: Routes.example(InOutModel(text: "Test"))
 let flow = try router.flow(route: Routes.example)
 
 /// And then start it using the start function
-let result = try await router.start()
+let result = try await flow.start()
 
 /// you can shorten it
 try await router.flow(route: Routes.example).start()
@@ -54,7 +54,7 @@ router.register(route: Routes.example) {
 }
 
 /// And then you can present it by passing the route
-try router.present(.fullScreenCover(Routes.example))
+router.present(.fullScreenCover(Routes.example))
 ```
 
 ### Alert
@@ -62,7 +62,7 @@ try router.present(.fullScreenCover(Routes.example))
 router.present(.alert(title: "Exception", message: "Parameter cannot be null"))
 ```
         
-### Condirmation dialog
+### Confirmation dialog
 ```swift
 let actions: [AlertAction] = [
     .init(title: "Hide", style: .default, handler: {}),
@@ -74,7 +74,7 @@ router.present(.confirmationDialog(title: "Confirmation", actions: actions))
 
 ### Toast
 ```swift
-router.present(.toast(message: "Exception", style: .error)
+router.present(.toast(message: "Exception", style: .error))
 ```
 
 ### Loader

@@ -3,6 +3,9 @@
 Test the flow and page events.
 
 ```swift
+import Testing
+import FlowKit
+
 final class ExampleTests {
 
     @Test func testExampleFlow() async throws {

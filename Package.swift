@@ -6,7 +6,7 @@ import CompilerPluginSupport
 
 let package = Package(
     name: "FlowKit",
-    platforms: [.macOS(.v14), .iOS(.v16), .tvOS(.v16), .visionOS(.v1), .macCatalyst(.v14)],
+    platforms: [.macOS(.v14), .iOS(.v16), .visionOS(.v1), .macCatalyst(.v14)],
     products: [
         .library(
             name: "FlowKit",
@@ -34,7 +34,7 @@ let package = Package(
             url: "https://github.com/swiftlang/swift-syntax.git",
             revision: "4799286537280063c85a32f09884cfbca301b1a1"
         ),
-//        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.6")
     ],
     targets: [
         .macro(

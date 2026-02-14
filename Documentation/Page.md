@@ -29,7 +29,7 @@ struct Page1View: FlowViewProtocol, View {
         VStack(spacing: 8) {
             
             /// Include a widget and activate
-            WidgetView(model: $model)
+            WidgetView(model: model)
                 .widget(on: self)
 
             Button(ExampleKeys.update) {
@@ -47,7 +47,7 @@ struct Page1View: FlowViewProtocol, View {
                 out(.page3)
             }
         }
-        .navigationBarTitle(ExampleKeys.page1, largeMode: true)
+        .navigationTitle(ExampleKeys.page1)
     }
 
     /// If you have defined an enum for events,
@@ -73,7 +73,7 @@ struct WidgetView: View, FlowWidgetProtocol {
     }
 
     @Environment(\.parent) var parent
-    @Binding var model: InOutModel
+    let model: InOutModel
 
     var body: some View {
         VStack(spacing: 20) {

@@ -7,7 +7,7 @@ Register the navigation and services your app requires.
 @main
 struct FlowApp: App {
     init() {
-        /// Inizialize and register the navigation
+        /// Initialize and register the navigation
         FlowKit.initialize()
     }
 
@@ -21,7 +21,7 @@ struct FlowApp: App {
 }
 ```
 
-#### UIKit
+#### UIKit (not available on visionOS)
 ```swift
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -61,7 +61,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 ```
 
-### Speaking of Annotations, to resolving services in your modules using the property wrapper.
+### Resolve services in your modules using the property wrapper
 ```swift
 @Injected(\.router) var router
 ```
