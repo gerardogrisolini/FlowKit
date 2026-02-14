@@ -2,6 +2,14 @@
 
 Framework for building modular applications with composable flows.
 
+## Requirements
+
+- Swift 6.2+
+- iOS 16+
+- tvOS 16+
+- macOS 14+
+- Mac Catalyst 13+
+
 
 ## Why FlowKit?
 
@@ -20,7 +28,7 @@ The goal of FlowKit is to provide an easy-to-use infrastructure for building mod
 
 ### Main advantages of FlowKit are:
 
-1. **Navigation**: A system that allows you to navigate between modules that are not sold to each other, in a transparent and flexible way, using either UIkit or SwiftUI navigation.
+1. **Navigation**: A system that allows you to navigate between modules that are not sold to each other, in a transparent and flexible way, using either UIKit or SwiftUI (NavigationStack).
 2. **Graph**: Each flow has its own navigation graph connected to the others through an enum, thus creating a complete map of the possible navigations that is easily readable.
 3. **Enum-based pattern**: Using an enum-based pattern makes the logic easier to understand and test.
 4. **Reuse pages and flows**: Makes pages reusable in different flows, speeding up the development of a flow and limiting code duplication.
@@ -38,7 +46,7 @@ Using FlowKit is a simple process:
 6. [Test](./Documentation/Test.md)
 
 
-## Additional Resouces
+## Additional Resources
 
 * [API Documentation](https://gerardogrisolini.github.io/FlowKit/documentation/flowkit)
 
@@ -57,4 +65,3 @@ FlowKit was designed, implemented, documented, and maintained by [Gerardo Grisol
 ## License
 
 FlowKit is available under the MIT license. See the LICENSE file for more info.
-

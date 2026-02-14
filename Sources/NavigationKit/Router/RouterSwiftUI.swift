@@ -30,6 +30,7 @@ open class RouterSwiftUI: RouterProtocol {
     /// Navigates to a specified route string by appending it to the navigation stack.
     /// - Parameter routeString: The string identifier for the navigation route.
     public func navigate(routeString: String) {
+        guard routes.last != routeString else { return }
         routes.append(routeString)
         action.send(.navigate(routeString))
     }

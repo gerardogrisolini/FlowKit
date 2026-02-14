@@ -10,6 +10,8 @@ import Combine
 
 class RouterStack: ObservableObject {
 
+    @Published var routes: [String] = []
+
     @Published
     var presentMode: PresentMode? = nil
     private var cancellables = Set<AnyCancellable>()
@@ -70,9 +72,74 @@ class RouterStack: ObservableObject {
         return convertViewToSwiftUI(view)
     }
 
+    @MainActor
+    var presentedView: any View {
+        switch presentMode {
+        case .sheet(let view, _), .fullScreenCover(let view):
+            return convertPresentViewToSwiftUI(view)
+        case .alert(title: _, message: let message):
+            return Text(message)
+        case .confirmationDialog(title: _, actions: let actions):
+            return ForEach(actions, id: \.title) { action in
+                Button(
+                    action.title,
+                    role: action.style == .destructive ? .destructive : nil
+                ) {
+                    action.handler()
+                }
+            }
+        case .toast(message: let message, style: let style, let delay):
+            return ToastView(style: style, message: message, dismissDelay: delay) { [onChange] in
+                onChange(.dismiss)
+            }
+        case .loader(style: let style):
+            return LoaderView(style: style)
+        case .none:
+            return EmptyView()
+        }
+    }
+
+    var presentationDetents: Set<PresentationDetent> {
+        switch presentMode {
+        case .sheet(_, detents: let detents):
+            return Set(detents.map {
+                switch $0 {
+                case .medium:
+                    return PresentationDetent.medium
+                case .large:
+                    return PresentationDetent.large
+                case .fraction(let fraction):
+                    return PresentationDetent.fraction(fraction)
+                case .height(let height):
+                    return PresentationDetent.height(height)
+                }
+            })
+        default:
+            return []
+        }
+    }
+
     // MARK: - Action Handling
 
-    open func onChange(action: RouterAction) { }
+    func onChange(action: RouterAction) {
+        switch action {
+        case .navigate(route: let route):
+            routes.append(route)
+
+        case .pop(route: let route):
+            guard routes.last == route else { return }
+            routes.removeLast()
+
+        case .popToRoot:
+            routes = []
+
+        case .present(let mode):
+            presentMode = mode
+
+        case .dismiss:
+            presentMode = nil
+        }
+    }
 
 }
 

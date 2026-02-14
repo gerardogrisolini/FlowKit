@@ -26,7 +26,7 @@ public extension View {
     ///
     /// - Returns: A modified SwiftUI `View` with navigation capabilities.
     func navigationKit() -> some View {
-        modifier(NavigationModifier())
+        self.modifier(NavigationModifier())
     }
 
     #if !os(macOS)

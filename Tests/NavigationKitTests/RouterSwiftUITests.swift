@@ -30,6 +30,13 @@ final class RouterSwiftUITests {
         #expect(sut.routes.last == view.routeString)
     }
 
+    @Test func testNavigateSameRouteDoesNotDuplicate() {
+        let sut = RouterSwiftUI()
+        sut.navigate(routeString: Routes.home.routeString)
+        sut.navigate(routeString: Routes.home.routeString)
+        #expect(sut.routes.count == 1)
+    }
+
     @Test func testPop() async throws {
         let sut = RouterSwiftUI()
         let view = EmptyView()

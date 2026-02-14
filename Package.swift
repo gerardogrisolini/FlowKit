@@ -6,7 +6,7 @@ import CompilerPluginSupport
 
 let package = Package(
     name: "FlowKit",
-    platforms: [.macOS(.v14), .iOS(.v16), .macCatalyst(.v13)],
+    platforms: [.macOS(.v14), .iOS(.v16), .tvOS(.v16), .macCatalyst(.v13)],
     products: [
         .library(
             name: "FlowKit",
