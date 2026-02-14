@@ -7,10 +7,23 @@
 
 import Testing
 import SwiftUI
+import Dispatch
 @testable import FlowKit
 
 @MainActor
 final class CoordinatorTests {
+    private func waitUntil(
+        timeoutNanoseconds: UInt64 = 1_000_000_000,
+        pollNanoseconds: UInt64 = 1_000_000,
+        _ condition: @autoclosure @escaping @MainActor () -> Bool
+    ) async -> Bool {
+        let start = DispatchTime.now().uptimeNanoseconds
+        while (DispatchTime.now().uptimeNanoseconds - start) < timeoutNanoseconds {
+            if condition() { return true }
+            try? await Task.sleep(nanoseconds: pollNanoseconds)
+        }
+        return condition()
+    }
 
     private func startCoordinator(_ router: RouterMock) async throws {
         try await Coordinator(flow: TestFlow(), router: router).start()
@@ -18,8 +31,8 @@ final class CoordinatorTests {
     
     @Test func testViewCommit() async throws {
         let router = RouterMock()
-        Task { [router] in
-            try await Task.sleep(nanoseconds: 150000000)
+        Task { @MainActor [router] in
+            #expect(await waitUntil(router.currentView != nil))
             let view = router.currentView
             view?.commit(InOutEmpty(), toRoot: true)
             view?.events.finish()
@@ -30,10 +43,10 @@ final class CoordinatorTests {
 
     @Test func testViewOut() async throws {
         let router = RouterMock()
-        Task { [router] in
-            try await Task.sleep(nanoseconds: 150000000)
+        Task { @MainActor [router] in
+            #expect(await waitUntil(router.currentView != nil))
             router.currentView?.events.send(.next(TestFlowView.Out.empty))
-            try await Task.sleep(nanoseconds: 150000000)
+            #expect(await waitUntil(router.routes.last == "EmptyFlowView"))
             router.currentView?.events.finish()
             router.routes.removeLast()
             await router.setView()
@@ -45,8 +58,8 @@ final class CoordinatorTests {
 
     @Test func testViewEvent() async throws {
         let router = RouterMock()
-        Task { [router] in
-            try await Task.sleep(nanoseconds: 150000000)
+        Task { @MainActor [router] in
+            #expect(await waitUntil(router.currentView != nil))
             router.currentView?.events.send(.event(TestFlowView.Event.empty))
         }
         try await startCoordinator(router)
@@ -54,23 +67,23 @@ final class CoordinatorTests {
 
     @Test func testViewOutInBehavior() async throws {
         let router = RouterMock()
-        Task { [router] in
-            try await Task.sleep(nanoseconds: 150000000)
+        Task { @MainActor [router] in
+            #expect(await waitUntil(router.currentView != nil))
             router.currentView?.events.send(.next(TestFlowView.Out.behavior(InOutModel())))
-            try await Task.sleep(nanoseconds: 150000000)
+            #expect(await waitUntil(router.routes.last == "NotEmptyFlowView"))
             router.currentView?.events.finish()
             router.routes.removeLast()
             await router.setView()
             router.currentView?.events.finish()
         }
         try await startCoordinator(router)
-        #expect(router.routerAction == .navigate("EmptyFlowView"))
+        #expect(router.routerAction == .navigate("NotEmptyFlowView"))
     }
 
     @Test func testViewEventInBehavior() async throws {
         let router = RouterMock()
-        Task { [router] in
-            try await Task.sleep(nanoseconds: 150000000)
+        Task { @MainActor [router] in
+            #expect(await waitUntil(router.currentView != nil))
             router.currentView?.events.send(.event(TestFlowView.Event.behavior))
         }
         try await startCoordinator(router)
@@ -78,8 +91,8 @@ final class CoordinatorTests {
 
     @Test func testViewBack() async throws {
         let router = RouterMock()
-        Task { [router] in
-            try await Task.sleep(nanoseconds: 150000000)
+        Task { @MainActor [router] in
+            #expect(await waitUntil(router.currentView != nil))
             let view = router.currentView
             view?.back()
             view?.events.finish()

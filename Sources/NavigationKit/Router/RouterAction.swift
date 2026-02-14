@@ -27,12 +27,34 @@ public enum RouterAction: Identifiable, Equatable, Sendable {
 
     /// Property that uniquely identifies each RouterAction instance.
     public var id: String {
-        String(describing: type(of: self))
+        switch self {
+        case .navigate(let route):
+            return "navigate:\(route)"
+        case .present(let mode):
+            return "present:\(mode.id)"
+        case .pop(let route):
+            return "pop:\(route)"
+        case .popToRoot:
+            return "popToRoot"
+        case .dismiss:
+            return "dismiss"
+        }
     }
 
     /// Checks if two RouterAction instances are equal, based on their ids.
     public static func == (lhs: RouterAction, rhs: RouterAction) -> Bool {
-        lhs.id == rhs.id
+        switch (lhs, rhs) {
+        case (.navigate(let l), .navigate(let r)):
+            return l == r
+        case (.present(let l), .present(let r)):
+            return l == r
+        case (.pop(let l), .pop(let r)):
+            return l == r
+        case (.popToRoot, .popToRoot), (.dismiss, .dismiss):
+            return true
+        default:
+            return false
+        }
     }
 }
 
@@ -58,7 +80,23 @@ public enum PresentMode: Identifiable, Sendable, Equatable {
     case loader(style: LoaderStyle = .default)
 
     /// Provides a unique string identifier for each case of the enum.
-    public var id: String { "\(self)" }
+    public var id: String {
+        switch self {
+        case .alert(let title, let message):
+            return "alert:\(title):\(message)"
+        case .confirmationDialog(let title, let actions):
+            let values = actions.map { "\($0.title):\($0.style.rawValue)" }.joined(separator: "|")
+            return "confirmationDialog:\(title):\(values)"
+        case .sheet:
+            return "sheet:\(routeString ?? "nil")"
+        case .fullScreenCover:
+            return "fullScreenCover:\(routeString ?? "nil")"
+        case .toast(let message, let style, let dismissDelay):
+            return "toast:\(message):\(style):\(dismissDelay)"
+        case .loader(let style):
+            return "loader:\(style)"
+        }
+    }
 
     /// Returns a string representation of the route for certain cases. Returns nil for unrouteable cases.
     public var routeString: String? {
@@ -74,7 +112,20 @@ public enum PresentMode: Identifiable, Sendable, Equatable {
 
     /// Compares two PresentMode instances based on their unique identifiers.
     public static func == (lhs: PresentMode, rhs: PresentMode) -> Bool {
-        lhs.id == rhs.id
+        switch (lhs, rhs) {
+        case (.alert(let lt, let lm), .alert(let rt, let rm)):
+            return lt == rt && lm == rm
+        case (.confirmationDialog(let lt, let la), .confirmationDialog(let rt, let ra)):
+            return lt == rt && la == ra
+        case (.sheet, .sheet), (.fullScreenCover, .fullScreenCover):
+            return lhs.routeString == rhs.routeString
+        case (.toast(let lm, let ls, let ld), .toast(let rm, let rs, let rd)):
+            return lm == rm && ls == rs && ld == rd
+        case (.loader(let ls), .loader(let rs)):
+            return ls == rs
+        default:
+            return false
+        }
     }
 }
 
@@ -110,6 +161,12 @@ public struct AlertAction: Sendable {
         self.title = title
         self.style = style
         self.handler = handler
+    }
+}
+
+extension AlertAction: Equatable {
+    public static func == (lhs: AlertAction, rhs: AlertAction) -> Bool {
+        lhs.title == rhs.title && lhs.style == rhs.style
     }
 }
 

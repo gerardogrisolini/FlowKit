@@ -22,12 +22,16 @@ final class RouterMock: RouterProtocol {
 
     var currentView: (any FlowViewProtocol)? = nil
 
-    func setView() async {
+    private func updateCurrentView() {
         guard let routeString = routes.last, let view = items.getValue(for: routeString) as? any FlowViewProtocol else {
             currentView = nil
             return
         }
         currentView = view
+    }
+
+    func setView() async {
+        updateCurrentView()
     }
 
     func navigate(route: some Routable) throws {
@@ -42,9 +46,7 @@ final class RouterMock: RouterProtocol {
         routes.append(routeString)
         routerAction = .navigate(routeString)
         action.send(routerAction!)
-        Task { @MainActor in
-            await setView()
-        }
+        updateCurrentView()
     }
 
     func present(_ mode: PresentMode) {
@@ -60,18 +62,21 @@ final class RouterMock: RouterProtocol {
         let route = routes.removeLast()
         routerAction = .pop(route)
         action.send(routerAction!)
+        updateCurrentView()
     }
 
     func popToFlow() {
         routes = []
         routerAction = .popToRoot
         action.send(routerAction!)
+        updateCurrentView()
     }
 
     func popToRoot() {
         routes = []
         routerAction = .popToRoot
         action.send(routerAction!)
+        updateCurrentView()
     }
 
     func dismiss() {

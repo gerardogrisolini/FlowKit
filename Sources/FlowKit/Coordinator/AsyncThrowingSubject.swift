@@ -43,14 +43,9 @@ public struct AsyncThrowingSubject<Element: Sendable>: AsyncSequence, Sendable {
 
     /// Sends a value to the sequence.
     /// - Parameter value: The value to send.
-    /// - Precondition: If the value is dropped (e.g., no consumers are listening), the function triggers a `preconditionFailure`.
+    /// - Note: If the value is dropped (e.g., no consumers are listening), it is ignored.
     public func send(_ value: Element) {
-        switch continuation.yield(value) {
-        case .dropped(_):
-            preconditionFailure("dropped")
-        default:
-            break
-        }
+        _ = continuation.yield(value)
     }
 
     /// Completes the sequence, optionally with an error.

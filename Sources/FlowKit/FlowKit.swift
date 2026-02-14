@@ -88,5 +88,5 @@ public struct FlowKit {
 
 /// FlowError is the error type for the flow
 public enum FlowError: Error {
-    case generic, flowNotFound, eventNotFound, invalidModel(String), partialMapping(String)
+    case generic, flowNotFound, eventNotFound, invalidModel(String), partialMapping(String), invalidState(String)
 }

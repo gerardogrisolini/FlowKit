@@ -6,7 +6,7 @@ import CompilerPluginSupport
 
 let package = Package(
     name: "FlowKit",
-    platforms: [.macOS(.v13), .iOS(.v15), .macCatalyst(.v13)],
+    platforms: [.macOS(.v14), .iOS(.v16), .macCatalyst(.v13)],
     products: [
         .library(
             name: "FlowKit",
@@ -30,7 +30,10 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "602.0.0"),
+        .package(
+            url: "https://github.com/swiftlang/swift-syntax.git",
+            revision: "4799286537280063c85a32f09884cfbca301b1a1"
+        ),
 //        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     ],
     targets: [
@@ -41,6 +44,7 @@ let package = Package(
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ],
             path: "Sources/FlowKitMacro",
+            exclude: ["Flow.swift", "FlowCases.swift", "FlowMacro.swift", "FlowView.swift", "FlowViewMacro.swift"],
             sources: ["FlowCasesMacro.swift"]
         ),
         .macro(
@@ -50,6 +54,7 @@ let package = Package(
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ],
             path: "Sources/FlowKitMacro",
+            exclude: ["Flow.swift", "FlowCases.swift", "FlowCasesMacro.swift", "FlowMacro.swift", "FlowView.swift"],
             sources: ["FlowViewMacro.swift"]
         ),
         .macro(
@@ -59,24 +64,28 @@ let package = Package(
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ],
             path: "Sources/FlowKitMacro",
+            exclude: ["FlowCases.swift", "FlowCasesMacro.swift", "Flow.swift", "FlowView.swift", "FlowViewMacro.swift"],
             sources: ["FlowMacro.swift"]
         ),
         .target(
             name: "FlowCases",
             dependencies: ["FlowCasesMacro"],
             path: "Sources/FlowKitMacro",
+            exclude: ["Flow.swift", "FlowCasesMacro.swift", "FlowMacro.swift", "FlowView.swift", "FlowViewMacro.swift"],
             sources: ["FlowCases.swift"]
         ),
         .target(
             name: "FlowView",
             dependencies: ["FlowViewMacro"],
             path: "Sources/FlowKitMacro",
+            exclude: ["Flow.swift", "FlowCases.swift", "FlowCasesMacro.swift", "FlowMacro.swift", "FlowViewMacro.swift"],
             sources: ["FlowView.swift"]
         ),
         .target(
             name: "Flow",
             dependencies: ["FlowMacro"],
             path: "Sources/FlowKitMacro",
+            exclude: ["FlowCases.swift", "FlowCasesMacro.swift", "FlowMacro.swift", "FlowView.swift", "FlowViewMacro.swift"],
             sources: ["Flow.swift"]
         ),
         .target(

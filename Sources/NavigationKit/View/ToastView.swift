@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-public enum ToastStyle: Sendable {
+public enum ToastStyle: Sendable, Equatable {
     case error
     case warning
     case success

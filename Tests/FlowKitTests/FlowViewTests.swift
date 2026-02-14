@@ -16,7 +16,6 @@ struct FlowViewTests {
         let sut = await ParentView()
 
         Task { @MainActor in
-            try await Task.sleep(nanoseconds: 1500000)
             sut.back()
             sut.out(.out1)
             sut.out(.out2)
@@ -24,7 +23,6 @@ struct FlowViewTests {
             sut.event(.event2)
             sut.navigate(EmptyView())
             sut.present(.sheet(EmptyView()))
-            try await Task.sleep(nanoseconds: 500000)
             sut.commit(InOutEmpty(), toRoot: false)
         }
 
@@ -62,8 +60,9 @@ struct FlowViewTests {
     @Test func testBadMappingWidget() async throws {
         do {
             try await WidgetView().test(parent: BadParentView())
+            #expect(Bool(false), "Expected partial mapping error")
         } catch {
-            #expect(true)
+            // Expected failure path.
         }
     }
 }

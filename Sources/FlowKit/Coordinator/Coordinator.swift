@@ -50,7 +50,15 @@ final class Coordinator<Flow: FlowProtocol>: CoordinatorProtocol {
 
     /// Displays a specific node within the coordinator's flow.
     private func show(node: any CoordinatorNodeProtocol, model: some InOutProtocol, navigate: Bool = true) async throws {
-        let view = navigate ? try await node.view.factory(model: model) : parent!
+        let view: any FlowViewProtocol
+        if navigate {
+            view = try await node.view.factory(model: model)
+        } else {
+            guard let parent else {
+                throw FlowError.invalidState("Missing parent when navigate is false")
+            }
+            view = parent
+        }
         if navigate {
             router.navigate(view: view)
         }

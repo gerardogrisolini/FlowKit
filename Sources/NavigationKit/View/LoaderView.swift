@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public enum LoaderStyle: Sendable {
+public enum LoaderStyle: Sendable, Equatable {
     case `default`
     case circle
 }

@@ -7,10 +7,21 @@
 
 import Testing
 import SwiftUI
+import Dispatch
 @testable import NavigationKit
 
 @MainActor
 struct RouterStackV1Tests {
+    private func waitUntil(
+        timeoutNanoseconds: UInt64 = 1_000_000_000,
+        pollNanoseconds: UInt64 = 1_000_000,
+        _ condition: @autoclosure @escaping () -> Bool
+    ) async {
+        let start = DispatchTime.now().uptimeNanoseconds
+        while !condition() && (DispatchTime.now().uptimeNanoseconds - start) < timeoutNanoseconds {
+            try? await Task.sleep(nanoseconds: pollNanoseconds)
+        }
+    }
 
     @Test func testInitialization() {
         let stack = RouterStackV1(router: RouterMock())
@@ -22,27 +33,27 @@ struct RouterStackV1Tests {
         let view = EmptyView()
         let stack = RouterStackV1(router: RouterMock())
         stack.router.navigate(view: view)
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.route == view.routeString)
         #expect(stack.route == view.routeString)
     }
 
     @Test func testPop() async throws {
         let stack = RouterStackV1(router: RouterMock())
         stack.router.navigate(view: EmptyView())
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.route != nil)
         stack.router.pop()
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.route == nil)
         #expect(stack.route == nil)
     }
 
     @Test func testPopToRoot() async throws {
         let stack = RouterStackV1(router: RouterMock())
         stack.router.navigate(view: Text(""))
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.route != nil)
         stack.router.navigate(view: EmptyView())
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.route != nil)
         stack.router.popToRoot()
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.route == nil)
         #expect(stack.route == nil)
     }
 
@@ -50,7 +61,7 @@ struct RouterStackV1Tests {
         let presentMode: PresentMode = .sheet(EmptyView())
         let stack = RouterStackV1(router: RouterMock())
         stack.router.present(presentMode)
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.presentMode == presentMode)
         #expect(stack.presentMode == presentMode)
         #expect(stack.route == nil)
         #expect(stack.isSheet)
@@ -60,16 +71,26 @@ struct RouterStackV1Tests {
         let presentMode: PresentMode = .fullScreenCover(EmptyView())
         let stack = RouterStackV1(router: RouterMock())
         stack.router.present(presentMode)
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.isFullScreenCover)
         #expect(stack.isFullScreenCover)
         stack.router.dismiss()
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.presentMode == nil)
         #expect(stack.presentMode == nil)
     }
 }
 
 @MainActor
 struct RouterStackV2Tests {
+    private func waitUntil(
+        timeoutNanoseconds: UInt64 = 1_000_000_000,
+        pollNanoseconds: UInt64 = 1_000_000,
+        _ condition: @autoclosure @escaping () -> Bool
+    ) async {
+        let start = DispatchTime.now().uptimeNanoseconds
+        while !condition() && (DispatchTime.now().uptimeNanoseconds - start) < timeoutNanoseconds {
+            try? await Task.sleep(nanoseconds: pollNanoseconds)
+        }
+    }
 
     @available(iOS 16.0, *)
     @Test func testInitialization() {
@@ -83,7 +104,7 @@ struct RouterStackV2Tests {
         let view = EmptyView()
         let stack = RouterStackV2(router: RouterMock())
         stack.router.navigate(view: view)
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.routes.last == view.routeString)
         #expect(stack.routes.count == 1)
         #expect(stack.routes.last == view.routeString)
     }
@@ -92,9 +113,9 @@ struct RouterStackV2Tests {
     @Test func testPop() async throws {
         let stack = RouterStackV2(router: RouterMock())
         stack.router.navigate(view: EmptyView())
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(!stack.routes.isEmpty)
         stack.router.pop()
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.routes.isEmpty)
         #expect(stack.routes.isEmpty)
     }
 
@@ -102,11 +123,11 @@ struct RouterStackV2Tests {
     @Test func testPopToRoot() async throws {
         let stack = RouterStackV2(router: RouterMock())
         stack.router.navigate(view: Text(""))
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.routes.count == 1)
         stack.router.navigate(view: EmptyView())
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.routes.count == 2)
         stack.router.popToRoot()
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.routes.isEmpty)
         #expect(stack.routes.isEmpty)
     }
 
@@ -115,7 +136,7 @@ struct RouterStackV2Tests {
         let presentMode: PresentMode = .sheet(EmptyView())
         let stack = RouterStackV2(router: RouterMock())
         stack.router.present(presentMode)
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.presentMode == presentMode)
         #expect(stack.presentMode == presentMode)
         #expect(stack.routes.isEmpty)
         #expect(stack.isSheet)
@@ -126,10 +147,10 @@ struct RouterStackV2Tests {
         let presentMode: PresentMode = .fullScreenCover(EmptyView())
         let stack = RouterStackV2(router: RouterMock())
         stack.router.present(presentMode)
-        try await Task.sleep(nanoseconds: 150000000)
+        await waitUntil(stack.isFullScreenCover)
         #expect(stack.isFullScreenCover)
         stack.router.dismiss()
-        try await Task.sleep(nanoseconds: 15000000)
+        await waitUntil(stack.presentMode == nil)
         #expect(stack.presentMode == nil)
     }
 }
