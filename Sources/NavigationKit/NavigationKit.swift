@@ -58,6 +58,7 @@ private struct RouterProvider: @preconcurrency InjectionProvider {
 }
 
 public extension InjectedValues {
+    @MainActor
     var router: RouterProtocol {
         get { Self[RouterProvider.self] }
         set { Self[RouterProvider.self] = newValue }

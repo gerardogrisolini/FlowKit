@@ -26,7 +26,7 @@ public struct Injected<T> {
     ///
     /// - The `get` accessor fetches the value from `InjectedValues` using `keyPath`.
     /// - The `set` accessor allows modifying the value directly.
-    public var wrappedValue: T {
+    @MainActor public var wrappedValue: T {
         get { InjectedValues[keyPath] }
         set { InjectedValues[keyPath] = newValue }
     }

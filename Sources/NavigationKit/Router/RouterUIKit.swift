@@ -142,7 +142,7 @@ open class RouterUIKit: NSObject, RouterProtocol {
         case .fullScreenCover(let view):
             let controller = convertPresentedViewToUIKit(view)
             controller.modalPresentationStyle = .fullScreen
-            navigationController?.present(controller, animated: true, completion: { [dismiss] in dismiss() })
+            navigationController?.present(controller, animated: true)
 
         case .toast(message: let message, style: let style, dismissDelay: let delay):
             let view = ToastView(style: style, message: message, dismissDelay: delay, onCancelTapped: { [dismiss] in dismiss() })

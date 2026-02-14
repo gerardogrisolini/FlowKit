@@ -9,6 +9,7 @@ import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
+import SwiftDiagnostics
 
 public struct FlowMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
@@ -29,7 +30,10 @@ public struct FlowMacro: MemberMacro {
             guard case .argumentList(let args) = node.arguments,
                   let firstArg = args.first,
                   let lastArg = args.last else {
-                fatalError()
+                context.diagnose(
+                    Diagnostic(node: node._syntaxNode, message: Diagnostics.invalidArguments)
+                )
+                return []
             }
 
             let expression = lastArg.expression.description
@@ -57,6 +61,25 @@ public struct FlowMacro: MemberMacro {
 
             return items
         }
+}
+
+extension FlowMacro {
+    enum Diagnostics: String, DiagnosticMessage {
+        case invalidArguments
+
+        var message: String {
+            switch self {
+            case .invalidArguments:
+                return "`@Flow` requires at least model and route arguments."
+            }
+        }
+
+        var diagnosticID: MessageID {
+            MessageID(domain: "FlowMacro", id: rawValue)
+        }
+
+        var severity: DiagnosticSeverity { .error }
+    }
 }
 
 private extension DeclGroupSyntax {

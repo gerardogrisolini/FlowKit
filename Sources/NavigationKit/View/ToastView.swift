@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 public enum ToastStyle: Sendable, Equatable {
     case error
@@ -34,35 +33,26 @@ public enum ToastStyle: Sendable, Equatable {
 }
 
 struct ToastView: View {
-    private var cancellables: Set<AnyCancellable> = []
-
     let style: ToastStyle
     let message: String
+    let dismissDelay: Double
     let onCancelTapped: (() -> Void)
 
     init(style: ToastStyle, message: String, dismissDelay: Double = 3.0, onCancelTapped: @escaping () -> Void) {
         self.style = style
         self.message = message
+        self.dismissDelay = dismissDelay
         self.onCancelTapped = onCancelTapped
-
-        guard dismissDelay > 0 else { return }
-
-        Task {
-            try await Task.sleep(nanoseconds: UInt64(dismissDelay * 1_000_000_000))
-            onCancelTapped()
-        }
-        .eraseToAnyCancellable()
-        .store(in: &cancellables)
     }
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Image(systemName: style.iconFileName)
-                .foregroundColor(style.themeColor)
+                .foregroundStyle(style.themeColor)
 
             Text(message)
                 .font(.headline)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
 
             Spacer(minLength: 10)
 
@@ -70,13 +60,19 @@ struct ToastView: View {
                 onCancelTapped()
             } label: {
                 Image(systemName: "xmark")
-                    .foregroundColor(style.themeColor)
+                    .foregroundStyle(style.themeColor)
             }
         }
         .padding()
         .frame(minWidth: 0, maxWidth: .infinity)
         .background(style.themeColor.opacity(0.3))
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
         .padding(.horizontal, 16)
+        .task(id: "\(style)-\(message)-\(dismissDelay)") {
+            guard dismissDelay > 0 else { return }
+            try? await Task.sleep(for: .seconds(dismissDelay))
+            guard !Task.isCancelled else { return }
+            onCancelTapped()
+        }
     }
 }

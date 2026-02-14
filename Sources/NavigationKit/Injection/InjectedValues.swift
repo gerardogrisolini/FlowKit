@@ -29,8 +29,8 @@ public struct InjectedValues {
     /// **Singleton-like Instance**
     ///
     /// - Stores the current instance of `InjectedValues` for global access.
-    /// - Marked `nonisolated(unsafe)` to avoid **isolation checks** in concurrency contexts.
-    nonisolated(unsafe) private static var current = InjectedValues()
+    /// - Main-actor isolated to keep reads/writes concurrency-safe.
+    @MainActor private static var current = InjectedValues()
 
     /// **Injection Provider-based Dependency Access**
     ///
@@ -49,7 +49,7 @@ public struct InjectedValues {
     ///     static var currentValue: NetworkServiceProtocol = DefaultNetworkService()
     /// }
     /// ```
-    public static subscript<K>(key: K.Type) -> K.Value where K: InjectionProvider {
+    @MainActor public static subscript<K>(key: K.Type) -> K.Value where K: InjectionProvider {
         get { key.currentValue }
         set { key.currentValue = newValue }
     }
@@ -69,7 +69,7 @@ public struct InjectedValues {
     ///     }
     /// }
     /// ```
-    public static subscript<T>(_ keyPath: WritableKeyPath<InjectedValues, T>) -> T {
+    @MainActor public static subscript<T>(_ keyPath: WritableKeyPath<InjectedValues, T>) -> T {
         get { current[keyPath: keyPath] }
         set { current[keyPath: keyPath] = newValue }
     }

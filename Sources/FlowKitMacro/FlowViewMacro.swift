@@ -9,6 +9,7 @@ import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
+import SwiftDiagnostics
 
 public struct FlowViewMacro: MemberMacro {
     public static func expansion<Declaration, Context>(
@@ -18,9 +19,18 @@ public struct FlowViewMacro: MemberMacro {
         in context: Context
     ) throws -> [SwiftSyntax.DeclSyntax] where Declaration : SwiftSyntax.DeclGroupSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
         guard case .argumentList(let args) = node.arguments else {
-            fatalError()
+            context.diagnose(
+                Diagnostic(node: node._syntaxNode, message: Diagnostics.invalidArguments)
+            )
+            return []
         }
-        let model = args.first?.expression.description.dropLast(5).description ?? ""
+        guard let first = args.first else {
+            context.diagnose(
+                Diagnostic(node: node._syntaxNode, message: Diagnostics.missingModelArgument)
+            )
+            return []
+        }
+        let model = first.expression.description.dropLast(5).description
         let initializer = args.count == 2 ? args.last?.expression.description == "true" : true
 
         let modifier = declaration.hasPublicModifier ? "public " : ""
@@ -45,6 +55,28 @@ public struct FlowViewMacro: MemberMacro {
         }
 
         return decl
+    }
+}
+
+extension FlowViewMacro {
+    enum Diagnostics: String, DiagnosticMessage {
+        case invalidArguments
+        case missingModelArgument
+
+        var message: String {
+            switch self {
+            case .invalidArguments:
+                return "`@FlowView` requires arguments."
+            case .missingModelArgument:
+                return "`@FlowView` requires a model type as first argument."
+            }
+        }
+
+        var diagnosticID: MessageID {
+            MessageID(domain: "FlowViewMacro", id: rawValue)
+        }
+
+        var severity: DiagnosticSeverity { .error }
     }
 }
 

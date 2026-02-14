@@ -10,8 +10,6 @@ import SwiftUI
 import UIKit
 #endif
 
-@available(iOS 16.0, *)
-@available(macOS 13.0, *)
 final class RouterStackV2: RouterStack {
 
     @Published public var routes: [String] = []

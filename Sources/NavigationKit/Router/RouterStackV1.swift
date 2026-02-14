@@ -10,9 +10,6 @@ import SwiftUI
 import UIKit
 #endif
 
-@available(iOS 14.0, *)
-@available(iOS, deprecated: 16.0)
-@available(macOS, deprecated: 13.0)
 final class RouterStackV1: RouterStack {
 
     @Published var route: String? = nil

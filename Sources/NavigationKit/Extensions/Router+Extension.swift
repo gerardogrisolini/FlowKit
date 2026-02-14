@@ -20,10 +20,16 @@ public extension RouterProtocol {
     ///
     /// - The function extracts the `routeString` from the `Routable` instance.
     /// - It registers a closure that takes a parameter (`param`) and passes it to the page function.
-    /// - The parameter is force-cast to `M`, assuming type safety is guaranteed.
+    /// - If the parameter cannot be cast to `M`, it falls back to the model provided during registration.
     func register<R: Routable, M: InOutProtocol>(route: JoinRoute<R, M>, for page: @escaping @MainActor @Sendable (M) -> (RouteView)) {
         let routeString = route.0.routeString
-        items.setValue(for: routeString, value: { param in page(param as! M) }, registered: true)
+        items.setValue(for: routeString, value: { param in
+            guard let model = param as? M else {
+                assertionFailure("Invalid model type for route \(routeString). Expected \(M.self), got \(type(of: param)).")
+                return page(route.1)
+            }
+            return page(model)
+        }, registered: true)
     }
 
     /// Registers a route that does not require a parameter.
